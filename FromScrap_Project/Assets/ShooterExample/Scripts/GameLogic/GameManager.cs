@@ -27,10 +27,10 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
-        // _spawnerBlobStore = new BlobAssetStore();
+        _spawnerBlobStore = new BlobAssetStore();
         _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
-        // InitPlayer();
+        InitPlayer();
         
         // EnemiesSpawner.Instance.StartGame();
     }
@@ -43,6 +43,6 @@ public class GameManager : MonoBehaviour
         var playerEntity = _entityManager.Instantiate(_playerEntityPrefab);
             
         _entityManager.SetComponentData(playerEntity, new Translation { Value = float3.zero});
-        _entityManager.SetComponentData(playerEntity, new MoveForward { Speed = 0 }); 
+        // _entityManager.SetComponentData(playerEntity, new MoveForward { Speed = 0 }); 
     }
 }
