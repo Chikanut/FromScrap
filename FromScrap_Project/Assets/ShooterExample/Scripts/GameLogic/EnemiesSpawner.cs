@@ -44,6 +44,8 @@ public class EnemiesSpawner : MonoBehaviour
         
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, _spawnerBlobStore);
         _enemyEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, settings);
+
+        StartGame();
     }
 
     public void StartGame()

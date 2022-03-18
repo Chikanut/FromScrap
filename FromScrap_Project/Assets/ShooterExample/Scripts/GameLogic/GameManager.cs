@@ -27,12 +27,12 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
-        _spawnerBlobStore = new BlobAssetStore();
+        // _spawnerBlobStore = new BlobAssetStore();
         _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
-        InitPlayer();
+        // InitPlayer();
         
-        EnemiesSpawner.Instance.StartGame();
+        // EnemiesSpawner.Instance.StartGame();
     }
 
     void InitPlayer()
