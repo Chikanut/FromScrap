@@ -30,7 +30,8 @@ public class GameManager : MonoBehaviour
         _spawnerBlobStore = new BlobAssetStore();
         _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
-        InitPlayer();
+        if(playerPrefab != null)
+            InitPlayer();
         
         // EnemiesSpawner.Instance.StartGame();
     }
