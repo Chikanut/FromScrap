@@ -107,7 +107,11 @@ namespace VertexFragment
                     HandleChunk(ref entity, ref controller, ref translation, ref rotation, ref collider, ref collisionWorld, ref deltaTime);
                     
             }).Schedule(Dependency);
-            Dependency.Complete();
+        }
+        
+        protected override void OnDestroy ( )
+        {
+            
         }
 
        private static void HandleChunk(
