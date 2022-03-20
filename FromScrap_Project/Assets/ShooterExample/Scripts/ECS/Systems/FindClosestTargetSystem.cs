@@ -5,25 +5,13 @@ using Unity.Transforms;
 
 public partial class FindClosestTargetSystem : SystemBase
 {
-    private EntityManager _entityManager;
-    private EndSimulationEntityCommandBufferSystem ecbSystem;
-
-    protected override void OnCreate()
-    {
-        _entityManager = World.EntityManager;
-        ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-        
-        base.OnCreate();
-    }
-
     protected override void OnUpdate()
     {
-        var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
-        var quadrantDataHashMap = QuadrantSystem.quadrantDataHashMap;
-        
-        Entities.WithAll<FindTargetData, QuadrantEntity>().ForEach((Entity entity, ref Translation translation,
+        var quadrantDataHashMap = QuadrantSystem.QuadrantDataHashMap;
+        Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, ref HasTarget target,in Translation translation,
             in FindTargetData findTargetData, in QuadrantEntity quadrantEntity) =>
         {
+
             var unitHashMapKey = quadrantEntity.HashKey;
             var unitPosition = translation.Value;
             var targetEntity = Entity.Null;
@@ -56,14 +44,10 @@ public partial class FindClosestTargetSystem : SystemBase
                 targetEntity = Entity.Null;
             }
 
-            ecb.RemoveComponent<HasTarget>(entity.Index, entity);
-            
-            if (targetEntity != Entity.Null) {
-                ecb.AddComponent(entity.Index, entity, new HasTarget {TargetEntity = targetEntity, TargetPosition = targetPosition});
-            }
-        }).WithReadOnly(quadrantDataHashMap).ScheduleParallel();
-        
-        ecbSystem.AddJobHandleForProducer(Dependency);
+            target.TargetEntity = targetEntity;
+            target.TargetPosition = targetPosition;
+
+        }).WithReadOnly(quadrantDataHashMap).WithDisposeOnCompletion(quadrantDataHashMap).ScheduleParallel();
     }
     
     private static void TrySetClosestTarget(NativeMultiHashMap<int, QuadrantData> targetHashMap, int quadrantHashMapKey, float3 unitPosition, QuadrantEntity.TypeNum unitTypeEnum, ref Entity targetEntity, ref float3 targetPosition)
