@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -7,8 +8,10 @@ public partial class FindClosestTargetSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        // JobHandle combined = JobHandle.CombineDependencies(Dependency, QuadrantSystem.GetOutputDependency());
         var quadrantDataHashMap = QuadrantSystem.QuadrantDataHashMap;
-        Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, ref HasTarget target,in Translation translation,
+        
+         Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, ref HasTarget target,in Translation translation,
             in FindTargetData findTargetData, in QuadrantEntity quadrantEntity) =>
         {
 
@@ -47,7 +50,8 @@ public partial class FindClosestTargetSystem : SystemBase
             target.TargetEntity = targetEntity;
             target.TargetPosition = targetPosition;
 
-        }).WithReadOnly(quadrantDataHashMap).WithDisposeOnCompletion(quadrantDataHashMap).ScheduleParallel();
+        }).WithReadOnly(quadrantDataHashMap).ScheduleParallel();
+        // CompleteDependency();
     }
     
     private static void TrySetClosestTarget(NativeMultiHashMap<int, QuadrantData> targetHashMap, int quadrantHashMapKey, float3 unitPosition, QuadrantEntity.TypeNum unitTypeEnum, ref Entity targetEntity, ref float3 targetPosition)

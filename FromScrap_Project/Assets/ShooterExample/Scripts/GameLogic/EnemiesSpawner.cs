@@ -61,7 +61,7 @@ public class EnemiesSpawner : MonoBehaviour
         {
             enemyArray[i] = _entityManager.Instantiate(_enemyEntityPrefab);
             
-            _entityManager.SetComponentData(enemyArray[i], new Translation { Value = RandomPointOnCircle(new float3(25,0,25), spawnRadius) });
+            _entityManager.SetComponentData(enemyArray[i], new Translation { Value = RandomPointOnCircle(new float3(0,0,0), spawnRadius) });
             _entityManager.SetComponentData(enemyArray[i], new MoveForward { Speed = Random.Range(minSpeed, maxSpeed) });
             _entityManager.AddComponentData(enemyArray[i],
                 new HasTarget() {TargetEntity = Entity.Null, TargetPosition = float3.zero});
