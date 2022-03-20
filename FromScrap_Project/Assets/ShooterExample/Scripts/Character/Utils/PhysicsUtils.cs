@@ -61,7 +61,7 @@ namespace VertexFragment
             Entity ignore,
             CollisionFilter? filter = null,
             EntityManager? manager = null,
-            ComponentDataFromEntity<PhysicsCollider>? colliderData = null,
+            //ComponentDataFromEntity<PhysicsCollider>? colliderData = null,
             Allocator allocator = Allocator.TempJob)
         {
             var allDistances = ColliderDistanceAll(collider, maxDistance, transform, ref collisionWorld, ignore, allocator);
@@ -72,9 +72,13 @@ namespace VertexFragment
                 {
                     TrimByFilter(ref allDistances, manager.Value, filter.Value);
                 }
-                else if (colliderData.HasValue)
+                else //if (colliderData.HasValue)
                 {
-                    TrimByFilter(ref allDistances, colliderData.Value, filter.Value);
+                    TrimByFilter(
+                        ref allDistances, 
+                        //colliderData.Value, 
+                        collider,
+                        filter.Value);
                 }
             }
 
@@ -138,7 +142,7 @@ namespace VertexFragment
             Entity ignore,
             CollisionFilter? filter = null,
             EntityManager? manager = null,
-            ComponentDataFromEntity<PhysicsCollider>? colliderData = null,
+            //ComponentDataFromEntity<PhysicsCollider>? colliderData = null,
             Allocator allocator = Allocator.TempJob)
         {
             nearestHit = new ColliderCastHit();
@@ -150,9 +154,14 @@ namespace VertexFragment
                 {
                     TrimByFilter(ref allHits, manager.Value, filter.Value);
                 }
-                else if (colliderData.HasValue)
+                //else if (colliderData.HasValue)
+                else
                 {
-                    TrimByFilter(ref allHits, colliderData.Value, filter.Value);
+                    TrimByFilter(
+                        ref allHits, 
+                        //colliderData.Value,
+                        collider,
+                        filter.Value);
                 }
             }
 
@@ -251,19 +260,24 @@ namespace VertexFragment
         /// <param name="castResults"></param>
         /// <param name="colliderData"></param>
         /// <param name="filter"></param>
-        public unsafe static void TrimByFilter<T>(ref NativeList<T> castResults, ComponentDataFromEntity<PhysicsCollider> colliderData, CollisionFilter filter) where T : unmanaged, IQueryResult
+        public unsafe static void TrimByFilter<T>(
+            ref NativeList<T> castResults, 
+            //ComponentDataFromEntity<PhysicsCollider> colliderData, 
+            PhysicsCollider collider,
+            CollisionFilter filter) 
+            where T : unmanaged, IQueryResult
         {
             for (int i = (castResults.Length - 1); i >= 0; --i)
             {
-                if (colliderData.HasComponent(castResults[i].Entity))
-                {
-                    PhysicsCollider collider = colliderData[castResults[i].Entity];
+                //if (colliderData.HasComponent(castResults[i].Entity))
+                //{
+                //    PhysicsCollider collider = colliderData[castResults[i].Entity];
 
                     if (CollisionFilter.IsCollisionEnabled(filter, collider.ColliderPtr->Filter))
                     {
                         continue;
                     }
-                }
+                //}
 
                 castResults.RemoveAt(i);
             }
