@@ -33,7 +33,6 @@ public class GameManager : MonoBehaviour
         if(playerPrefab != null)
             InitPlayer();
         
-        // EnemiesSpawner.Instance.StartGame();
     }
 
     void InitPlayer()
@@ -43,7 +42,7 @@ public class GameManager : MonoBehaviour
         
         var playerEntity = _entityManager.Instantiate(_playerEntityPrefab);
             
-        _entityManager.SetComponentData(playerEntity, new Translation { Value = float3.zero});
-        // _entityManager.SetComponentData(playerEntity, new MoveForward { Speed = 0 }); 
+        _entityManager.SetComponentData(playerEntity, new Translation { Value = new float3(24,0,24)});
+        // _entityManager.SetComponentData(playerEntity, new MoveForward { Speed = 4 }); 
     }
 }
