@@ -7,6 +7,7 @@ public partial class AIAimingSystem: SystemBase
 {
     protected override void OnUpdate()
     {
+        
         var query = GetEntityQuery(typeof(PlayerTag), typeof(Translation));
         var compareTranslations = query.ToComponentDataArray<Translation>(Allocator.TempJob);
         

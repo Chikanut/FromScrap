@@ -145,11 +145,6 @@ namespace VertexFragment
 
             //controller.Jump = Input.GetAxis("Jump") > 0.0f;
             controller.Jump = jumpUsage;
-            
-            Debug.Log(movementX);
-            Debug.Log(movementZ);
-            Debug.Log(boosterUsage);
-            Debug.Log(jumpUsage);
         }
     }
 }
