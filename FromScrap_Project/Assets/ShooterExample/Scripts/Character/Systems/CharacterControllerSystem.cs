@@ -30,13 +30,17 @@ namespace VertexFragment
         [ReadOnly] public PhysicsWorld PhysicsWorld;
         [ReadOnly] public EntityTypeHandle EntityHandles;
         [ReadOnly] public ComponentDataFromEntity<PhysicsCollider> ColliderData;
+       
 
         protected override void OnCreate()
         {
             buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             exportPhysicsWorld = World.GetOrCreateSystem<ExportPhysicsWorld>();
             endFramePhysicsSystem = World.GetOrCreateSystem<EndFramePhysicsSystem>();
-
+            buildPhysicsWorld.RegisterPhysicsRuntimeSystemReadOnly(); 
+            //Dependency = JobHandle.CombineDependencies(Dependency, buildPhysicsWorld.RegisterPhysicsRuntimeSystemReadOnly());
+           
+            
             characterControllerGroup = GetEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[]
@@ -59,11 +63,11 @@ namespace VertexFragment
             */
 
             
-            var entityTypeHandle = GetEntityTypeHandle();
+            //var entityTypeHandle = GetEntityTypeHandle();
             //ColliderData = GetComponentDataFromEntity<PhysicsCollider>(true);
-            var characterControllerTypeHandle = GetComponentTypeHandle<CharacterControllerComponent>();
-            var translationTypeHandle = GetComponentTypeHandle<Translation>();
-            var rotationTypeHandle = GetComponentTypeHandle<Rotation>();
+            //var characterControllerTypeHandle = GetComponentTypeHandle<CharacterControllerComponent>();
+            //var translationTypeHandle = GetComponentTypeHandle<Translation>();
+            //var rotationTypeHandle = GetComponentTypeHandle<Rotation>();
             /*
             var controllerJob = new CharacterControllerJob()
             {
@@ -88,25 +92,34 @@ namespace VertexFragment
             */
 
             var deltaTime = Time.DeltaTime;
+            //CollisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
             var collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
             //var colliderData = ColliderData;
 
+            
 
-            Dependency = Entities.WithAll<
+            Entities.WithAll<
                 CharacterControllerComponent, 
                 Translation, 
                 Rotation>().
                 ForEach((
-                    ref Entity entity, 
-                    ref Translation translation, 
+                    ref Entity entity,
                     ref Rotation rotation, 
                     ref CharacterControllerComponent controller,
-                    ref PhysicsCollider collider) =>
+                    ref PhysicsCollider collider,
+                    ref Translation translation) =>
                 {
               
-                    HandleChunk(ref entity, ref controller, ref translation, ref rotation, ref collider, ref collisionWorld, ref deltaTime);
-                    
-            }).Schedule(Dependency);
+                    HandleChunk(ref entity, 
+                        ref controller, 
+                        ref translation, 
+                        ref rotation, 
+                        ref collider, 
+                        in collisionWorld, 
+                        ref deltaTime);
+                }).WithReadOnly(collisionWorld).ScheduleParallel();
+            
+            buildPhysicsWorld.AddInputDependencyToComplete(Dependency);
         }
         
         protected override void OnDestroy ( )
@@ -120,7 +133,7 @@ namespace VertexFragment
            ref Translation position, 
            ref Rotation rotation, 
            ref PhysicsCollider collider, 
-           ref CollisionWorld collisionWorld,
+           in CollisionWorld collisionWorld,
            ref float deltaTime)
             {
                 float3 epsilon = new float3(0.0f, Epsilon, 0.0f) * -math.normalize(controller.Gravity);
@@ -156,7 +169,7 @@ namespace VertexFragment
                     ref currRot, 
                     ref controller, 
                     ref collider, 
-                    ref collisionWorld);
+                    in collisionWorld);
                 
                 currPos += horizontalVelocity;
 
@@ -167,7 +180,7 @@ namespace VertexFragment
                     ref currRot, 
                     ref controller, 
                     ref collider, 
-                    ref collisionWorld,
+                    in collisionWorld,
                     ref deltaTime);
                 
                 currPos += verticalVelocity;
@@ -178,7 +191,7 @@ namespace VertexFragment
                     ref currRot,
                     ref controller, 
                     ref collider,
-                    ref collisionWorld);
+                    in collisionWorld);
                 
                 DetermineIfGrounded(
                     entity, 
@@ -186,12 +199,12 @@ namespace VertexFragment
                     ref epsilon,
                     ref controller,
                     ref collider, 
-                    ref collisionWorld);
+                    in collisionWorld);
 
                 position.Value = currPos - epsilon;
             }
        
-            private static void CorrectForCollision(ref Entity entity, ref float3 currPos, ref quaternion currRot, ref CharacterControllerComponent controller, ref PhysicsCollider collider, ref CollisionWorld collisionWorld)
+            private static void CorrectForCollision(ref Entity entity, ref float3 currPos, ref quaternion currRot, ref CharacterControllerComponent controller, ref PhysicsCollider collider, in CollisionWorld collisionWorld)
             {
                 RigidTransform transform = new RigidTransform()
                 {
@@ -217,7 +230,7 @@ namespace VertexFragment
                         sampleCollider, 
                         0.1f, 
                         transform, 
-                        ref collisionWorld, 
+                        in collisionWorld, 
                         entity, 
                         PhysicsCollisionFilters.DynamicWithPhysical, 
                         null, 
@@ -248,7 +261,7 @@ namespace VertexFragment
                 ref quaternion currRot,
                 ref CharacterControllerComponent controller,
                 ref PhysicsCollider collider,
-                ref CollisionWorld collisionWorld)
+                in CollisionWorld collisionWorld)
             {
                 if (MathUtils.IsZero(horizontalVelocity))
                 {
@@ -257,7 +270,7 @@ namespace VertexFragment
 
                 float3 targetPos = currPos + horizontalVelocity;
 
-                NativeList<ColliderCastHit> horizontalCollisions = PhysicsUtils.ColliderCastAll(collider, currPos, targetPos, ref collisionWorld, entity, Allocator.Temp);
+                NativeList<ColliderCastHit> horizontalCollisions = PhysicsUtils.ColliderCastAll(collider, currPos, targetPos, in collisionWorld, entity, Allocator.Temp);
                 PhysicsUtils.TrimByFilter(
                     ref horizontalCollisions, 
                     //ColliderData, 
@@ -274,7 +287,7 @@ namespace VertexFragment
                         collider, 
                         targetPos + step, 
                         targetPos, 
-                        ref collisionWorld, 
+                        in collisionWorld, 
                         entity, 
                         PhysicsCollisionFilters.DynamicWithPhysical, 
                         null, 
@@ -290,7 +303,7 @@ namespace VertexFragment
                     else
                     {
                         // We can not step up, so slide.
-                        NativeList<DistanceHit> horizontalDistances = PhysicsUtils.ColliderDistanceAll(collider, 1.0f, new RigidTransform() { pos = currPos + horizontalVelocity, rot = currRot }, ref collisionWorld, entity, Allocator.Temp);
+                        NativeList<DistanceHit> horizontalDistances = PhysicsUtils.ColliderDistanceAll(collider, 1.0f, new RigidTransform() { pos = currPos + horizontalVelocity, rot = currRot }, in collisionWorld, entity, Allocator.Temp);
                         PhysicsUtils.TrimByFilter(
                             ref horizontalDistances, 
                             //ColliderData, 
@@ -330,7 +343,7 @@ namespace VertexFragment
                 ref quaternion currRot,
                 ref CharacterControllerComponent controller,
                 ref PhysicsCollider collider,
-                ref CollisionWorld collisionWorld,
+                in CollisionWorld collisionWorld,
                 ref float deltaTime)
             {
                 controller.VerticalVelocity = verticalVelocity;
@@ -342,7 +355,7 @@ namespace VertexFragment
 
                 verticalVelocity *= deltaTime;
 
-                NativeList<ColliderCastHit> verticalCollisions = PhysicsUtils.ColliderCastAll(collider, currPos, currPos + verticalVelocity, ref collisionWorld, entity, Allocator.Temp);
+                NativeList<ColliderCastHit> verticalCollisions = PhysicsUtils.ColliderCastAll(collider, currPos, currPos + verticalVelocity, in collisionWorld, entity, Allocator.Temp);
                 PhysicsUtils.TrimByFilter(
                     ref verticalCollisions, 
                     //ColliderData, 
@@ -362,7 +375,7 @@ namespace VertexFragment
                             collider, 
                             1.0f, 
                             transform, 
-                            ref collisionWorld, 
+                            in collisionWorld, 
                             entity, 
                             PhysicsCollisionFilters.DynamicWithPhysical, 
                             null, 
@@ -378,7 +391,7 @@ namespace VertexFragment
                                     collider, 
                                     currPos, 
                                     currPos + verticalVelocity, 
-                                    ref collisionWorld, 
+                                    in collisionWorld, 
                                     entity, 
                                     PhysicsCollisionFilters.DynamicWithPhysical, 
                                     null, 
@@ -404,7 +417,7 @@ namespace VertexFragment
             /// <param name="collider"></param>
             /// <param name="collisionWorld"></param>
             /// <returns></returns>
-            private unsafe static void DetermineIfGrounded(Entity entity, ref float3 currPos, ref float3 epsilon, ref CharacterControllerComponent controller, ref PhysicsCollider collider, ref CollisionWorld collisionWorld)
+            private unsafe static void DetermineIfGrounded(Entity entity, ref float3 currPos, ref float3 epsilon, ref CharacterControllerComponent controller, ref PhysicsCollider collider, in CollisionWorld collisionWorld)
             {
                 var aabb = collider.ColliderPtr->CalculateAabb();
                 float mod = 0.15f;
@@ -418,11 +431,11 @@ namespace VertexFragment
                 float3 posForward = samplePos + new float3(0.0f, 0.0f, aabb.Extents.z * mod);
                 float3 posBackward = samplePos - new float3(0.0f, 0.0f, aabb.Extents.z * mod);
 
-                controller.IsGrounded = PhysicsUtils.Raycast(out RaycastHit centerHit, samplePos, samplePos + offset, ref collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
-                                        PhysicsUtils.Raycast(out RaycastHit leftHit, posLeft, posLeft + offset, ref collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
-                                        PhysicsUtils.Raycast(out RaycastHit rightHit, posRight, posRight + offset, ref collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
-                                        PhysicsUtils.Raycast(out RaycastHit forwardHit, posForward, posForward + offset, ref collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
-                                        PhysicsUtils.Raycast(out RaycastHit backwardHit, posBackward, posBackward + offset, ref collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp);
+                controller.IsGrounded = PhysicsUtils.Raycast(out RaycastHit centerHit, samplePos, samplePos + offset, in collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
+                                        PhysicsUtils.Raycast(out RaycastHit leftHit, posLeft, posLeft + offset, in collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
+                                        PhysicsUtils.Raycast(out RaycastHit rightHit, posRight, posRight + offset, in collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
+                                        PhysicsUtils.Raycast(out RaycastHit forwardHit, posForward, posForward + offset, in collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp) ||
+                                        PhysicsUtils.Raycast(out RaycastHit backwardHit, posBackward, posBackward + offset, in collisionWorld, entity, PhysicsCollisionFilters.DynamicWithPhysical, Allocator.Temp);
             }
        
 
