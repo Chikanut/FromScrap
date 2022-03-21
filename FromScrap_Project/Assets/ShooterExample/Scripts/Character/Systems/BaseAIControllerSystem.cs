@@ -22,6 +22,8 @@ public partial class BaseAIControllerSystem : SystemBase
 
             controller.CurrentDirection = dir;
             controller.CurrentMagnitude = 1.0f;
+
+            controller.Jump = target.TargetPosition.y > (translation.Value.y + 1.5f);
         }).ScheduleParallel();
     }
 }
