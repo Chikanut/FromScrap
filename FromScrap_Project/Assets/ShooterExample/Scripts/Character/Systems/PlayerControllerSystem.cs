@@ -5,30 +5,25 @@ using UnityEngine.InputSystem.LowLevel;
 
 namespace VertexFragment
 {
-    /// <summary>
-    /// Main control system for player input.
-    /// </summary>
     public class PlayerControllerSystem : ComponentSystem
     {
         protected override void OnCreate()
         {
-            Debug.Log("Init Input System");
             InputSystem.onEvent += OnInputSystemEvent;
         }
         
         private void OnInputSystemEvent(InputEventPtr inputEventPtr, InputDevice inputDevice) {
-            // Ignore anything that isn't a state event.
             if (!inputEventPtr.IsA<StateEvent>() && !inputEventPtr.IsA<DeltaStateEvent>())
                 return;
 
             var gamepad = inputDevice as Gamepad;
             if (gamepad != null)        
-                UpdatePlayerControlls(inputEventPtr, inputDevice);
+                UpdatePlayerControls(inputEventPtr, inputDevice);
                
             var keyboard =  inputDevice as Keyboard;
 
             if (keyboard != null)
-                UpdatePlayerControlls(inputEventPtr, inputDevice);
+                UpdatePlayerControls(inputEventPtr, inputDevice);
 
             //var mouse = inputDevice as Mouse;
             //if (mouse != null)
@@ -37,7 +32,7 @@ namespace VertexFragment
             //}
         }
 
-        private void UpdatePlayerControlls(InputEventPtr inputEventPtr, InputDevice inputDevice)
+        private void UpdatePlayerControls(InputEventPtr inputEventPtr, InputDevice inputDevice)
         {
             Entities.WithAll<PlayerControllerComponent>().ForEach((
                 Entity entity,
@@ -50,23 +45,14 @@ namespace VertexFragment
         
         protected override void OnUpdate()
         {
-            /*
-            Entities.WithAll<PlayerControllerComponent>().ForEach((
-                Entity entity,
-                ref CameraFollowComponent camera,
-                ref CharacterControllerComponent controller) =>
-            {
-                ProcessMovement(ref controller, ref camera);
-            });
-            */
+           
         }
 
-        /// <summary>
-        /// Processes the horizontal movement input from the player to move the entity along the xz plane.
-        /// </summary>
-        /// <param name="controller"></param>
-        /// <param name="camera"></param>
-        private void ProcessMovement(ref CharacterControllerComponent controller, ref CameraFollowComponent camera, InputEventPtr inputEventPtr, InputDevice inputDevice)
+        private void ProcessMovement(
+            ref CharacterControllerComponent controller, 
+            ref CameraFollowComponent camera, 
+            InputEventPtr inputEventPtr, 
+            InputDevice inputDevice)
         {
             float targetSteer = 0f;
             float targetThrottle = 0f;
@@ -126,9 +112,6 @@ namespace VertexFragment
             
             float movementX = targetSteer;
             float movementZ = targetThrottle - targetBrake;
-            
-            //float movementX = (Input.GetAxis("Move Right") > 0.0f ? 1.0f : 0.0f) + (Input.GetAxis("Move Left") > 0.0f ? -1.0f : 0.0f);
-            //float movementZ = (Input.GetAxis("Move Forward") > 0.0f ? 1.0f : 0.0f) + (Input.GetAxis("Move Backward") > 0.0f ? -1.0f : 0.0f);
 
             Vector3 forward = new Vector3(camera.Forward.x, 0.0f, camera.Forward.z).normalized;
             Vector3 right = new Vector3(camera.Right.x, 0.0f, camera.Right.z).normalized;
@@ -142,8 +125,7 @@ namespace VertexFragment
             {
                 controller.CurrentMagnitude = 0.0f;
             }
-
-            //controller.Jump = Input.GetAxis("Jump") > 0.0f;
+            
             controller.Jump = jumpUsage;
         }
     }
