@@ -13,6 +13,9 @@ public struct QuadrantData : IComponentData {
 
 public partial class QuadrantSystem : SystemBase
 {
+    public const int quadrantYMultiplier = 1000;
+    private const int quadrantCellSize = 50;
+    
     public static NativeMultiHashMap<int, QuadrantData> QuadrantDataHashMap
     {
         get
@@ -26,8 +29,8 @@ public partial class QuadrantSystem : SystemBase
             return quadrantDataHashMap;
         }
     }
-    
-    protected static NativeMultiHashMap<int, QuadrantData> quadrantDataHashMap;
+
+    private static NativeMultiHashMap<int, QuadrantData> quadrantDataHashMap;
 
     [BurstCompile]
     public struct CopyNativeHashMapJob : IJobParallelFor
@@ -53,10 +56,7 @@ public partial class QuadrantSystem : SystemBase
             OutputWriter.Add(Keys[index], Values[index]);
         }
     }
-
-    public const int quadrantYMultiplier = 1000;
-    private const int quadrantCellSize = 25;
-
+    
     private static int GetPositionHashMapKey(float3 position)
     {
         return (int) (math.floor(position.x / quadrantCellSize) +
