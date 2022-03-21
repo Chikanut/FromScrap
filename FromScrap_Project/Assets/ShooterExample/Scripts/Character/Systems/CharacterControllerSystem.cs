@@ -1,22 +1,17 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
 using Unity.Transforms;
-using UnityEngine;
 using RaycastHit = Unity.Physics.RaycastHit;
 using SphereCollider = Unity.Physics.SphereCollider;
 
 namespace VertexFragment
 {
-    /// <summary>
-    /// Base controller for character movement.
-    /// Is not physics-based, but uses physics to check for collisions.
-    /// </summary>
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(ExportPhysicsWorld)), UpdateBefore(typeof(EndFramePhysicsSystem))]
+    //[BurstCompile]
     public partial class CharacterControllerSystem : SystemBase
     {
         private const float Epsilon = 0.001f;
@@ -24,7 +19,6 @@ namespace VertexFragment
         private BuildPhysicsWorld buildPhysicsWorld;
         private ExportPhysicsWorld exportPhysicsWorld;
         private EndFramePhysicsSystem endFramePhysicsSystem;
-
         private EntityQuery characterControllerGroup;
         
         [ReadOnly] public PhysicsWorld PhysicsWorld;
@@ -37,10 +31,8 @@ namespace VertexFragment
             buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             exportPhysicsWorld = World.GetOrCreateSystem<ExportPhysicsWorld>();
             endFramePhysicsSystem = World.GetOrCreateSystem<EndFramePhysicsSystem>();
-            buildPhysicsWorld.RegisterPhysicsRuntimeSystemReadOnly(); 
-            //Dependency = JobHandle.CombineDependencies(Dependency, buildPhysicsWorld.RegisterPhysicsRuntimeSystemReadOnly());
-           
-            
+            buildPhysicsWorld.RegisterPhysicsRuntimeSystemReadOnly();
+
             characterControllerGroup = GetEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[]
@@ -56,19 +48,12 @@ namespace VertexFragment
         protected override void OnUpdate()
         {
             /*
-            if (characterControllerGroup.CalculateChunkCount() == 0)
-            {
-                return inputDeps;
-            }
-            */
-
-            
-            //var entityTypeHandle = GetEntityTypeHandle();
-            //ColliderData = GetComponentDataFromEntity<PhysicsCollider>(true);
-            //var characterControllerTypeHandle = GetComponentTypeHandle<CharacterControllerComponent>();
-            //var translationTypeHandle = GetComponentTypeHandle<Translation>();
-            //var rotationTypeHandle = GetComponentTypeHandle<Rotation>();
-            /*
+            var entityTypeHandle = GetEntityTypeHandle();
+            ColliderData = GetComponentDataFromEntity<PhysicsCollider>(true);
+            var characterControllerTypeHandle = GetComponentTypeHandle<CharacterControllerComponent>();
+            var translationTypeHandle = GetComponentTypeHandle<Translation>();
+            var rotationTypeHandle = GetComponentTypeHandle<Rotation>();
+          
             var controllerJob = new CharacterControllerJob()
             {
                 DeltaTime = Time.DeltaTime,
@@ -79,24 +64,16 @@ namespace VertexFragment
                 CharacterControllerHandles = characterControllerTypeHandle,
                 TranslationHandles = translationTypeHandle,
                 RotationHandles = rotationTypeHandle
-            };
-            
-            
-            
-            //var dependency = JobHandle.CombineDependencies(inputDeps, exportPhysicsWorld.getde());
-            //var controllerJobHandle = controllerJob.ScheduleParallel(characterControllerGroup, Dependency);
+            }; 
+            var dependency = JobHandle.CombineDependencies(inputDeps, exportPhysicsWorld.getde());
+            var controllerJobHandle = controllerJob.ScheduleParallel(characterControllerGroup, Dependency);
             Dependency = controllerJob.ScheduleParallel(characterControllerGroup, Dependency);
-            //Dependency.Complete();
-            //endFramePhysicsSystem.RegisterPhysicsRuntimeSystemReadWrite(colliderData);
-
+            Dependency.Complete();
+            endFramePhysicsSystem.RegisterPhysicsRuntimeSystemReadWrite(colliderData);
             */
 
             var deltaTime = Time.DeltaTime;
-            //CollisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
             var collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
-            //var colliderData = ColliderData;
-
-            
 
             Entities.WithAll<
                 CharacterControllerComponent, 
@@ -122,12 +99,7 @@ namespace VertexFragment
             buildPhysicsWorld.AddInputDependencyToComplete(Dependency);
         }
         
-        protected override void OnDestroy ( )
-        {
-            
-        }
-
-       private static void HandleChunk(
+        private static void HandleChunk(
            ref Entity entity, 
            ref CharacterControllerComponent controller, 
            ref Translation position, 
@@ -244,16 +216,7 @@ namespace VertexFragment
                 }
             }
 
-            /// <summary>
             /// Handles horizontal movement on the XZ plane.
-            /// </summary>
-            /// <param name="horizontalVelocity"></param>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="currRot"></param>
-            /// <param name="controller"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
             private static void HandleHorizontalMovement(
                 ref float3 horizontalVelocity,
                 ref Entity entity,
@@ -327,15 +290,7 @@ namespace VertexFragment
                 horizontalCollisions.Dispose();
             }
 
-            /// <summary>
             /// Handles vertical movement from gravity and jumping.
-            /// </summary>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="currRot"></param>
-            /// <param name="controller"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
             private static void HandleVerticalMovement(
                 ref float3 verticalVelocity,
                 ref Entity entity,
@@ -408,15 +363,7 @@ namespace VertexFragment
                 verticalCollisions.Dispose();
             }
 
-            /// <summary>
             /// Determines if the character is resting on a surface.
-            /// </summary>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="epsilon"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
-            /// <returns></returns>
             private unsafe static void DetermineIfGrounded(Entity entity, ref float3 currPos, ref float3 epsilon, ref CharacterControllerComponent controller, ref PhysicsCollider collider, in CollisionWorld collisionWorld)
             {
                 var aabb = collider.ColliderPtr->CalculateAabb();
@@ -440,10 +387,9 @@ namespace VertexFragment
        
 
 
-            /*
-       /// <summary>
-        /// The job that performs all of the logic of the character controller.
-        /// </summary>
+           
+        /*
+        /// The job that performs all of the logic of the character controller.      
         [BurstCompile]
         private struct CharacterControllerJob : IJobChunk
         {
@@ -479,9 +425,6 @@ namespace VertexFragment
                     chunkTranslationData[i] = position;
                     chunkCharacterControllerData[i] = controller;
                     //chunkRotationData[i] = rotation;
-
-                    
-                    
                 }
                 chunkEntityData.Dispose();
                 chunkCharacterControllerData.Dispose();
@@ -489,15 +432,7 @@ namespace VertexFragment
                 chunkRotationData.Dispose();
             }
 
-            /// <summary>
             /// Processes a specific entity in the chunk.
-            /// </summary>
-            /// <param name="entity"></param>
-            /// <param name="controller"></param>
-            /// <param name="position"></param>
-            /// <param name="rotation"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
             private void HandleChunk(ref Entity entity, ref CharacterControllerComponent controller, ref Translation position, ref Rotation rotation, ref PhysicsCollider collider, ref CollisionWorld collisionWorld)
             {
                 float3 epsilon = new float3(0.0f, Epsilon, 0.0f) * -math.normalize(controller.Gravity);
@@ -538,15 +473,7 @@ namespace VertexFragment
                 position.Value = currPos - epsilon;
             }
 
-            /// <summary>
             /// Performs a collision correction at the specified position.
-            /// </summary>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="currRot"></param>
-            /// <param name="controller"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
             private void CorrectForCollision(ref Entity entity, ref float3 currPos, ref quaternion currRot, ref CharacterControllerComponent controller, ref PhysicsCollider collider, ref CollisionWorld collisionWorld)
             {
                 RigidTransform transform = new RigidTransform()
@@ -577,16 +504,7 @@ namespace VertexFragment
                 }
             }
 
-            /// <summary>
             /// Handles horizontal movement on the XZ plane.
-            /// </summary>
-            /// <param name="horizontalVelocity"></param>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="currRot"></param>
-            /// <param name="controller"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
             private void HandleHorizontalMovement(
                 ref float3 horizontalVelocity,
                 ref Entity entity,
@@ -641,15 +559,7 @@ namespace VertexFragment
                 horizontalCollisions.Dispose();
             }
 
-            /// <summary>
             /// Handles vertical movement from gravity and jumping.
-            /// </summary>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="currRot"></param>
-            /// <param name="controller"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
             private void HandleVerticalMovement(
                 ref float3 verticalVelocity,
                 ref Entity entity,
@@ -697,15 +607,7 @@ namespace VertexFragment
                 verticalCollisions.Dispose();
             }
 
-            /// <summary>
             /// Determines if the character is resting on a surface.
-            /// </summary>
-            /// <param name="entity"></param>
-            /// <param name="currPos"></param>
-            /// <param name="epsilon"></param>
-            /// <param name="collider"></param>
-            /// <param name="collisionWorld"></param>
-            /// <returns></returns>
             private unsafe static void DetermineIfGrounded(Entity entity, ref float3 currPos, ref float3 epsilon, ref CharacterControllerComponent controller, ref PhysicsCollider collider, ref CollisionWorld collisionWorld)
             {
                 var aabb = collider.ColliderPtr->CalculateAabb();
