@@ -3,11 +3,20 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using VertexFragment;
 
+[UpdateAfter(typeof(FindClosestTargetSystem))]
 public partial class BaseAIControllerSystem : SystemBase
 {
+    private FindClosestTargetSystem _findClosestTargetSystem;
+
+    protected override void OnCreate()
+    {
+        _findClosestTargetSystem = World.GetOrCreateSystem<FindClosestTargetSystem>();
+        base.OnCreate();
+    }
+
     protected override void OnUpdate()
     {
-        Entities.WithAll<BaseAIControllerComponent,CharacterControllerComponent>().ForEach((
+        Dependency = Entities.WithAll<BaseAIControllerComponent,CharacterControllerComponent>().ForEach((
             Entity entity,
             ref CharacterControllerComponent controller, in Translation  translation, in HasTarget target) =>
         {
@@ -24,6 +33,6 @@ public partial class BaseAIControllerSystem : SystemBase
             controller.CurrentMagnitude = 1.0f;
 
             controller.Jump = target.TargetPosition.y > (translation.Value.y + 1.5f);
-        }).ScheduleParallel();
+        }).ScheduleParallel(_findClosestTargetSystem.FindTargetHandle);
     }
 }

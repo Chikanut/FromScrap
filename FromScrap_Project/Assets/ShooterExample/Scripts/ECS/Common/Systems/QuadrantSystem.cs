@@ -16,46 +16,8 @@ public partial class QuadrantSystem : SystemBase
     public const int quadrantYMultiplier = 1000;
     private const int quadrantCellSize = 50;
     
-    public static NativeMultiHashMap<int, QuadrantData> QuadrantDataHashMap
-    {
-        get
-        {
-            var arrayLength = QuadrantSystem.quadrantDataHashMap.Capacity;
-            var quadrantDataHashMap = new NativeMultiHashMap<int, QuadrantData>(arrayLength, Allocator.TempJob);
-            var copyJob =
-                new CopyNativeHashMapJob(QuadrantSystem.quadrantDataHashMap, quadrantDataHashMap);
-            copyJob.Run(arrayLength);
-    
-            return quadrantDataHashMap;
-        }
-    }
-
-    private static NativeMultiHashMap<int, QuadrantData> quadrantDataHashMap;
-
-    [BurstCompile]
-    public struct CopyNativeHashMapJob : IJobParallelFor
-    {
-        [DeallocateOnJobCompletion] [ReadOnly] private NativeArray<int> Keys;
-
-        [DeallocateOnJobCompletion] [ReadOnly] private NativeArray<QuadrantData> Values;
-
-        [WriteOnly] private NativeMultiHashMap<int, QuadrantData>.ParallelWriter OutputWriter;
-
-        public CopyNativeHashMapJob(NativeMultiHashMap<int, QuadrantData> input,
-            NativeMultiHashMap<int, QuadrantData> output)
-        {
-            Keys = input.GetKeyArray(Allocator.TempJob);
-            Values = input.GetValueArray(Allocator.TempJob);
-
-            output.Clear();
-            OutputWriter = output.AsParallelWriter();
-        }
-
-        public void Execute(int index)
-        {
-            OutputWriter.Add(Keys[index], Values[index]);
-        }
-    }
+    public NativeMultiHashMap<int, QuadrantData> QuadrantDataHashMap;
+    public JobHandle CurrentHandle;
     
     private static int GetPositionHashMapKey(float3 position)
     {
@@ -63,31 +25,32 @@ public partial class QuadrantSystem : SystemBase
                       (quadrantYMultiplier * math.floor(position.z / quadrantCellSize)));
     }
 
+    private EntityQuery TargetEntityQuery;
+
     protected override void OnCreate()
     {
-        quadrantDataHashMap = new NativeMultiHashMap<int, QuadrantData>(0, Allocator.Persistent);
+        QuadrantDataHashMap = new NativeMultiHashMap<int, QuadrantData>(0, Allocator.Persistent);
+        TargetEntityQuery = GetEntityQuery(typeof(QuadrantEntity), typeof(Translation));
         base.OnCreate();
     }
 
     protected override void OnDestroy()
     {
-        quadrantDataHashMap.Dispose();
+        QuadrantDataHashMap.Dispose();
         base.OnDestroy();
     }
     
     protected override void OnUpdate()
     {
-        var entityQuery = GetEntityQuery(typeof(QuadrantEntity), typeof(Translation));
-
-        quadrantDataHashMap.Clear();
+        QuadrantDataHashMap.Clear();
         
-        if (entityQuery.CalculateEntityCount() > quadrantDataHashMap.Capacity)
-            quadrantDataHashMap.Capacity = entityQuery.CalculateEntityCount();
+        if (TargetEntityQuery.CalculateEntityCount() > QuadrantDataHashMap.Capacity)
+            QuadrantDataHashMap.Capacity = TargetEntityQuery.CalculateEntityCount();
 
-        var nativeMultiHashMap = quadrantDataHashMap.AsParallelWriter();
+        var nativeMultiHashMap = QuadrantDataHashMap.AsParallelWriter();
 
-        Entities.WithAll<QuadrantEntity, Translation>().ForEach(
-            (Entity entity, ref Translation translation, ref QuadrantEntity quadrantEntity) =>
+        CurrentHandle = Entities.WithAll<QuadrantEntity, Translation>().ForEach(
+            (Entity entity, ref QuadrantEntity quadrantEntity, in Translation translation) =>
             {
                 var hashMapKey = GetPositionHashMapKey(translation.Value);
                 quadrantEntity.HashKey = hashMapKey;
@@ -97,8 +60,9 @@ public partial class QuadrantSystem : SystemBase
                     position = translation.Value,
                     quadrantEntity = quadrantEntity,
                 });
-            }).ScheduleParallel();
-        CompleteDependency();
+            }).ScheduleParallel(Dependency);
+
+        Dependency = JobHandle.CombineDependencies(Dependency, CurrentHandle);
     }
 }
 

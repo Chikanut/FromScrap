@@ -74,7 +74,7 @@ namespace DamageSystem.Systems
         }
 
         protected override void OnUpdate()
-        {
+        {                                                        
             var damage = GetBufferFromEntity<Damage>();
             var dealDamage = GetComponentDataFromEntity<DealDamage>(true);
             var dead = GetComponentDataFromEntity<Dead>(true);

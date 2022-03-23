@@ -7,12 +7,22 @@ using Unity.Transforms;
 [UpdateAfter(typeof(QuadrantSystem))]
 public partial class FindClosestTargetSystem : SystemBase
 {
+    private QuadrantSystem _quadrantSystem;
+
+    public JobHandle FindTargetHandle;
+
+    protected override void OnCreate()
+    {
+        _quadrantSystem = World.GetOrCreateSystem<QuadrantSystem>();
+        
+        base.OnCreate();
+    }
+
     protected override void OnUpdate()
     {
-        // JobHandle combined = JobHandle.CombineDependencies(Dependency, QuadrantSystem.GetOutputDependency());
-        var quadrantDataHashMap = QuadrantSystem.QuadrantDataHashMap;
+        var quadrantDataHashMap = _quadrantSystem.QuadrantDataHashMap;
 
-        Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, ref HasTarget target,
+        FindTargetHandle = Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, ref HasTarget target,
             in Translation translation,
             in FindTargetData findTargetData, in QuadrantEntity quadrantEntity) =>
         {
@@ -30,43 +40,43 @@ public partial class FindClosestTargetSystem : SystemBase
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - 1, unitPosition, findTargetData.TargetType,
                     ref targetEntity, ref targetPosition); // Left
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + 1, unitPosition, findTargetData.TargetType,
                     ref targetEntity, ref targetPosition); // Right
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier - 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Left
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Center
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier + 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Right
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier - 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Left
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Center
             }
-
+            
             if (targetEntity == Entity.Null)
             {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier + 1,
@@ -81,8 +91,9 @@ public partial class FindClosestTargetSystem : SystemBase
             target.TargetEntity = targetEntity;
             target.TargetPosition = targetPosition;
 
-        }).WithReadOnly(quadrantDataHashMap).ScheduleParallel();
-        // CompleteDependency();
+        }).WithReadOnly(quadrantDataHashMap).ScheduleParallel(_quadrantSystem.CurrentHandle);
+
+        Dependency = JobHandle.CombineDependencies(Dependency, FindTargetHandle);
     }
 
     private static void TrySetClosestTarget(NativeMultiHashMap<int, QuadrantData> targetHashMap, int quadrantHashMapKey,
