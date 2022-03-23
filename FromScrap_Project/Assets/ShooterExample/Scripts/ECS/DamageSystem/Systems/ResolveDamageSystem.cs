@@ -1,6 +1,5 @@
 ﻿using DamageSystem.Components;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace DamageSystem.Systems
 {
@@ -18,7 +17,7 @@ namespace DamageSystem.Systems
 
         protected override void OnUpdate()
         {
-            EntityCommandBuffer ecb = _ecbSystem.CreateCommandBuffer();
+            var ecb = _ecbSystem.CreateCommandBuffer();
 
             Entities.WithoutBurst().WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref Health health) =>
             {

@@ -10,6 +10,7 @@ using SphereCollider = Unity.Physics.SphereCollider;
 
 namespace VertexFragment
 {
+    [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(ExportPhysicsWorld)), UpdateBefore(typeof(EndFramePhysicsSystem))]
     //[BurstCompile]
     public partial class CharacterControllerSystem : SystemBase

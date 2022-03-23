@@ -22,13 +22,17 @@ public partial class FindClosestTargetSystem : SystemBase
     {
         var quadrantDataHashMap = _quadrantSystem.QuadrantDataHashMap;
 
-        FindTargetHandle = Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, ref HasTarget target,
-            in Translation translation,
-            in FindTargetData findTargetData, in QuadrantEntity quadrantEntity) =>
+        FindTargetHandle = Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, 
+            ref HasTarget target,
+            in LocalToWorld translation,
+            in FindTargetData findTargetData,
+            in QuadrantEntity quadrantEntity) =>
         {
 
+            target.TargetEntity = Entity.Null;
+            
             var unitHashMapKey = quadrantEntity.HashKey;
-            var unitPosition = translation.Value;
+            var unitPosition = translation.Position;
             var targetEntity = Entity.Null;
             var targetPosition = new float3(0, 0, 0);
 

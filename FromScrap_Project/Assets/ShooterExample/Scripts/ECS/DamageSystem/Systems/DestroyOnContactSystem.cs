@@ -10,7 +10,6 @@ namespace DamageSystem.Systems
     public partial class DestroyOnContactSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
-        private BuildPhysicsWorld _buildPhysics;
         private StepPhysicsWorld _stepPhysicsWorld;
         
         struct DestroyTriggerJob : ITriggerEventsJob
@@ -53,8 +52,7 @@ namespace DamageSystem.Systems
         {
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
             _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
-            _buildPhysics = World.GetOrCreateSystem<BuildPhysicsWorld>();
-            
+
             base.OnCreate();
         }
 

@@ -50,14 +50,14 @@ public partial class QuadrantSystem : SystemBase
         var nativeMultiHashMap = QuadrantDataHashMap.AsParallelWriter();
 
         CurrentHandle = Entities.WithAll<QuadrantEntity, Translation>().ForEach(
-            (Entity entity, ref QuadrantEntity quadrantEntity, in Translation translation) =>
+            (Entity entity, ref QuadrantEntity quadrantEntity, in LocalToWorld translation) =>
             {
-                var hashMapKey = GetPositionHashMapKey(translation.Value);
+                var hashMapKey = GetPositionHashMapKey(translation.Position);
                 quadrantEntity.HashKey = hashMapKey;
                 nativeMultiHashMap.Add(hashMapKey, new QuadrantData
                 {
                     entity = entity,
-                    position = translation.Value,
+                    position = translation.Position,
                     quadrantEntity = quadrantEntity,
                 });
             }).ScheduleParallel(Dependency);
