@@ -39,53 +39,53 @@ public partial class FindClosestTargetSystem : SystemBase
             TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey, unitPosition, findTargetData.TargetType,
                 ref targetEntity, ref targetPosition);
 
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - 1, unitPosition, findTargetData.TargetType,
                     ref targetEntity, ref targetPosition); // Left
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + 1, unitPosition, findTargetData.TargetType,
                     ref targetEntity, ref targetPosition); // Right
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier - 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Left
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Center
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier + 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Right
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier - 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Left
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Center
-            }
+            // }
             
-            if (targetEntity == Entity.Null)
-            {
+            // if (targetEntity == Entity.Null)
+            // {
                 TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier + 1,
                     unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Right
-            }
+            // }
 
             if (math.distance(unitPosition, targetPosition) > findTargetData.Range)
             {
