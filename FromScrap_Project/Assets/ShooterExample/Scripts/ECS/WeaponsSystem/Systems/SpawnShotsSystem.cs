@@ -17,8 +17,6 @@ namespace WeaponsSystem.Base.Components
         protected override void OnUpdate()
         {
             var ecb = _ecbSystem.CreateCommandBuffer();
-
-            var shootTime = Time.ElapsedTime;
             
             Entities.ForEach((ref SpawnShotData spawnShotData, in MuzzleData muzzleData, in LocalToWorld localToWorld) =>
             {
@@ -41,22 +39,13 @@ namespace WeaponsSystem.Base.Components
                     SpawnNewShot(ref spawnShotData, muzzleData, localToWorld, ecb);
                 }
 
-                spawnShotData = new SpawnShotData()
-                {
-                    PrevShotTime = shootTime,
-                    ShotFrequency = spawnShotData.ShotFrequency
-                };
+                spawnShotData = new SpawnShotData();
             }).Run();
         }
 
         private static Entity SpawnNewShot(ref SpawnShotData spawnShotData, in MuzzleData muzzleData, in LocalToWorld localToWorld, EntityCommandBuffer ecb)
         {
             var newShot = ecb.Instantiate(spawnShotData.ShotPrefab);
-            var newShotVelocity = new ShotData
-            {
-                Velocity = spawnShotData.ShotVelocity,
-                Lifetime = 3f
-            };
             var newRotation = new Rotation()
             {
                 Value = quaternion.LookRotation(localToWorld.Forward, localToWorld.Up)
@@ -66,7 +55,6 @@ namespace WeaponsSystem.Base.Components
                 Value = localToWorld.Value.LocalToWorld(muzzleData.Offset)
             };
             
-            ecb.SetComponent(newShot, newShotVelocity);
             ecb.SetComponent(newShot, newRotation);
             ecb.SetComponent(newShot, newTranslation);
             

@@ -10,7 +10,5 @@ namespace WeaponsSystem.Base.Components
         public float ShotVelocity;
         public int NumberShotsToSpawn;
         public float ShotSpreadAngle;
-        public float ShotFrequency;
-        [HideInInspector] public double PrevShotTime;
     }
 }

@@ -8,5 +8,7 @@ namespace WeaponsSystem.Base.Components
     public struct MuzzleData : IComponentData
     {
         public float3 Offset;
+        public float ShotFrequency;
+        public double PrevShotTime;
     }
 }
