@@ -1,8 +1,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using WeaponsSystem.Base.Components;
 
-namespace WeaponsSystem.Base.Components
+namespace WeaponsSystem.Base.Systems
 {
     [UpdateAfter(typeof(RegularShotSystem))]
     public partial class SpawnShotsSystem : SystemBase

@@ -4,5 +4,5 @@
 public struct FindTargetData : IComponentData
 {
     public float Range;
-    public QuadrantEntity.TypeNum TargetType;
+    public QuadrantEntityData.TypeNum TargetType;
 }

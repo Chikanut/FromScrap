@@ -8,7 +8,7 @@ namespace DamageSystem.Components
 {
     [GenerateAuthoringComponent]
     [Serializable]
-    public class HealthBarUI : IComponentData
+    public class HealthBarUI : ISystemStateComponentData
     {
         public Transform SliderContainer;
         public Slider Slider;

@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct QuadrantEntity : IComponentData
+public struct QuadrantEntityData : IComponentData
 {
     public TypeNum Type;
     public enum TypeNum

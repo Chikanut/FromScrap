@@ -22,11 +22,11 @@ public partial class FindClosestTargetSystem : SystemBase
     {
         var quadrantDataHashMap = _quadrantSystem.QuadrantDataHashMap;
 
-        FindTargetHandle = Entities.WithAll<FindTargetData, QuadrantEntity, HasTarget>().ForEach((Entity entity, 
+        FindTargetHandle = Entities.WithAll<FindTargetData, QuadrantEntityData, HasTarget>().ForEach((Entity entity, 
             ref HasTarget target,
             in LocalToWorld translation,
             in FindTargetData findTargetData,
-            in QuadrantEntity quadrantEntity) =>
+            in QuadrantEntityData quadrantEntity) =>
         {
 
             target.TargetEntity = Entity.Null;
@@ -101,13 +101,13 @@ public partial class FindClosestTargetSystem : SystemBase
     }
 
     private static void TrySetClosestTarget(NativeMultiHashMap<int, QuadrantData> targetHashMap, int quadrantHashMapKey,
-        float3 unitPosition, QuadrantEntity.TypeNum unitTypeEnum, ref Entity targetEntity, ref float3 targetPosition)
+        float3 unitPosition, QuadrantEntityData.TypeNum unitTypeEnum, ref Entity targetEntity, ref float3 targetPosition)
     {
         if (!targetHashMap.TryGetFirstValue(quadrantHashMapKey, out var targetQuadrantData,
                 out var nativeMultiHashMapIterator)) return;
         do
         {
-            if (targetQuadrantData.quadrantEntity.Type != unitTypeEnum) continue;
+            if (targetQuadrantData.QuadrantEntityData.Type != unitTypeEnum) continue;
 
             if (targetEntity == Entity.Null)
             {

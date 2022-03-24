@@ -8,7 +8,7 @@ using Unity.Jobs;
 public struct QuadrantData : IComponentData {
     public Entity entity;
     public float3 position;
-    public QuadrantEntity quadrantEntity;
+    public QuadrantEntityData QuadrantEntityData;
 }
 
 public partial class QuadrantSystem : SystemBase
@@ -30,7 +30,7 @@ public partial class QuadrantSystem : SystemBase
     protected override void OnCreate()
     {
         QuadrantDataHashMap = new NativeMultiHashMap<int, QuadrantData>(0, Allocator.Persistent);
-        TargetEntityQuery = GetEntityQuery(typeof(QuadrantEntity), typeof(Translation));
+        TargetEntityQuery = GetEntityQuery(typeof(QuadrantEntityData), typeof(Translation));
         base.OnCreate();
     }
 
@@ -49,8 +49,8 @@ public partial class QuadrantSystem : SystemBase
 
         var nativeMultiHashMap = QuadrantDataHashMap.AsParallelWriter();
 
-        CurrentHandle = Entities.WithAll<QuadrantEntity, Translation>().ForEach(
-            (Entity entity, ref QuadrantEntity quadrantEntity, in LocalToWorld translation) =>
+        CurrentHandle = Entities.WithAll<QuadrantEntityData, Translation>().ForEach(
+            (Entity entity, ref QuadrantEntityData quadrantEntity, in LocalToWorld translation) =>
             {
                 var hashMapKey = GetPositionHashMapKey(translation.Position);
                 quadrantEntity.HashKey = hashMapKey;
@@ -58,7 +58,7 @@ public partial class QuadrantSystem : SystemBase
                 {
                     entity = entity,
                     position = translation.Position,
-                    quadrantEntity = quadrantEntity,
+                    QuadrantEntityData = quadrantEntity,
                 });
             }).ScheduleParallel(Dependency);
 
