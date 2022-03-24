@@ -21,6 +21,8 @@ namespace WeaponsSystem.Base.Systems
 
                 var targetTransform = GetComponent<LocalToWorld>(target.TargetEntity);
                 var targetPosition = targetTransform.Position;
+                if(!rotateTowards.VerticalRotation)
+                    targetPosition.y = localToWorld.Position.y;
                 var dir = targetPosition - localToWorld.Position;
                 
                 rotation.Value = math.slerp(rotation.Value, quaternion.LookRotationSafe(dir, new float3(0, 1, 0)), rotateTowards.RotationSpeed * time);
