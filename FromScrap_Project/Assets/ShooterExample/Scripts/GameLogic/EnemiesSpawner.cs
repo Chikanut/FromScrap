@@ -21,7 +21,7 @@ public class EnemiesSpawner : MonoBehaviour
     }
     
     [Header("Prefabs")]
-    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private GameObject[] enemyPrefabs;
     
     [Header("Spawn Info")]
     [SerializeField] private int spawnCount = 15;
@@ -35,7 +35,7 @@ public class EnemiesSpawner : MonoBehaviour
 
     private BlobAssetStore _spawnerBlobStore;
     private EntityManager _entityManager;
-    private Entity _enemyEntityPrefab;
+    private Entity[] _enemyEntityPrefabs;
 
     void Start()
     {
@@ -43,7 +43,11 @@ public class EnemiesSpawner : MonoBehaviour
         _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, _spawnerBlobStore);
-        _enemyEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, settings);
+        _enemyEntityPrefabs = new Entity[enemyPrefabs.Length];
+        for (int i = 0; i < _enemyEntityPrefabs.Length; i++)
+        {
+            _enemyEntityPrefabs[i] = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefabs[i], settings);
+        } 
 
         StartGame();
     }
@@ -59,9 +63,15 @@ public class EnemiesSpawner : MonoBehaviour
         
         for (int i = 0; i < enemyArray.Length; i++)
         {
-            enemyArray[i] = _entityManager.Instantiate(_enemyEntityPrefab);
-            
-            _entityManager.SetComponentData(enemyArray[i], new Translation { Value = RandomPointOnCircle(new float3(0,Random.Range(5,25),0), spawnRadius) });
+            enemyArray[i] =
+                _entityManager.Instantiate(_enemyEntityPrefabs[Random.Range(0, _enemyEntityPrefabs.Length)]);
+
+            _entityManager.SetComponentData(enemyArray[i],
+                new Translation
+                {
+                    Value = RandomPointOnCircle(new float3(0, Random.Range(5, 25), 0),
+                        spawnRadius + Random.Range(-spawnRadius * 0.25f, spawnRadius * 0.25f))
+                });
         }
         
         enemyArray.Dispose();

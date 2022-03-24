@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using UnityEngine;
 
 namespace DamageSystem.Components
 {
@@ -7,6 +8,7 @@ namespace DamageSystem.Components
     [Serializable]
     public struct Health : IComponentData
     {
-        public int Value;
+        public int InitialValue;
+        [HideInInspector] public int Value;
     }
 }
