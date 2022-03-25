@@ -18,11 +18,17 @@ namespace Cars.View.Components
         public float TurnDamping;
         public float3 TurnVelocity;
         
-        public float3 Anchor;
+        public float3 LocalAnchor;
         public float3 PrevPos;
         public float3 Velocity;
 
+        public float CurrentAngle;
+
+        
         public float3 ParentUp;
+        public float3 ParentForward;
         public float3 ParentRight;
+
+        public float _testFloat;
     }
 }

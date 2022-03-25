@@ -13,6 +13,7 @@ namespace Cars.View.Authorings
         [System.Serializable]
         public class Wheel
         {
+            public float WheelSkinWidth;
             public float Radius;
             public float SuspensionDistance;
             public float SuspensionOffset;
@@ -46,12 +47,12 @@ namespace Cars.View.Authorings
                 isGuide = wheel.isGuide,
                 TurnRange = wheel.TurnRange,
                 TurnDamping = wheel.TurnDamping,
-                Anchor = transform.localPosition
+                LocalAnchor = transform.localPosition
             };
 
             var checkGround = new GroundInfoData()
             {
-                CheckDistance = wheel.Radius,
+                CheckDistance = wheel.Radius + wheel.WheelSkinWidth,
                 CollisionFilter = new CollisionFilter()
                 {
                     CollidesWith = wheel.CollideWith.Value,
