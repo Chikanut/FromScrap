@@ -26,9 +26,8 @@ public partial class RotateTowardsTargetSystem : SystemBase
             var dir = targetPosition - localToWorld.Position;
             
             rotation.Value = math.slerp(rotation.Value, quaternion.LookRotationSafe(dir, new float3(0, 1, 0)), rotateTowards.RotationSpeed * time);
-
-            var angle = math.acos(math.dot(math.normalize(dir), math.normalize(localToWorld.Forward)));
-            angle = math.degrees(angle);
+            
+            var angle = dir.Angle(localToWorld.Forward);
             
             rotateTowards.IsRotated = angle < rotateTowards.IsRotatedRadius;
         }).ScheduleParallel();

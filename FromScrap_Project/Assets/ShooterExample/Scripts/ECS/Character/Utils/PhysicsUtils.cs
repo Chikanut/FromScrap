@@ -221,6 +221,19 @@ namespace VertexFragment
 
             return gotHit;
         }
+        
+        public unsafe static (bool isHit, RaycastHit hitInfo) Raycast(float3 RayFrom, float3 RayTo, CollisionFilter filter, in CollisionWorld collisionWorld)
+        {
+            var input = new RaycastInput()
+            {
+                Start = RayFrom,
+                End = RayTo,
+                Filter = filter
+            };
+
+            var isHit = collisionWorld.CastRay(input, out var hit);
+            return (isHit, hit);
+        }
 
         /// <summary>
         /// Given a list of <see cref="IQueryResult"/> objects (ie from <see cref="ColliderCastAll"/> or <see cref="ColliderDistanceAll"/>),
