@@ -4,7 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 
-public static class ECS_Extensions
+public static class ECS_Math_Extensions
 {
     public static float3 WorldToLocal(this float4x4 transform, float3 point)
     {
@@ -21,22 +21,12 @@ public static class ECS_Extensions
         var angle = math.acos(math.dot(math.normalize(dir1), math.normalize(dir2)));
         return math.degrees(angle);
     }
-
-    public static float3 RotateAroundPoint(this float3 position, float3 pivot, float3 axis, float delta) =>
-        math.mul(quaternion.AxisAngle(axis, delta), position - pivot) + pivot;
-
-    public static void SetTranslationToWorldPosition(this ref Translation translation,
-        [Unity.Collections.ReadOnly] LocalToWorld localToWorld, [Unity.Collections.ReadOnly] float3 worldPosition)
+    
+    public static float AngleSigned(this float3 from, float3 to, float3 axis)
     {
-        translation.Value += math.mul(math.inverse(localToWorld.Value), new float4(worldPosition, 1)).xyz;
-    }
-
-    public static void WorldPositionToLocal(this ref float3 worldPosition,
-        [Unity.Collections.ReadOnly] Translation localPosition,
-        [Unity.Collections.ReadOnly] LocalToWorld localToWorld)
-    {
-        worldPosition = localPosition.Value +
-                        math.mul(math.inverse(localToWorld.Value), new float4(worldPosition, 1)).xyz;
+        float angle = math.acos(math.dot(math.normalize(from), math.normalize(to)));
+        float sign = math.sign(math.dot(axis, math.cross(from, to)));
+        return math.degrees(angle * sign);
     }
 
     public static float3 SmoothDamp(
@@ -112,16 +102,3 @@ public static class ECS_Extensions
     }
 
 }
-
-
-
-
-// namespace Unity.Mathematics
-// {
-//     [System.Serializable]
-//     [Il2CppEagerStaticClassConstruction]
-//     public partial struct float3
-//     {
-     
-//     }
-// }

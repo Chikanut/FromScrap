@@ -12,6 +12,7 @@ namespace Cars.View.Components
         public float SuspensionDamping;
         
         public bool isGuide;
+        public bool isLeft;
         [Range(0, 1)]
         public float TurnRange;
         public float3 TurnDirection;

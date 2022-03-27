@@ -20,6 +20,7 @@ namespace Cars.View.Authorings
             public float SuspensionDamping;
             
             public bool isGuide;
+            public bool isLeft;
             [Range(0, 1)]
             public float TurnRange;
             public float TurnDamping;
@@ -47,7 +48,8 @@ namespace Cars.View.Authorings
                 isGuide = wheel.isGuide,
                 TurnRange = wheel.TurnRange,
                 TurnDamping = wheel.TurnDamping,
-                LocalAnchor = transform.localPosition
+                LocalAnchor = transform.localPosition,
+                isLeft = wheel.isLeft
             };
 
             var checkGround = new GroundInfoData()
