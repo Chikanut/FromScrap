@@ -12,6 +12,7 @@ public struct GameCharacterMovementComponent : IComponentData
         public float MaxBreakTorque { get; set; }
         public float MaxSteerAngle { get; set; }
         public float MaxSpeed { get; set; }
+        public float RotationSpeed { get; set; }
         public float MaxAcceleration { get; set; }
 
         public float3 CurrentVelocity { get; set; }
@@ -20,6 +21,7 @@ public struct GameCharacterMovementComponent : IComponentData
         public float SpeedParameter { get; set; }
         public float BreakParameter { get; set; }
         public float SteerParameter { get; set; }
+        public float3 CurrentDirection { get; set; }
     }
 
 [Serializable]
@@ -29,10 +31,12 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
     public float maxBreakTorque = 1f;
     public float maxSteerAngle = 1f;
     public float maxSpeed = 5f;
+    public float rotationSpeed = 1f;
     public float maxAcceleration = 2f;
 
     public float3 currentVelocity = new float3(0f, 0f, 0f);
     public float currentSpeed = 1f;
+    public float3 currentDirection = new float3(0f, 0f, 0f);
 
     public float speedParameter = 1f;
     public float breakParameter = 1f;
@@ -51,12 +55,14 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
            MaxBreakTorque = maxBreakTorque,
            MaxSteerAngle = maxSteerAngle,
            MaxSpeed = maxSpeed,
+           RotationSpeed = rotationSpeed,
            MaxAcceleration = maxAcceleration,
            CurrentVelocity = currentVelocity,
            CurrentSpeed = currentSpeed,
            SpeedParameter = speedParameter,
            BreakParameter = breakParameter,
-           SteerParameter = steerParameter
+           SteerParameter = steerParameter,
+           CurrentDirection = currentDirection
         });
     }
 }
