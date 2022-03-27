@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics.Systems;
 using Unity.Transforms;
+using UnityEngine;
 using VertexFragment;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -28,6 +29,34 @@ public partial class CheckGroundSystem : SystemBase
             groundInfoData.isGrounded = isHit;
             groundInfoData.GroundPosition = hitInfo.Position;
             groundInfoData.GroundNormal = hitInfo.SurfaceNormal;
+        }).WithReadOnly(collisionWorld).ScheduleParallel();
+        
+        Entities.ForEach((ref DynamicBuffer<MultyGroundInfoData> groundInfoData, in LocalToWorld localToWorld) =>
+        {
+            for (var i = 0; i < groundInfoData.Length; i++)
+            {
+                var startPoint = localToWorld.Value.LocalToWorld(groundInfoData[i].AnchorPoints);
+                var (isHit, hitInfo) = PhysicsUtils.Raycast(startPoint,
+                    startPoint - new float3(0, groundInfoData[i].CheckDistance, 0),
+                    groundInfoData[i].CollisionFilter,
+                    collisionWorld);
+
+                if (isHit)
+                {
+                    Debug.DrawLine(localToWorld.Value.LocalToWorld(groundInfoData[i].AnchorPoints), hitInfo.Position,
+                        Color.green);
+                }
+
+                groundInfoData[i] = new MultyGroundInfoData()
+                {
+                    AnchorPoints = groundInfoData[i].AnchorPoints,
+                    CheckDistance = groundInfoData[i].CheckDistance,
+                    CollisionFilter = groundInfoData[i].CollisionFilter,
+                    isGrounded = isHit,
+                    GroundPosition = hitInfo.Position,
+                    GroundNormal = hitInfo.SurfaceNormal
+                };
+            }
         }).WithReadOnly(collisionWorld).ScheduleParallel();
     }
 }
