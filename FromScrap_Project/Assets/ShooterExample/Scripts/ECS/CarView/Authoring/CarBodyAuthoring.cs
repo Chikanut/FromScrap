@@ -17,12 +17,20 @@ namespace Cars.View.Authorings
 
         [Header("Body Settings")]
         public float RotationDamping;
-        
+        public float SuspensionDamping;
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
+            if (transform.parent == null)
+            {
+                Debug.LogError("Wheel has no parent to connect to!");
+                return;
+            }
+            
             var bodyInfo = new CarBodyData()
             {
-                
+                Anchor = transform.localPosition,
+                RotationDamping = RotationDamping,
+                MovementDamping = SuspensionDamping
             };
 
             dstManager.AddComponentData(entity, bodyInfo);
@@ -38,7 +46,7 @@ namespace Cars.View.Authorings
                     {
                         CollidesWith = CollideWith.Value,
                         BelongsTo = BelongsTo.Value
-                    }
+                    },
                 });
             }
         }
@@ -46,6 +54,26 @@ namespace Cars.View.Authorings
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            if (transform.parent == null)
+            {
+                Gizmos.color = Color.red;
+
+                for (int i = 0; i < BodyPoints.Length; i++)
+                {
+                    var startPoint = transform.TransformPoint(BodyPoints[i]);
+                    
+                    Gizmos.DrawLine(startPoint - transform.forward * CarHeigh/2 + Vector3.down * CarHeigh/2,
+                        startPoint + transform.forward * CarHeigh/2 + Vector3.up * CarHeigh/2);
+
+                    Gizmos.DrawLine(startPoint + transform.forward * CarHeigh/2 + Vector3.down * CarHeigh/2,
+                        startPoint - transform.forward * CarHeigh/2 + Vector3.up * CarHeigh/2);
+                }
+
+                Debug.LogWarning("Wheel should have parent transform!");
+                
+                return;
+            }
+            
             Gizmos.color = Color.green;
 
             for (int i = 0; i < BodyPoints.Length; i++)

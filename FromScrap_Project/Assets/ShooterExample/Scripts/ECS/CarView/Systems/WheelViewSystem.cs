@@ -19,7 +19,7 @@ namespace Cars.View.Systems
 
             var deltaTime = Time.DeltaTime;
 
-            Entities.ForEach((ref WheelData wheelData, ref Rotation rotation, ref Translation translation,
+            Entities.WithAll<Parent>().ForEach((ref WheelData wheelData, ref Rotation rotation, ref Translation translation,
                 in LocalToWorld localToWorld, in GroundInfoData groundInfoData) =>
             {
                 var dist = math.distance(localToWorld.Position, wheelData.PrevPos);

@@ -30,7 +30,8 @@ namespace Cars.View.Authorings
         }
 
         [Header("Car Parts")] [SerializeField] private Wheel wheel;
-        
+
+        private GroundInfoData data;
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             if (transform.parent == null)
@@ -78,7 +79,7 @@ namespace Cars.View.Authorings
                 Gizmos.DrawLine(transform.position - transform.forward * wheel.Radius + Vector3.down * wheel.Radius,
                     transform.position + transform.forward * wheel.Radius + Vector3.up * wheel.Radius);
                 
-                Gizmos.DrawLine(transform.position +transform.forward * wheel.Radius + Vector3.down * wheel.Radius,
+                Gizmos.DrawLine(transform.position + transform.forward * wheel.Radius + Vector3.down * wheel.Radius,
                     transform.position - transform.forward * wheel.Radius + Vector3.up * wheel.Radius);
                 
                 Debug.LogWarning("Wheel should have parent transform!");
