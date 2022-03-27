@@ -63,9 +63,9 @@ using UnityEngine.InputSystem.LowLevel;
                 //if (!PlayerModel.StartScreenViewController.IsGameReady)
                 //    return;
 
-                targetThrottle = keyboard.wKey.ReadValueFromEvent(inputEventPtr);
+                targetThrottle = keyboard.wKey.ReadValueFromEvent(inputEventPtr) - keyboard.sKey.ReadValueFromEvent(inputEventPtr);;
                 targetSteer = keyboard.dKey.ReadValueFromEvent(inputEventPtr) - keyboard.aKey.ReadValueFromEvent(inputEventPtr); ;
-                targetBrake = keyboard.sKey.ReadValueFromEvent(inputEventPtr);
+                //targetBrake = keyboard.sKey.ReadValueFromEvent(inputEventPtr);
 			
                 turrentRotationDir = keyboard.eKey.ReadValueFromEvent(inputEventPtr) - keyboard.qKey.ReadValueFromEvent(inputEventPtr);
 			
@@ -85,8 +85,9 @@ using UnityEngine.InputSystem.LowLevel;
                 //    return;
 
                 targetSteer = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).x;
-                targetThrottle = gamepad.leftTrigger.ReadValueFromEvent(inputEventPtr);
-                targetBrake = gamepad.leftShoulder.ReadValueFromEvent(inputEventPtr);
+                //targetThrottle = gamepad.leftTrigger.ReadValueFromEvent(inputEventPtr);
+                //targetBrake = gamepad.leftShoulder.ReadValueFromEvent(inputEventPtr);
+                targetThrottle = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).y;
 			
                 turrentRotationDir = gamepad.rightStick.ReadValueFromEvent(inputEventPtr).x;
                 //turrentShoot = gamepad.rightTrigger.ReadValueFromEvent(inputEventPtr) > 0.3f;
@@ -101,10 +102,12 @@ using UnityEngine.InputSystem.LowLevel;
             }
             
             float movementX = targetSteer;
-            float movementZ = targetThrottle - targetBrake;
+            //float movementZ = targetThrottle - targetBrake;
+            float movementZ = targetThrottle;
             float boost = boosterUsage ? 1.5f : 1.0f;
             
-            controller.HorizontalAxis = movementX;
+            //controller.HorizontalAxis = movementX;
+            controller.HorizontalAxis = movementX * boost;
             controller.VerticalAxis = movementZ * boost;
             controller.SpaceKey = jumpUsage;
         }

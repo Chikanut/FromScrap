@@ -7,40 +7,32 @@ public struct GameCharacterMovementComponent : IComponentData
         public float HorizontalAxis { get; set; }
         public float VerticalAxis{ get; set; }
         public bool SpaceKey { get; set; }
-        
-        public float MaxMotorTorque { get; set; }
-        public float MaxBreakTorque { get; set; }
-        public float MaxSteerAngle { get; set; }
+
         public float MaxSpeed { get; set; }
         public float RotationSpeed { get; set; }
         public float MaxAcceleration { get; set; }
+        public float JetPower { get; set; }
+        public float JetPowerAcceleration { get; set; }
 
         public float3 CurrentVelocity { get; set; }
-        public float CurrentSpeed { get; set; }
-
-        public float SpeedParameter { get; set; }
-        public float BreakParameter { get; set; }
-        public float SteerParameter { get; set; }
+        public float CurrentJetPower { get; set; }
         public float3 CurrentDirection { get; set; }
     }
 
 [Serializable]
 public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvertGameObjectToEntity
 {
-    public float maxMotorTorque = 1f;
-    public float maxBreakTorque = 1f;
-    public float maxSteerAngle = 1f;
+    [Header("Movement Settings")]
     public float maxSpeed = 5f;
     public float rotationSpeed = 1f;
     public float maxAcceleration = 2f;
+    public float jetPower = 2f;
+    public float jetPowerAcceleration = 2f;
 
+    [Header("Current Parameters")]
     public float3 currentVelocity = new float3(0f, 0f, 0f);
-    public float currentSpeed = 1f;
+    public float currentJetPower = 1f;
     public float3 currentDirection = new float3(0f, 0f, 0f);
-
-    public float speedParameter = 1f;
-    public float breakParameter = 1f;
-    public float steerParameter = 1f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -51,18 +43,14 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
 
         dstManager.AddComponentData(entity, new GameCharacterMovementComponent()
         {
-           MaxMotorTorque = maxMotorTorque,
-           MaxBreakTorque = maxBreakTorque,
-           MaxSteerAngle = maxSteerAngle,
-           MaxSpeed = maxSpeed,
-           RotationSpeed = rotationSpeed,
-           MaxAcceleration = maxAcceleration,
-           CurrentVelocity = currentVelocity,
-           CurrentSpeed = currentSpeed,
-           SpeedParameter = speedParameter,
-           BreakParameter = breakParameter,
-           SteerParameter = steerParameter,
-           CurrentDirection = currentDirection
+            MaxSpeed = maxSpeed,
+            RotationSpeed = rotationSpeed,
+            MaxAcceleration = maxAcceleration,
+            JetPower = jetPower,
+            JetPowerAcceleration = jetPowerAcceleration,
+            CurrentVelocity = currentVelocity,
+            CurrentJetPower = currentJetPower,
+            CurrentDirection = currentDirection
         });
     }
 }
