@@ -8,10 +8,12 @@ namespace Cars.View.Systems
     {
         protected override void OnUpdate()
         {
+            /*
             Entities.ForEach((ref Rotation rotation,in CarBodyData bodyData, in DynamicBuffer<MultyGroundInfoData> groundInfo) =>
             {
                 
             }).ScheduleParallel();
+            */
         }
     }
 }
