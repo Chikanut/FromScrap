@@ -2,6 +2,7 @@ using Cars.View.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Cars.View.Systems
 {
@@ -38,21 +39,17 @@ namespace Cars.View.Systems
             if (!wheelData.isGuide) return;
 
             moveDir.y = 0;
+            moveDir = math.normalize(moveDir);
             
-            var turnAngle = wheelData.ParentForward.AngleSigned(moveDir, wheelData.ParentUp);
+            var input = math.dot(wheelData.ParentRight, moveDir);
             
-            if (math.abs(turnAngle) > 90)
-                turnAngle -= 90 * math.sign(turnAngle);
-
-            var input = turnAngle / 90f;
-
             if (!float.IsNaN(input))
             {
                 wheelData.TurnDirection = math.lerp(math.forward(), math.right() * math.sign(input),
                     wheelData.TurnRange * math.abs(input));
             }
 
-            rotation.Value = quaternion.LookRotationSafe(wheelData.TurnDirection, math.up() *(wheelData.isLeft ? -1 : 1));
+            rotation.Value = quaternion.LookRotationSafe(wheelData.TurnDirection, math.up() * (wheelData.isLeft ? -1 : 1));
         }
 
         private static void UpdateRotation(ref WheelData wheelData, ref Rotation rotation, LocalToWorld localToWorld,
