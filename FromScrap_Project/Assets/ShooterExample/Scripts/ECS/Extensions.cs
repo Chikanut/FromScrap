@@ -28,6 +28,8 @@ public static class ECS_Math_Extensions
         float sign = math.sign(math.dot(axis, math.cross(from, to)));
         return math.degrees(angle * sign);
     }
+    
+    public static float Magnitude(this float3 vector) => (float) math.sqrt(vector.x * (double) vector.x + vector.y * (double) vector.y + vector.z * (double) vector.z);
 
     public static float3 SmoothDamp(
         float3 current,

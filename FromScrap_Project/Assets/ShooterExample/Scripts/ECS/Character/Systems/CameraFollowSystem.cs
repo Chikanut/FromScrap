@@ -29,7 +29,7 @@ namespace VertexFragment
 
                 Camera.main.transform.rotation = new Quaternion();
                 Camera.main.transform.Rotate(new Vector3(camera.Pitch, camera.Yaw, 0.0f));
-                Camera.main.transform.position = Vector3.Lerp(currPos, targetPos, posLerp);
+                Camera.main.transform.position = targetPos;
 
                 camera.Forward = Camera.main.transform.forward;
                 camera.Right = Camera.main.transform.right;

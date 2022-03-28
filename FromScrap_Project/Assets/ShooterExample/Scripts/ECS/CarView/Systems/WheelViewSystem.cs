@@ -1,10 +1,12 @@
 using Cars.View.Components;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics.Systems;
 using Unity.Transforms;
 
 namespace Cars.View.Systems
 {
+    [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(EndFramePhysicsSystem))]
     public partial class WheelViewSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -23,29 +25,33 @@ namespace Cars.View.Systems
                 in LocalToWorld localToWorld, in GroundInfoData groundInfoData) =>
             {
                 var dist = math.distance(localToWorld.Position, wheelData.PrevPos);
-                var moveDir = math.normalize(localToWorld.Position - wheelData.PrevPos);
+                var moveDir = localToWorld.Position - wheelData.PrevPos;
+                wheelData.PrevPos = localToWorld.Position;
                 
-                UpdateSteering(ref wheelData, ref rotation, moveDir);
+                if (wheelData.isGuide)
+                    UpdateSteering(ref wheelData, ref rotation, moveDir);
                 UpdateRotation(ref wheelData, ref rotation, localToWorld, groundInfoData, dist, moveDir);
                 UpdateSuspension(ref translation, wheelData, localToWorld, groundInfoData, deltaTime);
-                
-                wheelData.PrevPos = localToWorld.Position;
             }).ScheduleParallel();
         }
 
         private static void UpdateSteering(ref WheelData wheelData, ref Rotation rotation, float3 moveDir)
         {
-            if (!wheelData.isGuide) return;
-
             moveDir.y = 0;
-            moveDir = math.normalize(moveDir);
             
-            var input = math.dot(wheelData.ParentRight, moveDir);
-            
-            if (!float.IsNaN(input))
+            var power = moveDir.Magnitude();
+
+            if (power > 0.05f)
             {
-                wheelData.TurnDirection = math.lerp(math.forward(), math.right() * math.sign(input),
-                    wheelData.TurnRange * math.abs(input));
+                moveDir = math.normalize(moveDir);
+
+                var input = math.dot(wheelData.ParentRight, moveDir);
+
+                if (!float.IsNaN(input))
+                {
+                    wheelData.TurnDirection = math.lerp(math.forward(), math.right() * math.sign(input),
+                        wheelData.TurnRange * math.abs(input));
+                }
             }
 
             rotation.Value = quaternion.LookRotationSafe(wheelData.TurnDirection, math.up() * (wheelData.isLeft ? -1 : 1));
