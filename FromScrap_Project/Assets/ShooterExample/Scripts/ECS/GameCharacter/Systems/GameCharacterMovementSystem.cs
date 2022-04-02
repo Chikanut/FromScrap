@@ -37,6 +37,12 @@ public partial class GameCharacterMovementSystem : SystemBase
             var newDirection = new float3(movementComponent.HorizontalAxis, 0f, movementComponent.VerticalAxis);
             newDirection = Vector3.ClampMagnitude(newDirection, 1f);
 
+            var horizonNormal = new Vector3(0f, 1f, 0f);
+            var horizonLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
+
+            if (horizonLevel < movementComponent.CarCriticalMovementLevel)
+                newDirection = float3.zero;
+
             float boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
 
             movementComponent.CurrentVelocity = Vector3.Lerp(
@@ -51,10 +57,6 @@ public partial class GameCharacterMovementSystem : SystemBase
             dir.y = 0f;
 
             var orient = Vector3.Dot(dir, localToWorld.Right);
-            var horizonNormal = new Vector3(0f, 1f, 0f);
-            var horizonLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
-
-            Debug.LogError(horizonLevel);
 
             if (math.abs(movementComponent.VerticalAxis) + math.abs(movementComponent.HorizontalAxis) > 0)
                 movementComponent.CurrentDirection = Vector3.Lerp(
@@ -62,14 +64,13 @@ public partial class GameCharacterMovementSystem : SystemBase
                     dir,
                     movementComponent.RotationSpeed * deltaTime);
 
-            if (horizonLevel < movementComponent.CarStabilizationLevel)
-                rotation.Value = math.slerp(
-                    rotation.Value,
-                    quaternion.LookRotationSafe(movementComponent.CurrentDirection, new float3(0, 1, 0)),
-                    movementComponent.CarStabilizationSpeed * deltaTime
-                );
-
             velocity.Angular.y = orient * movementComponent.RotationSpeed;
+
+            if (horizonLevel < movementComponent.CarStabilizationLevel)
+            {
+                velocity.Angular.x = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
+                velocity.Angular.z = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
+            }
         }).ScheduleParallel();
     }
 }

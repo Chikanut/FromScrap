@@ -17,6 +17,7 @@ public struct GameCharacterMovementComponent : IComponentData
         public float JetPowerAcceleration { get; set; }
         public float CarStabilizationLevel { get; set; }
         public float CarStabilizationSpeed { get; set; }
+        public float CarCriticalMovementLevel { get; set; }
 
         public float3 CurrentVelocity { get; set; }
         public float CurrentJetPower { get; set; }
@@ -27,18 +28,19 @@ public struct GameCharacterMovementComponent : IComponentData
 public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvertGameObjectToEntity
 {
     [Header("Movement Settings")]
-    public float maxSpeed = 5f;
+    public float maxSpeed = 300f;
     public float boostSpeedMultiplier = 2f;
-    public float rotationSpeed = 1f;
-    public float maxAcceleration = 2f;
-    public float jetPower = 2f;
+    public float rotationSpeed = 20f;
+    public float maxAcceleration = 5f;
+    public float jetPower = 100f;
     public float jetPowerAcceleration = 2f;
-    public float CarStabilizationLevel = 0.8f;
-    public float CarStabilizationSpeed = 2f;
+    public float carStabilizationLevel = 0.85f;
+    public float carStabilizationSpeed = 50f;
+    public float carCriticalMovementLevel = 0.6f;
 
     [Header("Current Parameters")]
     public float3 currentVelocity = new float3(0f, 0f, 0f);
-    public float currentJetPower = 1f;
+    public float currentJetPower = 0f;
     public float3 currentDirection = new float3(0f, 0f, 0f);
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -59,8 +61,9 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
             CurrentVelocity = currentVelocity,
             CurrentJetPower = currentJetPower,
             CurrentDirection = currentDirection,
-            CarStabilizationLevel = CarStabilizationLevel,
-            CarStabilizationSpeed = CarStabilizationSpeed
+            CarStabilizationLevel = carStabilizationLevel,
+            CarStabilizationSpeed = carStabilizationSpeed,
+            CarCriticalMovementLevel = carCriticalMovementLevel
         });
     }
 }
