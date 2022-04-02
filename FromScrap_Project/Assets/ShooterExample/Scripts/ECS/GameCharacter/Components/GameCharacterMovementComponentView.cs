@@ -7,8 +7,10 @@ public struct GameCharacterMovementComponent : IComponentData
         public float HorizontalAxis { get; set; }
         public float VerticalAxis{ get; set; }
         public bool SpaceKey { get; set; }
+        public bool BoostKey { get; set; }
 
         public float MaxSpeed { get; set; }
+        public float BoostSpeedMultiplier { get; set; }
         public float RotationSpeed { get; set; }
         public float MaxAcceleration { get; set; }
         public float JetPower { get; set; }
@@ -24,6 +26,7 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
 {
     [Header("Movement Settings")]
     public float maxSpeed = 5f;
+    public float boostSpeedMultiplier = 2f;
     public float rotationSpeed = 1f;
     public float maxAcceleration = 2f;
     public float jetPower = 2f;
@@ -44,6 +47,7 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
         dstManager.AddComponentData(entity, new GameCharacterMovementComponent()
         {
             MaxSpeed = maxSpeed,
+            BoostSpeedMultiplier = boostSpeedMultiplier,
             RotationSpeed = rotationSpeed,
             MaxAcceleration = maxAcceleration,
             JetPower = jetPower,

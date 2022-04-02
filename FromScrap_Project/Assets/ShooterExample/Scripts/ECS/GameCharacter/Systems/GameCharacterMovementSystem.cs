@@ -34,11 +34,12 @@ public partial class GameCharacterMovementSystem : SystemBase
             }
 
             var newDirection = new float3(movementComponent.HorizontalAxis, 0f, movementComponent.VerticalAxis);
-            newDirection = Vector3.Normalize(newDirection);
+            newDirection = Vector3.ClampMagnitude(newDirection, 1f);
+            float boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
             
             movementComponent.CurrentVelocity = Vector3.Lerp(
                 movementComponent.CurrentVelocity,
-                newDirection * movementComponent.MaxSpeed * fixedDeltaTime, 
+                newDirection * movementComponent.MaxSpeed * boost * fixedDeltaTime, 
                 movementComponent.MaxAcceleration * fixedDeltaTime);
 
             velocity.Linear = new float3(movementComponent.CurrentVelocity.x, velocity.Linear.y, movementComponent.CurrentVelocity.z);

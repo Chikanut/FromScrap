@@ -104,12 +104,13 @@ using UnityEngine.InputSystem.LowLevel;
             float movementX = targetSteer;
             //float movementZ = targetThrottle - targetBrake;
             float movementZ = targetThrottle;
-            float boost = boosterUsage ? 1.5f : 1.0f;
+            //float boost = boosterUsage ? 2.5f : 1.0f;
             
             //controller.HorizontalAxis = movementX;
-            controller.HorizontalAxis = movementX * boost;
-            controller.VerticalAxis = movementZ * boost;
+            controller.HorizontalAxis = movementX;
+            controller.VerticalAxis = movementZ;
             controller.SpaceKey = jumpUsage;
+            controller.BoostKey = boosterUsage;
         }
 
         protected override void OnUpdate()
