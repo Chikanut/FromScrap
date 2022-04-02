@@ -15,6 +15,8 @@ public struct GameCharacterMovementComponent : IComponentData
         public float MaxAcceleration { get; set; }
         public float JetPower { get; set; }
         public float JetPowerAcceleration { get; set; }
+        public float CarStabilizationLevel { get; set; }
+        public float CarStabilizationSpeed { get; set; }
 
         public float3 CurrentVelocity { get; set; }
         public float CurrentJetPower { get; set; }
@@ -31,6 +33,8 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
     public float maxAcceleration = 2f;
     public float jetPower = 2f;
     public float jetPowerAcceleration = 2f;
+    public float CarStabilizationLevel = 0.8f;
+    public float CarStabilizationSpeed = 2f;
 
     [Header("Current Parameters")]
     public float3 currentVelocity = new float3(0f, 0f, 0f);
@@ -54,7 +58,9 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
             JetPowerAcceleration = jetPowerAcceleration,
             CurrentVelocity = currentVelocity,
             CurrentJetPower = currentJetPower,
-            CurrentDirection = currentDirection
+            CurrentDirection = currentDirection,
+            CarStabilizationLevel = CarStabilizationLevel,
+            CarStabilizationSpeed = CarStabilizationSpeed
         });
     }
 }

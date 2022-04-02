@@ -10,7 +10,7 @@ public partial class GameCharacterMovementSystem : SystemBase
     {
         float fixedDeltaTime = Time.fixedDeltaTime;
         float deltaTime = Time.DeltaTime;
-       
+
         Entities.WithAll<
             GameCharacterMovementComponent>().ForEach((
             ref GameCharacterMovementComponent movementComponent,
@@ -18,7 +18,8 @@ public partial class GameCharacterMovementSystem : SystemBase
             ref PhysicsMass mass,
             ref LocalToWorld localToWorld,
             ref Rotation rotation
-            ) => {
+        ) =>
+        {
 
             if (movementComponent.SpaceKey)
             {
@@ -35,28 +36,40 @@ public partial class GameCharacterMovementSystem : SystemBase
 
             var newDirection = new float3(movementComponent.HorizontalAxis, 0f, movementComponent.VerticalAxis);
             newDirection = Vector3.ClampMagnitude(newDirection, 1f);
+
             float boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
-            
+
             movementComponent.CurrentVelocity = Vector3.Lerp(
                 movementComponent.CurrentVelocity,
-                newDirection * movementComponent.MaxSpeed * boost * fixedDeltaTime, 
+                newDirection * movementComponent.MaxSpeed * boost * fixedDeltaTime,
                 movementComponent.MaxAcceleration * fixedDeltaTime);
 
-            velocity.Linear = new float3(movementComponent.CurrentVelocity.x, velocity.Linear.y, movementComponent.CurrentVelocity.z);
+            velocity.Linear = new float3(movementComponent.CurrentVelocity.x, velocity.Linear.y,
+                movementComponent.CurrentVelocity.z);
 
-            var dir = Vector3.Normalize(velocity.Linear);
+            float3 dir = Vector3.Normalize(velocity.Linear);
             dir.y = 0f;
-            
-            if(math.abs(movementComponent.VerticalAxis) + math.abs(movementComponent.HorizontalAxis) > 0)
+
+            var orient = Vector3.Dot(dir, localToWorld.Right);
+            var horizonNormal = new Vector3(0f, 1f, 0f);
+            var horizonLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
+
+            Debug.LogError(horizonLevel);
+
+            if (math.abs(movementComponent.VerticalAxis) + math.abs(movementComponent.HorizontalAxis) > 0)
                 movementComponent.CurrentDirection = Vector3.Lerp(
                     movementComponent.CurrentDirection,
-                    dir, movementComponent.RotationSpeed * deltaTime);
-            
-            rotation.Value = math.slerp(
-                rotation.Value, 
-                quaternion.LookRotationSafe(movementComponent.CurrentDirection, new float3(0, 1, 0)), 
-                movementComponent.RotationSpeed * deltaTime
+                    dir,
+                    movementComponent.RotationSpeed * deltaTime);
+
+            if (horizonLevel < movementComponent.CarStabilizationLevel)
+                rotation.Value = math.slerp(
+                    rotation.Value,
+                    quaternion.LookRotationSafe(movementComponent.CurrentDirection, new float3(0, 1, 0)),
+                    movementComponent.CarStabilizationSpeed * deltaTime
                 );
+
+            velocity.Angular.y = orient * movementComponent.RotationSpeed;
         }).ScheduleParallel();
     }
 }
