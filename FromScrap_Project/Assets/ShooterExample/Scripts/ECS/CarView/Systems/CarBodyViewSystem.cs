@@ -51,8 +51,6 @@ namespace Cars.View.Systems
             var speed = dist / deltaTime;
             var acceleration = (speed - bodyData.PrevSpeed) / deltaTime;
 
-            // Debug.Log("acceleration : " + acceleration + " deltaTime : " + deltaTime);
-
             bodyData.CurrentSuspension = ECS_Math_Extensions.SmoothDamp(bodyData.CurrentSuspension,
                 moveDir * math.clamp(acceleration, -1, 1) * bodyData.SuspensionRange, ref bodyData.SuspensionVelocity,
                 bodyData.SuspensionDamping, float.MaxValue, deltaTime);
