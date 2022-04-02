@@ -1,4 +1,3 @@
-using System;
 using Cars.View.Components;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -7,7 +6,7 @@ using UnityEngine;
 
 namespace Cars.View.Systems
 {
-    // [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(EndFramePhysicsSystem))]
+    [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     public partial class CarBodyViewSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -15,48 +14,59 @@ namespace Cars.View.Systems
             var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
             var mgid = GetBufferFromEntity<MultyGroundInfoData>(true);
 
-            var deltaTime = Time.DeltaTime;
-            
-            Entities.ForEach((ref Rotation rotation, ref CarBodyData bodyData, in LocalToWorld localToWorld) =>
-            {
-                if (!ltw.HasComponent(bodyData.Parent) || !mgid.HasComponent(bodyData.Parent)) return;
-                
-                var parentTransform = ltw[bodyData.Parent];
-                var parentGroundInfo = mgid[bodyData.Parent];
+            var deltaTime = Time.fixedDeltaTime;
 
-                var groundNormal = GetPlaneNormal(parentGroundInfo, parentTransform);
-                var groundForward = math.cross(parentTransform.Right,groundNormal);
-                var groundRight = math.cross(groundNormal, groundForward);
+            Entities.WithAll<Parent>().ForEach(
+                (ref Rotation rotation, ref CarBodyData bodyData, in LocalToWorld localToWorld) =>
+                {
+                    if (!ltw.HasComponent(bodyData.Parent) || !mgid.HasComponent(bodyData.Parent)) return;
 
-                // Debug.DrawLine(localToWorld.Position,
-                //     localToWorld.Position + groundNormal * 10, Color.red);
-                // Debug.DrawLine(localToWorld.Position,
-                //     localToWorld.Position + groundForward * 10, Color.green);
-                // Debug.DrawLine(localToWorld.Position,
-                //     localToWorld.Position + groundRight * 10, Color.blue);
-                //     
-                // Debug.DrawLine(localToWorld.Position,
-                //     localToWorld.Position + parentTransform.Up * 10, Color.red/2);
-                // Debug.DrawLine(localToWorld.Position,
-                //     localToWorld.Position + parentTransform.Forward * 10, Color.green/2);
-                // Debug.DrawLine(localToWorld.Position,
-                //     localToWorld.Position + parentTransform.Right * 10, Color.blue/2);
-                
-                var forward = parentTransform.Value.WorldToLocal(groundForward + parentTransform.Position);
-                var up = parentTransform.Value.WorldToLocal(groundNormal + parentTransform.Position);
+                    var parentTransform = ltw[bodyData.Parent];
+                    var parentGroundInfo = mgid[bodyData.Parent];
 
-                bodyData.CurrentForward = ECS_Math_Extensions.SmoothDamp(bodyData.CurrentForward, forward,
-                    ref bodyData.ForwardVelocity, bodyData.RotationDamping, float.MaxValue, deltaTime);
+                    var groundNormal = GetPlaneNormal(parentGroundInfo, parentTransform);
+                    ApplyMovementNoise(ref groundNormal, ref bodyData, localToWorld, deltaTime);
+                    var groundForward = math.cross(parentTransform.Right, groundNormal);
 
-                bodyData.CurrentUp = ECS_Math_Extensions.SmoothDamp(bodyData.CurrentUp, up,
-                    ref bodyData.UpVelocity, bodyData.RotationDamping, float.MaxValue, deltaTime);
+                    //DebugTrajectories(localToWorld, parentTransform, groundNormal, groundForward);
 
-                rotation.Value = quaternion.LookRotation(bodyData.CurrentForward, bodyData.CurrentUp);
-                
+                    var forward = parentTransform.Value.WorldToLocal(groundForward + parentTransform.Position);
+                    var up = parentTransform.Value.WorldToLocal(groundNormal + parentTransform.Position);
 
-            }).WithReadOnly(ltw).WithReadOnly(mgid).ScheduleParallel();
+                    bodyData.CurrentForward = ECS_Math_Extensions.SmoothDamp(bodyData.CurrentForward, forward,
+                        ref bodyData.ForwardVelocity, bodyData.RotationDamping, float.MaxValue, deltaTime);
+
+                    bodyData.CurrentUp = ECS_Math_Extensions.SmoothDamp(bodyData.CurrentUp, up,
+                        ref bodyData.UpVelocity, bodyData.RotationDamping, float.MaxValue, deltaTime);
+
+                    rotation.Value = quaternion.LookRotation(bodyData.CurrentForward, bodyData.CurrentUp);
+                }).WithReadOnly(ltw).WithReadOnly(mgid).ScheduleParallel();
         }
-        
+
+        private static void ApplyMovementNoise(ref float3 up, ref CarBodyData bodyData, LocalToWorld transform, float deltaTime)
+        {
+            var dist = Vector3.Distance(transform.Position, bodyData.PrevPos);
+            float3 moveDir = Vector3.Normalize(transform.Position - bodyData.PrevPos);
+                
+            var speed = dist / deltaTime;
+            var acceleration = (speed - bodyData.PrevSpeed) / deltaTime;
+
+            // Debug.Log("acceleration : " + acceleration + " deltaTime : " + deltaTime);
+
+            bodyData.CurrentSuspension = ECS_Math_Extensions.SmoothDamp(bodyData.CurrentSuspension,
+                moveDir * math.clamp(acceleration, -1, 1) * bodyData.SuspensionRange, ref bodyData.SuspensionVelocity,
+                bodyData.SuspensionDamping, float.MaxValue, deltaTime);
+            bodyData.CurrentSuspension.y = 0;
+                
+            if(float.IsNaN(bodyData.CurrentSuspension.x))
+                bodyData.CurrentSuspension = float3.zero;
+                
+            up -= bodyData.CurrentSuspension;
+                
+            bodyData.PrevSpeed = speed;
+            bodyData.PrevPos = transform.Position;
+        }
+
         private static float3 GetPlaneNormal(DynamicBuffer<MultyGroundInfoData> groundInfo, LocalToWorld localToWorld)
         {
             var LFpos = GetGroundPos(groundInfo[0], localToWorld);
@@ -84,6 +94,25 @@ namespace Cars.View.Systems
                 ? groundInfo.GroundPosition
                 : localToWorld.Value.LocalToWorld(groundInfo.AnchorPoints) +
                   math.down() * groundInfo.CheckDistance;
+        }
+
+        private static void DebugTrajectories(LocalToWorld localToWorld, LocalToWorld parentTransform, float3 groundNormal, float3 groundForward)
+        {
+            var groundRight = math.cross(groundNormal, groundForward);
+            
+            Debug.DrawLine(localToWorld.Position,
+                localToWorld.Position + groundNormal * 10, Color.red);
+            Debug.DrawLine(localToWorld.Position,
+                localToWorld.Position + groundForward * 10, Color.green);
+            Debug.DrawLine(localToWorld.Position,
+                localToWorld.Position + groundRight * 10, Color.blue);
+                
+            Debug.DrawLine(localToWorld.Position,
+                localToWorld.Position + parentTransform.Up * 10, Color.red/2);
+            Debug.DrawLine(localToWorld.Position,
+                localToWorld.Position + parentTransform.Forward * 10, Color.green/2);
+            Debug.DrawLine(localToWorld.Position,
+                localToWorld.Position + parentTransform.Right * 10, Color.blue/2);
         }
     }
 }

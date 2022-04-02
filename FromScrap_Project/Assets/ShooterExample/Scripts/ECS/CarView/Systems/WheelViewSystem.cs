@@ -1,12 +1,10 @@
 using Cars.View.Components;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Physics.Systems;
 using Unity.Transforms;
 
 namespace Cars.View.Systems
 {
-    [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(EndFramePhysicsSystem))]
     public partial class WheelViewSystem : SystemBase
     {
         protected override void OnUpdate()

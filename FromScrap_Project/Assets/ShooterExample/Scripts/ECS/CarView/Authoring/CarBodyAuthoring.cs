@@ -21,6 +21,7 @@ namespace Cars.View.Authorings
         [Header("Body Settings")]
         public float RotationDamping;
         public float SuspensionDamping;
+        public float SuspensionRange = 0.2f;
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             if (transform.parent == null)
@@ -36,9 +37,11 @@ namespace Cars.View.Authorings
                 Parent = parent,
                 Anchor = transform.localPosition,
                 RotationDamping = RotationDamping,
-                MovementDamping = SuspensionDamping,
+                SuspensionDamping = SuspensionDamping,
                 CurrentForward = math.forward(),
-                CurrentUp = math.up()
+                CurrentUp = math.up(),
+                CurrentSuspension = float3.zero,
+                SuspensionRange = SuspensionRange
                 // LocalRotation = transform.localEulerAngles
             };
 
