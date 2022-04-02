@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Authoring;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Cars.View.Authorings
@@ -11,7 +12,9 @@ namespace Cars.View.Authorings
     {
         [Header("Collision Check")]
         public float CarHeigh;
-        public float3[] BodyPoints;
+        public float2 CarSize;
+        
+        private float3[] BodyPoints;
         public PhysicsCategoryTags BelongsTo;
         public PhysicsCategoryTags CollideWith;
 
@@ -25,17 +28,31 @@ namespace Cars.View.Authorings
                 Debug.LogError("Wheel has no parent to connect to!");
                 return;
             }
+
+            var parent = dstManager.GetComponentData<Parent>(entity).Value;
             
             var bodyInfo = new CarBodyData()
             {
+                Parent = parent,
                 Anchor = transform.localPosition,
                 RotationDamping = RotationDamping,
-                MovementDamping = SuspensionDamping
+                MovementDamping = SuspensionDamping,
+                CurrentForward = math.forward(),
+                CurrentUp = math.up()
+                // LocalRotation = transform.localEulerAngles
             };
 
             dstManager.AddComponentData(entity, bodyInfo);
-            var buffer = dstManager.AddBuffer<MultyGroundInfoData>(entity);
+            var buffer = dstManager.AddBuffer<MultyGroundInfoData>(parent);
 
+            BodyPoints = new[]
+            {
+                new float3(CarSize.x, 0, CarSize.y),
+                new float3(-CarSize.x, 0, CarSize.y),
+                new float3(-CarSize.x, 0, -CarSize.y),
+                new float3(CarSize.x, 0, -CarSize.y)
+            };
+            
             for (int i = 0; i < BodyPoints.Length; i++)
             {
                 buffer.Add(new MultyGroundInfoData()
@@ -56,31 +73,36 @@ namespace Cars.View.Authorings
         {
             if (transform.parent == null)
             {
-                Gizmos.color = Color.red;
-
-                for (int i = 0; i < BodyPoints.Length; i++)
-                {
-                    var startPoint = transform.TransformPoint(BodyPoints[i]);
-                    
-                    Gizmos.DrawLine(startPoint - transform.forward * CarHeigh/2 + Vector3.down * CarHeigh/2,
-                        startPoint + transform.forward * CarHeigh/2 + Vector3.up * CarHeigh/2);
-
-                    Gizmos.DrawLine(startPoint + transform.forward * CarHeigh/2 + Vector3.down * CarHeigh/2,
-                        startPoint - transform.forward * CarHeigh/2 + Vector3.up * CarHeigh/2);
-                }
-
+                DrawCross(transform.TransformPoint(new Vector3(CarSize.x,0,CarSize.y)));
+                DrawCross(transform.TransformPoint(new Vector3(-CarSize.x,0,CarSize.y)));
+                DrawCross(transform.TransformPoint(new Vector3(CarSize.x,0,-CarSize.y)));
+                DrawCross(transform.TransformPoint(new Vector3(-CarSize.x,0,-CarSize.y)));
+                
                 Debug.LogWarning("Wheel should have parent transform!");
                 
                 return;
             }
             
-            Gizmos.color = Color.green;
+            DrawLineDown(transform.TransformPoint(new Vector3(CarSize.x,0,CarSize.y)));
+            DrawLineDown(transform.TransformPoint(new Vector3(-CarSize.x,0,CarSize.y)));
+            DrawLineDown(transform.TransformPoint(new Vector3(CarSize.x,0,-CarSize.y)));
+            DrawLineDown(transform.TransformPoint(new Vector3(-CarSize.x,0,-CarSize.y)));
+        }
 
-            for (int i = 0; i < BodyPoints.Length; i++)
-            {
-                var startPoint = transform.TransformPoint(BodyPoints[i]);
-                Gizmos.DrawLine(startPoint, startPoint + Vector3.down * CarHeigh);
-            }
+        void DrawCross(Vector3 startPoint)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(startPoint - transform.forward * CarHeigh/2 + Vector3.down * CarHeigh/2,
+                startPoint + transform.forward * CarHeigh/2 + Vector3.up * CarHeigh/2);
+
+            Gizmos.DrawLine(startPoint + transform.forward * CarHeigh/2 + Vector3.down * CarHeigh/2,
+                startPoint - transform.forward * CarHeigh/2 + Vector3.up * CarHeigh/2);
+        }
+
+        void DrawLineDown(Vector3 startPoint)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(startPoint, startPoint + Vector3.down * CarHeigh);
         }
 #endif
     }

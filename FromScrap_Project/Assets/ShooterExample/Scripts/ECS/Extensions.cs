@@ -16,6 +16,11 @@ public static class ECS_Math_Extensions
         return math.transform(transform, point);
     }
 
+    public static float3 WorldToLocalDirection(this LocalToWorld localToWorld, float3 point)
+    {
+        return math.normalize(localToWorld.Value.LocalToWorld(point) - localToWorld.Position);
+    }
+
     public static float Angle(this float3 dir1, float3 dir2)
     {
         var angle = math.acos(math.dot(math.normalize(dir1), math.normalize(dir2)));
@@ -26,7 +31,8 @@ public static class ECS_Math_Extensions
     {
         float angle = math.acos(math.dot(math.normalize(from), math.normalize(to)));
         float sign = math.sign(math.dot(axis, math.cross(from, to)));
-        return math.degrees(angle * sign);
+        float signedAngle = math.degrees(angle * sign);
+        return float.IsNaN(signedAngle) ? 0 : signedAngle;
     }
     
     public static float Magnitude(this float3 vector) => (float) math.sqrt(vector.x * (double) vector.x + vector.y * (double) vector.y + vector.z * (double) vector.z);
@@ -101,6 +107,56 @@ public static class ECS_Math_Extensions
         }
 
         return new float3(x, y, z);
+    }
+    
+    public static float SmoothDamp(
+        float current,
+        float target,
+        ref float currentVelocity,
+        float smoothTime,
+        float maxSpeed)
+    {
+        float deltaTime = Time.deltaTime;
+        return SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+    
+    public static float SmoothDamp(
+        float current,
+        float target,
+        ref float currentVelocity,
+        float smoothTime)
+    {
+        float deltaTime = Time.deltaTime;
+        float maxSpeed = float.PositiveInfinity;
+        return SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
+    }
+
+    public static float SmoothDamp(
+        float current,
+        float target,
+        ref float currentVelocity,
+        float smoothTime,
+        [DefaultValue("Mathf.Infinity")] float maxSpeed,
+        [DefaultValue("Time.deltaTime")] float deltaTime)
+    {
+        smoothTime = Mathf.Max(0.0001f, smoothTime);
+        float num1 = 2f / smoothTime;
+        float num2 = num1 * deltaTime;
+        float num3 = (float) (1.0 / (1.0 + (double) num2 + 0.479999989271164 * (double) num2 * (double) num2 + 0.234999999403954 * (double) num2 * (double) num2 * (double) num2));
+        float num4 = current - target;
+        float num5 = target;
+        float max = maxSpeed * smoothTime;
+        float num6 = Mathf.Clamp(num4, -max, max);
+        target = current - num6;
+        float num7 = (currentVelocity + num1 * num6) * deltaTime;
+        currentVelocity = (currentVelocity - num1 * num7) * num3;
+        float num8 = target + (num6 + num7) * num3;
+        if ((double) num5 - (double) current > 0.0 == (double) num8 > (double) num5)
+        {
+            num8 = num5;
+            currentVelocity = (num8 - num5) / deltaTime;
+        }
+        return num8;
     }
 
 }
