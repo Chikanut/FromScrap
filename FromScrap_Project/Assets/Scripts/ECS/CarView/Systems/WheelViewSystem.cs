@@ -9,61 +9,66 @@ namespace Cars.View.Systems
     {
         protected override void OnUpdate()
         {
-            Entities.ForEach((ref WheelData wheelData, in LocalToWorld localToWorld, in Parent parent) =>
-            {
-                var parentTransform = EntityManager.GetComponentData<LocalToWorld>(parent.Value);
-                wheelData.ParentUp = parentTransform.Up;
-                wheelData.ParentForward = parentTransform.Forward;
-                wheelData.ParentRight = parentTransform.Right;
-            }).WithoutBurst().Run();
-
+            var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
             var deltaTime = Time.DeltaTime;
 
-            Entities.WithAll<Parent>().ForEach((ref WheelData wheelData, ref Rotation rotation, ref Translation translation,
+            Entities.WithAll<Parent>().ForEach((ref WheelData wheelData, ref Rotation rotation,
+                ref Translation translation,
                 in LocalToWorld localToWorld, in GroundInfoData groundInfoData) =>
             {
+                if (!ltw.HasComponent(wheelData.Parent)) return;
+
+                var parentTransform = ltw[wheelData.Parent];
+
                 var dist = math.distance(localToWorld.Position, wheelData.PrevPos);
                 var moveDir = localToWorld.Position - wheelData.PrevPos;
                 wheelData.PrevPos = localToWorld.Position;
-                
+
                 if (wheelData.isGuide)
-                    UpdateSteering(ref wheelData, ref rotation, moveDir);
-                UpdateRotation(ref wheelData, ref rotation, localToWorld, groundInfoData, dist, moveDir);
-                UpdateSuspension(ref translation, wheelData, localToWorld, groundInfoData, deltaTime);
-            }).ScheduleParallel();
+                    UpdateSteering(ref wheelData, ref rotation, moveDir, parentTransform, deltaTime);
+                UpdateRotation(ref wheelData, ref rotation, localToWorld, parentTransform, groundInfoData, dist,
+                    moveDir);
+                UpdateSuspension(ref translation, wheelData, localToWorld, parentTransform, groundInfoData, deltaTime);
+            }).WithReadOnly(ltw).ScheduleParallel();
         }
 
-        private static void UpdateSteering(ref WheelData wheelData, ref Rotation rotation, float3 moveDir)
+        private static void UpdateSteering(ref WheelData wheelData, ref Rotation rotation, float3 moveDir,
+            LocalToWorld parentTransform, float deltaTime)
         {
             moveDir.y = 0;
-            
+
             var power = moveDir.Magnitude();
 
             if (power > 0.05f)
             {
                 moveDir = math.normalize(moveDir);
 
-                var input = math.dot(wheelData.ParentRight, moveDir);
+                var input = math.dot(parentTransform.Right, moveDir);
 
                 if (!float.IsNaN(input))
                 {
-                    wheelData.TurnDirection = math.lerp(math.forward(), math.right() * math.sign(input),
+                    var targetDir = math.lerp(math.forward(), math.right() * math.sign(input),
                         wheelData.TurnRange * math.abs(input));
+
+                    wheelData.TurnDirection = ECS_Math_Extensions.SmoothDamp(wheelData.TurnDirection, targetDir,
+                        ref wheelData.TurnVelocity, wheelData.TurnDamping, float.MaxValue, deltaTime);
                 }
             }
 
-            rotation.Value = quaternion.LookRotationSafe(wheelData.TurnDirection, math.up() * (wheelData.isLeft ? -1 : 1));
+            rotation.Value =
+                quaternion.LookRotationSafe(wheelData.TurnDirection, math.up() * (wheelData.isLeft ? -1 : 1));
         }
 
         private static void UpdateRotation(ref WheelData wheelData, ref Rotation rotation, LocalToWorld localToWorld,
+            LocalToWorld parentTransform,
             GroundInfoData groundInfoData, float moveDist, float3 moveDir)
         {
             if (groundInfoData.isGrounded)
             {
                 var targetAngle = moveDist / wheelData.Radius;
 
-                targetAngle *= math.sign(math.dot(localToWorld.Right, wheelData.ParentRight));
-                targetAngle *= math.sign(math.dot(moveDir, wheelData.ParentForward));
+                targetAngle *= math.sign(math.dot(localToWorld.Right, parentTransform.Right));
+                targetAngle *= math.sign(math.dot(moveDir, parentTransform.Forward));
 
                 if (wheelData.isGuide)
                 {
@@ -78,7 +83,7 @@ namespace Cars.View.Systems
             else
             {
                 var targetAngle = 0.01f / wheelData.Radius;
-                targetAngle *= math.sign(math.dot(localToWorld.Right, wheelData.ParentRight));
+                targetAngle *= math.sign(math.dot(localToWorld.Right, parentTransform.Right));
 
                 if (wheelData.isGuide)
                 {
@@ -92,12 +97,14 @@ namespace Cars.View.Systems
             }
         }
 
-        private static void UpdateSuspension(ref Translation translation, WheelData wheelData, LocalToWorld localToWorld,
+        private static void UpdateSuspension(ref Translation translation, WheelData wheelData,
+            LocalToWorld localToWorld, LocalToWorld parentTransform,
             GroundInfoData groundInfoData, float deltaTime)
         {
-            var targetPos = translation.Value;
-            var localUp = wheelData.ParentUp;
-            
+            var targetPos = wheelData.LocalAnchor;
+            targetPos.y = translation.Value.y;
+            var localUp = parentTransform.Value.WorldToLocal(parentTransform.Up + parentTransform.Position);
+
             if (groundInfoData.isGrounded)
             {
                 var alpha = groundInfoData.GroundNormal.Angle(localUp);
@@ -120,16 +127,18 @@ namespace Cars.View.Systems
 
             var anchor = wheelData.LocalAnchor;
 
-            if (math.distance(targetPos, anchor - wheelData.ParentUp * (wheelData.SuspensionOffset / 2)) >
+            if (math.distance(targetPos, anchor - localUp * (wheelData.SuspensionOffset / 2)) >
                 wheelData.SuspensionDistance)
             {
-                var dir = math.normalize(math.project(math.normalize(targetPos - anchor), wheelData.ParentUp));
+                var dir = math.normalize(math.project(math.normalize(targetPos - anchor), localUp));
 
-                targetPos = (anchor - wheelData.ParentUp * (wheelData.SuspensionOffset / 2)) +
+                targetPos = (anchor - localUp * (wheelData.SuspensionOffset / 2)) +
                             dir * wheelData.SuspensionDistance;
             }
 
-            translation.Value = targetPos;
+            translation.Value = ECS_Math_Extensions.SmoothDamp(translation.Value, targetPos,
+                ref wheelData.SuspensionVelocity,
+                wheelData.SuspensionDamping, float.MaxValue, deltaTime);
         }
     }
 }

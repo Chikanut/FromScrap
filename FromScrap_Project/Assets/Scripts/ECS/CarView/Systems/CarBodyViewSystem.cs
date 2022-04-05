@@ -43,11 +43,12 @@ namespace Cars.View.Systems
                 }).WithReadOnly(ltw).WithReadOnly(mgid).ScheduleParallel();
         }
 
-        private static void ApplyMovementNoise(ref float3 up, ref CarBodyData bodyData, LocalToWorld transform, float deltaTime)
+        private static void ApplyMovementNoise(ref float3 up, ref CarBodyData bodyData, LocalToWorld transform,
+            float deltaTime)
         {
             var dist = Vector3.Distance(transform.Position, bodyData.PrevPos);
             float3 moveDir = Vector3.Normalize(transform.Position - bodyData.PrevPos);
-                
+
             var speed = dist / deltaTime;
             var acceleration = (speed - bodyData.PrevSpeed) / deltaTime;
 
@@ -55,12 +56,12 @@ namespace Cars.View.Systems
                 moveDir * math.clamp(acceleration, -1, 1) * bodyData.SuspensionRange, ref bodyData.SuspensionVelocity,
                 bodyData.SuspensionDamping, float.MaxValue, deltaTime);
             bodyData.CurrentSuspension.y = 0;
-                
-            if(float.IsNaN(bodyData.CurrentSuspension.x))
+
+            if (float.IsNaN(bodyData.CurrentSuspension.x))
                 bodyData.CurrentSuspension = float3.zero;
-                
+
             up -= bodyData.CurrentSuspension;
-                
+
             bodyData.PrevSpeed = speed;
             bodyData.PrevPos = transform.Position;
         }
@@ -94,23 +95,24 @@ namespace Cars.View.Systems
                   math.down() * groundInfo.CheckDistance;
         }
 
-        private static void DebugTrajectories(LocalToWorld localToWorld, LocalToWorld parentTransform, float3 groundNormal, float3 groundForward)
+        private static void DebugTrajectories(LocalToWorld localToWorld, LocalToWorld parentTransform,
+            float3 groundNormal, float3 groundForward)
         {
             var groundRight = math.cross(groundNormal, groundForward);
-            
+
             Debug.DrawLine(localToWorld.Position,
                 localToWorld.Position + groundNormal * 10, Color.red);
             Debug.DrawLine(localToWorld.Position,
                 localToWorld.Position + groundForward * 10, Color.green);
             Debug.DrawLine(localToWorld.Position,
                 localToWorld.Position + groundRight * 10, Color.blue);
-                
+
             Debug.DrawLine(localToWorld.Position,
-                localToWorld.Position + parentTransform.Up * 10, Color.red/2);
+                localToWorld.Position + parentTransform.Up * 10, Color.red / 2);
             Debug.DrawLine(localToWorld.Position,
-                localToWorld.Position + parentTransform.Forward * 10, Color.green/2);
+                localToWorld.Position + parentTransform.Forward * 10, Color.green / 2);
             Debug.DrawLine(localToWorld.Position,
-                localToWorld.Position + parentTransform.Right * 10, Color.blue/2);
+                localToWorld.Position + parentTransform.Right * 10, Color.blue / 2);
         }
     }
 }

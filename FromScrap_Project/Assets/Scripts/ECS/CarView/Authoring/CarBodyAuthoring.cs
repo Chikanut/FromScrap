@@ -35,7 +35,6 @@ namespace Cars.View.Authorings
             var bodyInfo = new CarBodyData()
             {
                 Parent = parent,
-                Anchor = transform.localPosition,
                 RotationDamping = RotationDamping,
                 SuspensionDamping = SuspensionDamping,
                 CurrentForward = math.forward(),

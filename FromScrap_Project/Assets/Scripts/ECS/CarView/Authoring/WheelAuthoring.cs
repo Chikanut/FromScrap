@@ -3,6 +3,7 @@ using Cars.View.Components;
 using Unity.Entities;
 using Unity.Physics;
 using Unity.Physics.Authoring;
+using Unity.Transforms;
 using UnityEngine;
 using VertexFragment;
 
@@ -39,9 +40,12 @@ namespace Cars.View.Authorings
                 Debug.LogError("Wheel has no parent to connect to!");
                 return;
             }
+            
+            var parent = dstManager.GetComponentData<Parent>(entity).Value;
 
             var wheelData = new WheelData()
             {
+                Parent = parent,
                 Radius = wheel.Radius,
                 SuspensionDistance = wheel.SuspensionDistance,
                 SuspensionOffset = wheel.SuspensionOffset,

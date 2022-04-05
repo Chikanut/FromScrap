@@ -8,8 +8,6 @@ namespace Cars.View.Components
     {
         public Entity Parent;
         
-        
-        public float3 Anchor;
         public float RotationDamping;
         public float SuspensionDamping;
         public float SuspensionRange;
@@ -24,11 +22,5 @@ namespace Cars.View.Components
 
         public float3 PrevPos;
         public float PrevSpeed;
-        
-        // public float PrevTime;
-
-        // public float3 GroundNormal;
-        // public float3 GroundForward;
-        // public float3 ParentForward;
     }
 }
