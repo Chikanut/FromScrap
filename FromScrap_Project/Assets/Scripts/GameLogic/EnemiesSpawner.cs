@@ -1,5 +1,3 @@
-using Unity.Collections;
-using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -32,23 +30,10 @@ public class EnemiesSpawner : MonoBehaviour
     [Header("Movement Info")] 
     [SerializeField] private float minSpeed = 4;
     [SerializeField] private float maxSpeed = 6;
-
-    private BlobAssetStore _spawnerBlobStore;
-    private EntityManager _entityManager;
-    private Entity[] _enemyEntityPrefabs;
+    
 
     void Start()
     {
-        _spawnerBlobStore = new BlobAssetStore();
-        _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        
-        var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, _spawnerBlobStore);
-        _enemyEntityPrefabs = new Entity[enemyPrefabs.Length];
-        for (int i = 0; i < _enemyEntityPrefabs.Length; i++)
-        {
-            _enemyEntityPrefabs[i] = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefabs[i], settings);
-        } 
-
         StartGame();
     }
 
@@ -59,22 +44,18 @@ public class EnemiesSpawner : MonoBehaviour
 
     private void SpawnWave()
     {
-        var enemyArray = new NativeArray<Entity>(spawnCount, Allocator.Temp);
-        
-        for (int i = 0; i < enemyArray.Length; i++)
+        for (int i = 0; i < spawnCount; i++)
         {
-            enemyArray[i] =
-                _entityManager.Instantiate(_enemyEntityPrefabs[Random.Range(0, _enemyEntityPrefabs.Length)]);
-
-            _entityManager.SetComponentData(enemyArray[i],
-                new Translation
-                {
-                    Value = RandomPointOnCircle(new float3(0, Random.Range(5, 25), 0),
-                        spawnRadius + Random.Range(-spawnRadius * 0.25f, spawnRadius * 0.25f))
-                });
+            PoolManager.Instance.GetObject(enemyPrefabs[Random.Range(0, enemyPrefabs.Length)], (entity, manager) =>
+            {
+                manager.SetComponentData(entity,
+                    new Translation
+                    {
+                        Value = RandomPointOnCircle(new float3(0, Random.Range(5, 25), 0),
+                            spawnRadius + Random.Range(-spawnRadius * 0.25f, spawnRadius * 0.25f))
+                    });
+            });
         }
-        
-        enemyArray.Dispose();
         
         spawnCount += difficultyBonus;
     }
