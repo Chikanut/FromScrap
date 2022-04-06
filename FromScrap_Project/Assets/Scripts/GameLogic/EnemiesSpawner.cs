@@ -46,7 +46,7 @@ public class EnemiesSpawner : MonoBehaviour
     {
         for (int i = 0; i < spawnCount; i++)
         {
-            PoolManager.Instance.GetObject(enemyPrefabs[Random.Range(0, enemyPrefabs.Length)], (entity, manager) =>
+            EntityPoolManager.Instance.GetObject(enemyPrefabs[Random.Range(0, enemyPrefabs.Length)], (entity, manager) =>
             {
                 manager.SetComponentData(entity,
                     new Translation
