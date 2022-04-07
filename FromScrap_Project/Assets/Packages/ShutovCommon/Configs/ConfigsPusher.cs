@@ -6,10 +6,10 @@ using Zenject;
 
 public class ConfigsPusher : MonoBehaviour
 {
-    [SerializeField] private BaseConfigScriptable _testConfig;
+    [SerializeField] private EnemySpawnerConfigScriptable _enemySpawnerConfig;
 
     private ISignalService _signalService;
-    private IBaseConfigController _locationsConfigController;
+    private IEnemySpawnerConfigController _enemySpawnerConfigController;
 
     private CompositeDisposable _disposeOnExit = new CompositeDisposable();
     
@@ -21,26 +21,26 @@ public class ConfigsPusher : MonoBehaviour
     [Inject]
     public void Inject(
         ISignalService signalService,
-        IBaseConfigController locationsConfigController
+        IEnemySpawnerConfigController enemySpawnerConfigController
     )
     {
         _signalService = signalService;
-        _locationsConfigController = locationsConfigController;
+        _enemySpawnerConfigController = enemySpawnerConfigController;
 
         signalService.Receive<LoadGameInfoSignal>().Subscribe(ParsConfig).AddTo(_disposeOnExit);
     }
 
     private void ParsConfig(LoadGameInfoSignal signal)
     {
-        ParsLocationConfig();
+        ParsEnemySpawnerConfig();
         
         _signalService.Publish(new ConfigUpdatedSignal());
     }
     
-    private void ParsLocationConfig()
+    private void ParsEnemySpawnerConfig()
     {
-        if (_testConfig == null) return;
-        _locationsConfigController.SetInfo(_testConfig);
+        if (_enemySpawnerConfig == null) return;
+        _enemySpawnerConfigController.SetInfo(_enemySpawnerConfig);
     }
 
 }

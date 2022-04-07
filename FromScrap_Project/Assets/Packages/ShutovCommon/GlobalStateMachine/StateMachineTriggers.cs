@@ -3,6 +3,11 @@ namespace ShootCommon.GlobalStateMachine
     public enum StateMachineTriggers 
     {
         Start,
-        InitGame
+        //GamePlayStates
+        InitGame,
+        StartGame,
+        Game,
+        EndGame,
+        Results
     }
 }

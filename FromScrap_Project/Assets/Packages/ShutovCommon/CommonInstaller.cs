@@ -15,6 +15,7 @@ namespace Common
             
             GlobalStateMachineInstaller.Install(Container);
             StorageInstaller.Install(Container);
+            GamePlayInstaller.Install(Container);
         }
     }
 }

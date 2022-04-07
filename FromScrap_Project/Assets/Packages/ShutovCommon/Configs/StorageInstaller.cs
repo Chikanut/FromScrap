@@ -7,7 +7,7 @@ namespace Packages.Common.Storage
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<BaseConfigController>().AsSingle();
+            Container.BindInterfacesTo<EnemySpawnerConfigController>().AsSingle();
         }
     }
 }

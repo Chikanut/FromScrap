@@ -9,6 +9,7 @@ namespace Packages.Common.StateMachineGlobal
         public override void InstallBindings()
         {
             Container.BindState<InitState>();
+            
             Container.BindState<StartState>();
             Container.BindState<InitGameState>();
 
