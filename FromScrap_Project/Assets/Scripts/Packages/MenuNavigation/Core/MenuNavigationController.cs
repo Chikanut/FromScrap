@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace MenuNavigation {
@@ -28,10 +29,10 @@ namespace MenuNavigation {
             _canvasGroup = canvasGroup;
         }
 
-        public async Task<T> ShowMenuScreen<T>(Action onFinish = null) where T : MenuScreen
+        public async Task<T> ShowMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen
         {
             _canvasGroup.interactable = false;
-            var menuScreen = await Showable.Create<T>(this, _menuScreensParent);
+            var menuScreen = await Showable.Create<T>(this, _menuScreensParent, showableName);
             _menuScreens[menuScreen.GetType()] = menuScreen;
             menuScreen.transform.SetAsLastSibling();
             menuScreen.IsActive = true;
@@ -42,8 +43,8 @@ namespace MenuNavigation {
             });
             return menuScreen;
         }
-
-        public void HideMenuScreen<T>(Action onFinish = null) where T : MenuScreen
+        
+        public void HideMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen
         {
             if (_menuScreens.Count < 2 || !_menuScreens.Values.Any(e => e.IsActive))
             {
@@ -51,7 +52,7 @@ namespace MenuNavigation {
                 return;
             }
 
-            if (!TryGetMenuScreen<T>(out var screen))
+            if (!TryGetMenuScreen<T>(out var screen, showableName))
             {
                 Debug.LogWarning($"Menu Screen of type '{typeof(T)}' does not exist yet!");
                 return;
@@ -74,10 +75,10 @@ namespace MenuNavigation {
             });
         }
 
-        public async Task<T> ShowPopup<T>(Action onFinish = null) where T : Popup
+        public async Task<T> ShowPopup<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : Popup
         {
             _canvasGroup.interactable = false;
-            var popup = await Showable.Create<T>(this, _popupsParent);
+            var popup = await Showable.Create<T>(this, _popupsParent, showableName);
             _popups[popup.GetType()] = popup;
             popup.transform.SetAsLastSibling();
             popup.IsActive = true;
@@ -89,10 +90,10 @@ namespace MenuNavigation {
             return popup;
         }
 
-        public void HidePopup<T>(Action onFinish = null) where T : Popup
+        public void HidePopup<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : Popup
         {
             if (!_popups.Values.Any(pop => pop.IsActive)) return;
-            if (!TryGetPopup<T>(out var popup))
+            if (!TryGetPopup<T>(out var popup, showableName))
             {
                 Debug.LogWarning($"Popup of type '{typeof(T)}' does not exist yet!");
                 return;
@@ -120,7 +121,7 @@ namespace MenuNavigation {
             }
         }
 
-        public async Task<T> ShowScreenElement<T>(Action onFinish = null)
+        public async Task<T> ShowScreenElement<T>(Action onFinish = null, [CanBeNull] string showableName = null)
             where T : ScreenElement
         {
             _canvasGroup.interactable = false;
@@ -141,7 +142,7 @@ namespace MenuNavigation {
             
             if (element == null)
             {
-                element = await Showable.Create<T>(this, _screenElementsPoolParent);
+                element = await Showable.Create<T>(this, _screenElementsPoolParent, showableName);
 
                 if (_screenElementsPool.ContainsKey(typeof(T)))
                     _screenElementsPool[type].Add(element);
@@ -185,19 +186,21 @@ namespace MenuNavigation {
             element.transform.SetParent(_screenElementsPoolParent);
         }
 
-        public bool TryGetPopup<T>(out T popup) where T : Popup
+        public bool TryGetPopup<T>(out T popup, [CanBeNull] string showableName = null) where T : Popup
         {
             var type = typeof(T);
-            var hasPopup = _popups.TryGetValue(type, out var p);
-            popup = (T) p;
+            var sortedPopups = _popups.Where(p => p.Key == type && (showableName == null || p.Value.CurrentShowableName == showableName)).ToList();
+            var hasPopup = sortedPopups.Count > 0;
+            popup = sortedPopups[0].Value as T;
             return hasPopup;
         }
 
-        public bool TryGetMenuScreen<T>(out T menuScreen) where T : MenuScreen
+        public bool TryGetMenuScreen<T>(out T menuScreen, [CanBeNull] string showableName = null) where T : MenuScreen
         {
             var type = typeof(T);
-            var hasMenuScreen = _menuScreens.TryGetValue(type, out var screen);
-            menuScreen = (T) screen;
+            var sortedMenus = _menuScreens.Where(m => m.Key == type && (showableName == null || m.Value.CurrentShowableName == showableName)).ToList();
+            var hasMenuScreen = sortedMenus.Count > 0;
+            menuScreen = sortedMenus[0].Value as T;
             return hasMenuScreen;
         }
 
