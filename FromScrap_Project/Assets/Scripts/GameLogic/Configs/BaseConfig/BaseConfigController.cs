@@ -6,11 +6,9 @@ namespace Packages.Common.Storage.Config
     {
         private BaseConfigData _model;
         
-        public virtual void SetInfo(BaseConfigData data)
+        public virtual void SetInfo(BaseConfigScriptable data)
         {
-            _model = data;
-            
-            Debug.Log(_model.TestString);
+            _model = data.BaseData;
         }
     }
 }

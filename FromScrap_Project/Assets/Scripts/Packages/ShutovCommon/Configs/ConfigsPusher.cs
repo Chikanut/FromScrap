@@ -6,7 +6,7 @@ using Zenject;
 
 public class ConfigsPusher : MonoBehaviour
 {
-    [SerializeField] private BaseConfigData _testConfig;
+    [SerializeField] private BaseConfigScriptable _testConfig;
 
     private ISignalService _signalService;
     private IBaseConfigController _locationsConfigController;
@@ -27,13 +27,13 @@ public class ConfigsPusher : MonoBehaviour
         _signalService = signalService;
         _locationsConfigController = locationsConfigController;
 
-        signalService.Receive<LoadGameInfoSignal>().Subscribe((signal) => { ParsConfig();}) .AddTo(_disposeOnExit);
+        signalService.Receive<LoadGameInfoSignal>().Subscribe(ParsConfig).AddTo(_disposeOnExit);
     }
 
-    private void ParsConfig()
+    private void ParsConfig(LoadGameInfoSignal signal)
     {
         ParsLocationConfig();
-
+        
         _signalService.Publish(new ConfigUpdatedSignal());
     }
     

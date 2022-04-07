@@ -26,10 +26,6 @@ namespace Visartech.Progress
                 }
             }
 
-            public int CurrentLevel;
-            public int CurrentSlimes;
-            public bool PlayedLevel;
-
         }
 
         [Serializable]

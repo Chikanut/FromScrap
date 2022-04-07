@@ -1,18 +1,19 @@
-using ShootCommon.GlobalStateMachine;
+﻿using ShootCommon.GlobalStateMachine;
 using Stateless;
+using UnityEngine;
 
 namespace Packages.Common.StateMachineGlobal.States
 {
-    public class InitState : GlobalState
+    public class InitGameState : GlobalState
     {
         protected override void Configure()
         {
-             Permit<StartState>(StateMachineTriggers.Start);
+
         }
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
         {
-
+            
         }
     }
 }

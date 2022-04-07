@@ -1,5 +1,4 @@
 using Packages.Common.StateMachineGlobal.States;
-using Packages.StateMachineGlobal.States;
 using ShootCommon.GlobalStateMachine;
 using Zenject;
 
@@ -11,6 +10,7 @@ namespace Packages.Common.StateMachineGlobal
         {
             Container.BindState<InitState>();
             Container.BindState<StartState>();
+            Container.BindState<InitGameState>();
 
             //Bind states inside
             
