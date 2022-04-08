@@ -12,17 +12,20 @@ namespace Packages.Common.Storage.Config
         {
             public float RangeSpawnDuration;
             public float SpawnsPerSecond;
+            public AnimationCurve SpawnIntensityCurve;
 
             [Serializable]
             public class EnemySpawnInfo
             {
                 public GameObject EnemyPrefab;
+                [Range(0,100)]
                 public float SpawnChance;
             }
 
             public List<EnemySpawnInfo> EnemySpawnInfos = new List<EnemySpawnInfo>();
         }
 
+        public float SpawnOffset = 4;
         public List<SpawnRange> SpawnRanges = new List<SpawnRange>();
     }
 }

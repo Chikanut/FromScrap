@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using WeaponsSystem.Base.Components;
+using UnityEngine;
 
 public partial class RotateTowardsTargetSystem : SystemBase
 {
@@ -9,7 +9,10 @@ public partial class RotateTowardsTargetSystem : SystemBase
     {
         var time = Time.DeltaTime;
         
-        Entities.ForEach((ref Rotation rotation, ref RotateTowardsTarget rotateTowards, in LocalToWorld localToWorld, in HasTarget target) =>
+        var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
+        var prnt = GetComponentDataFromEntity<Parent>(true);
+        
+        Entities.ForEach((Entity entity, ref Rotation rotation, ref RotateTowardsTarget rotateTowards, in LocalToWorld localToWorld, in HasTarget target) =>
         {
             if (target.TargetEntity == Entity.Null)
             {
@@ -24,12 +27,29 @@ public partial class RotateTowardsTargetSystem : SystemBase
                 targetPosition.y = localToWorld.Position.y;
             
             var dir = targetPosition - localToWorld.Position;
+            var up = new float3(0, 1, 0);
             
-            rotation.Value = math.slerp(rotation.Value, quaternion.LookRotationSafe(dir, new float3(0, 1, 0)), rotateTowards.RotationSpeed * time);
+            if (prnt.HasComponent(entity))
+            {
+                var parent =  prnt[entity];
+
+                if (ltw.HasComponent(parent.Value))
+                {
+                    var parentTransform = ltw[parent.Value];
+                    
+                    dir = parentTransform.Value.WorldToLocal(dir + parentTransform.Position);
+                    up = parentTransform.Up;
+                    
+                    // angle = dir.Angle(localToWorld.Forward);
+                }
+            }
+ 
+            rotation.Value = math.slerp(rotation.Value, quaternion.LookRotationSafe(dir, up), rotateTowards.RotationSpeed * time);
             
             var angle = dir.Angle(localToWorld.Forward);
+            // Debug.Log(angle);
             
             rotateTowards.IsRotated = angle < rotateTowards.IsRotatedRadius;
-        }).ScheduleParallel();
+        }).WithReadOnly(ltw).WithReadOnly(prnt).ScheduleParallel();
     }
 }

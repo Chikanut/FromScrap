@@ -1,5 +1,3 @@
-using Packages.Common.StateMachineGlobal.States;
-using ShootCommon.GlobalStateMachine;
 using Zenject;
 
 namespace Packages.Common.StateMachineGlobal
@@ -8,7 +6,7 @@ namespace Packages.Common.StateMachineGlobal
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<EnemiesSpawner>().AsSingle();
+            Container.BindInterfacesTo<EnemiesSpawnerSystem>().AsSingle();
         }
     }
 }

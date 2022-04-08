@@ -222,13 +222,13 @@ namespace VertexFragment
             return gotHit;
         }
         
-        public unsafe static (bool isHit, RaycastHit hitInfo) Raycast(float3 RayFrom, float3 RayTo, CollisionFilter filter, in CollisionWorld collisionWorld)
+        public unsafe static (bool isHit, RaycastHit hitInfo) Raycast(float3 RayFrom, float3 RayTo, in CollisionWorld collisionWorld, CollisionFilter? filter = null)
         {
             var input = new RaycastInput()
             {
                 Start = RayFrom,
                 End = RayTo,
-                Filter = filter
+                Filter = (filter.HasValue ? filter.Value : PhysicsCollisionFilters.AllWithAll)
             };
 
             var isHit = collisionWorld.CastRay(input, out var hit);

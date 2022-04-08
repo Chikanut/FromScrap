@@ -37,11 +37,11 @@ public partial class GameCharacterMovementSystem : SystemBase
             var newDirection = new float3(movementComponent.HorizontalAxis, 0f, movementComponent.VerticalAxis);
             newDirection = Vector3.ClampMagnitude(newDirection, 1f);
 
-            var horizonNormal = new Vector3(0f, 1f, 0f);
-            var horizonLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
-
-            if (horizonLevel < movementComponent.CarCriticalMovementLevel)
-                newDirection = float3.zero;
+            // var horizonNormal = new Vector3(0f, 1f, 0f);
+            // var horizonLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
+            //
+            // if (horizonLevel < movementComponent.CarCriticalMovementLevel)
+            //     newDirection = float3.zero;
 
             float boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
 
@@ -66,11 +66,11 @@ public partial class GameCharacterMovementSystem : SystemBase
 
             velocity.Angular.y = orient * movementComponent.RotationSpeed;
 
-            if (horizonLevel < movementComponent.CarStabilizationLevel)
-            {
-                velocity.Angular.x = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
-                velocity.Angular.z = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
-            }
+            // if (horizonLevel < movementComponent.CarStabilizationLevel)
+            // {
+            //     velocity.Angular.x = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
+            //     velocity.Angular.z = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
+            // }
         }).ScheduleParallel();
     }
 }

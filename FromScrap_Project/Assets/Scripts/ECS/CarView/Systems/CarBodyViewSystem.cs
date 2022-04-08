@@ -1,8 +1,14 @@
 using Cars.View.Components;
+using Packages.Common.Storage.Config;
+using ShootCommon.GlobalStateMachine;
+using ShootCommon.GlobalStateMachine.States;
+using ShootCommon.Signals;
+using UniRx;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Zenject;
 
 namespace Cars.View.Systems
 {
