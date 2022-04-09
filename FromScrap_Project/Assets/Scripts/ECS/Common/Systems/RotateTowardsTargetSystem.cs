@@ -1,7 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class RotateTowardsTargetSystem : SystemBase
 {
@@ -39,16 +38,14 @@ public partial class RotateTowardsTargetSystem : SystemBase
                     
                     dir = parentTransform.Value.WorldToLocal(dir + parentTransform.Position);
                     up = parentTransform.Up;
-                    
-                    // angle = dir.Angle(localToWorld.Forward);
                 }
             }
  
             rotation.Value = math.slerp(rotation.Value, quaternion.LookRotationSafe(dir, up), rotateTowards.RotationSpeed * time);
-            
-            var angle = dir.Angle(localToWorld.Forward);
-            // Debug.Log(angle);
-            
+
+            var angleDir = targetPosition - localToWorld.Position;
+            var angle = angleDir.Angle(localToWorld.Forward);
+
             rotateTowards.IsRotated = angle < rotateTowards.IsRotatedRadius;
         }).WithReadOnly(ltw).WithReadOnly(prnt).ScheduleParallel();
     }
