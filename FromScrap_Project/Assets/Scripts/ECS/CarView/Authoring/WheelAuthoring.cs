@@ -94,7 +94,7 @@ namespace Cars.View.Authorings
             UnityEditor.Handles.color = Color.green;
             UnityEditor.Handles.DrawWireDisc(transform.position, transform.right, wheel.Radius);
             var startPoint = transform.position + transform.parent.up * wheel.SuspensionOffset;
-            Gizmos.DrawLine(startPoint,startPoint-Vector3.down*wheel.SuspensionDistance);
+            Gizmos.DrawLine(startPoint,startPoint+transform.parent.up*wheel.SuspensionDistance);
 
         }
 #endif

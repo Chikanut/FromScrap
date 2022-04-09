@@ -105,7 +105,7 @@ namespace Cars.View.Authorings
         void DrawLineDown(Vector3 startPoint)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(startPoint, startPoint + Vector3.down * CarHeigh);
+            Gizmos.DrawLine(startPoint, startPoint - transform.parent.up * CarHeigh);
         }
 #endif
     }
