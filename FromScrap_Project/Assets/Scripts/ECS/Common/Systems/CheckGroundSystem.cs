@@ -56,7 +56,8 @@ public partial class CheckGroundSystem : SystemBase
                     CollisionFilter = groundInfoData[i].CollisionFilter,
                     isGrounded = isHit,
                     GroundPosition = hitInfo.Position,
-                    GroundNormal = hitInfo.SurfaceNormal
+                    GroundNormal = hitInfo.SurfaceNormal,
+                    isLocalDown = groundInfoData[i].isLocalDown
                 };
             }
         }).WithReadOnly(collisionWorld).ScheduleParallel();
