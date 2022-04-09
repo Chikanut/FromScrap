@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,8 +42,18 @@ public class TemplateDataEditor : Editor
 
         for (int i = 0; i < _templateData.arraySize; i++)
         {
+            if (i != 0)
+            {
+                _templateData.GetArrayElementAtIndex(i).FindPropertyRelative("isAdditionalFile").boolValue =
+                    EditorGUILayout.Toggle("Additional file : ", _templateData.GetArrayElementAtIndex(i).FindPropertyRelative("isAdditionalFile").boolValue);
+            }
+            
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.BeginVertical();
+            
+            _templateData.GetArrayElementAtIndex(i).FindPropertyRelative("InternalPath").stringValue =
+                EditorGUILayout.TextField("File internal folder path : ",
+                    _templateData.GetArrayElementAtIndex(i).FindPropertyRelative("InternalPath").stringValue);
             
             _templateData.GetArrayElementAtIndex(i).FindPropertyRelative("FileNameTemplate").stringValue =
                 EditorGUILayout.TextField("File name template : ",
@@ -55,7 +67,7 @@ public class TemplateDataEditor : Editor
             
             if (GUILayout.Button("-"))
                 _templateData.DeleteArrayElementAtIndex(i);
-
+            
             EditorGUILayout.EndHorizontal();
             
             
@@ -105,6 +117,8 @@ public class TemplateDataEditor : Editor
     {
         public string FileName;
         public string FileText;
+        public string InternalPath;
+        public bool CreateFile;
     }
 
     private List<FileCreationData> _filesData = new List<FileCreationData>();
@@ -122,7 +136,10 @@ public class TemplateDataEditor : Editor
         for (int i = 0; i < templateData.Count; i++)
         {
             _replaceTexts.Add(new List<string>());
-            _filesData.Add(new FileCreationData());
+            _filesData.Add(new FileCreationData()
+            {
+                CreateFile = !templateData[i].isAdditionalFile
+            });
             for (int j = 0; j < templateData[i].ReplaceNames.Count; j++)
             {
                 _replaceTexts[i].Add("");
@@ -145,10 +162,18 @@ public class TemplateDataEditor : Editor
         
         for (int i = 0; i < templateData.Count; i++)
         {
+            if (templateData[i].isAdditionalFile)
+            {
+                _filesData[i].CreateFile = EditorGUILayout.Toggle("Create this file : ", _filesData[i].CreateFile);
+            }
+
             _filesData[i].FileName = templateData[i].FileNameTemplate
                 .Replace(templateData[i].FileNameReplace, _templateName);
-            
-            EditorGUILayout.LabelField(_filesData[i].FileName+".cs");
+            _filesData[i].InternalPath =
+                templateData[i].InternalPath.Replace(templateData[i].FileNameReplace, _templateName);
+
+            EditorGUILayout.LabelField((string.IsNullOrEmpty(_filesData[i].InternalPath) ? "" : _filesData[i].InternalPath+"/") +
+                                       _filesData[i].FileName + ".cs");
             
             _filesData[i].FileText = templateData[i].Template;
             _filesData[i].FileText =  _filesData[i].FileText.Replace("*Name", _templateName);
@@ -174,9 +199,14 @@ public class TemplateDataEditor : Editor
             path += "/";
             for (int i = 0; i < _filesData.Count; i++)
             {
-                var filePath = path + _filesData[i].FileName + ".cs";
-
-                System.IO.File.WriteAllText(filePath, _filesData[i].FileText);
+                if(!_filesData[i].CreateFile) continue;
+                
+                var folder = Directory.CreateDirectory(path +(string.IsNullOrEmpty(_filesData[i].InternalPath) ? "" : _filesData[i].InternalPath));
+                var filePath = folder.FullName+"/" + _filesData[i].FileName + ".cs";
+                var file = File.Create(filePath);
+                var info = new UTF8Encoding(true).GetBytes(_filesData[i].FileText);
+                file.Write(info, 0, info.Length);
+                file.Close();
             }
             
             AssetDatabase.Refresh();

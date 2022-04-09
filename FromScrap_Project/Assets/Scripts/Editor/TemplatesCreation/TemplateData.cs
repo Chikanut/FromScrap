@@ -9,6 +9,8 @@ public class TemplateData : ScriptableObject
     {
         public string FileNameTemplate;
         public string FileNameReplace;
+        public string InternalPath;
+        public bool isAdditionalFile;
         
         public string Template;
         public List<string> ReplaceNames = new List<string>();
