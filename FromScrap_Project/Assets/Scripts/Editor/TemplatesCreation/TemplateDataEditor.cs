@@ -195,7 +195,7 @@ public class TemplateDataEditor : Editor
 
         if (GUILayout.Button("Create"))
         {
-            var path = EditorUtility.OpenFolderPanel("Save template", "Assets/Scripts/GameLogic", "");
+            var path = EditorUtility.OpenFolderPanel("Save template", "Assets/Scripts", "");
             path += "/";
             for (int i = 0; i < _filesData.Count; i++)
             {
