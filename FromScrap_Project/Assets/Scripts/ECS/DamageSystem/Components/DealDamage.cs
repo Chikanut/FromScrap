@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using Unity.Physics;
 
 namespace DamageSystem.Components
 {
@@ -7,6 +8,10 @@ namespace DamageSystem.Components
     [Serializable]
     public struct DealDamage : IComponentData
     {
+        public float DamageDelay;
         public int Value;
+        public bool isReloading;
+        public double PrevHitTime;
+        
     }
 }

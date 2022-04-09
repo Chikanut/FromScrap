@@ -1,9 +1,11 @@
-﻿using DamageSystem.Components;
+﻿using System.Linq;
+using DamageSystem.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Physics;
 using Unity.Physics.Systems;
+using UnityEngine;
 
 namespace DamageSystem.Systems
 {
@@ -14,55 +16,105 @@ namespace DamageSystem.Systems
 
         struct DamageTriggerJob : ITriggerEventsJob
         {
-            public BufferFromEntity<Damage> DamageGroup;
+            public double Time;
+            
+            [ReadOnly] public BufferFromEntity<PhysicsColliderKeyEntityPair> ColliderPairs;
             [ReadOnly] public ComponentDataFromEntity<Dead> DeadGroup;
-            [ReadOnly] public ComponentDataFromEntity<DealDamage> DealDamageGroup;
-
+            
+            public BufferFromEntity<Damage> DamageGroup;
+            public ComponentDataFromEntity<DealDamage> DealDamageGroup;
+            
             public void Execute(TriggerEvent triggerEvent)
             {
-                CalculateDamage(triggerEvent.EntityA, triggerEvent.EntityB);
-                CalculateDamage(triggerEvent.EntityB, triggerEvent.EntityA);
+                var colliderEntityA = UpdateEntityWithChilds(triggerEvent.EntityA, triggerEvent.ColliderKeyA.Value);
+                var colliderEntityB = UpdateEntityWithChilds(triggerEvent.EntityB, triggerEvent.ColliderKeyB.Value);
+
+                CalculateDamage(colliderEntityA, colliderEntityB);
+                CalculateDamage(colliderEntityB, colliderEntityA);
             }
 
+            Entity UpdateEntityWithChilds(Entity entity, uint colliderKey)
+            {
+                if (!ColliderPairs.HasComponent(entity)) return entity;
+                
+                var colliderPairs = ColliderPairs[entity];
+                for (int i = 0; i < colliderPairs.Length; i++)
+                {
+                    if (colliderPairs[i].Key.Value == colliderKey)
+                    {
+                        return colliderPairs[i].Entity;
+                    }
+                }
+
+                return entity;
+            }
+            
             void CalculateDamage(Entity EntityA, Entity EntityB)
             {
                 if(DeadGroup.HasComponent(EntityB)) return;
-                if (!DealDamageGroup.HasComponent(EntityA)) return;
+                if (!DealDamageGroup.HasComponent(EntityA) || DealDamageGroup[EntityA].isReloading) return;
+                if (!DamageGroup.HasComponent(EntityB)) return;
                 
-                if (DamageGroup.HasComponent(EntityB))
+                var dealDamage = DealDamageGroup[EntityA];
+                DamageGroup[EntityB].Add(new Damage()
                 {
-                    DamageGroup[EntityB].Add(new Damage()
-                    {
-                        Value = DealDamageGroup[EntityA].Value
-                    });
-                }
+                    Value = dealDamage.Value
+                });
+                    
+                dealDamage.PrevHitTime = Time;
+                DealDamageGroup[EntityA] = dealDamage;
             }
         }
         
         struct DamageCollisionJob : ICollisionEventsJob
         {
-            public BufferFromEntity<Damage> DamageGroup;
+            public double Time;
+            
+            [ReadOnly] public BufferFromEntity<PhysicsColliderKeyEntityPair> ColliderPairs;
             [ReadOnly] public ComponentDataFromEntity<Dead> DeadGroup;
-            [ReadOnly] public ComponentDataFromEntity<DealDamage> DealDamageGroup;
+            
+            public BufferFromEntity<Damage> DamageGroup;
+            public ComponentDataFromEntity<DealDamage> DealDamageGroup;
 
             public void Execute(CollisionEvent triggerEvent)
             {
-                CalculateDamage(triggerEvent.EntityA, triggerEvent.EntityB);
-                CalculateDamage(triggerEvent.EntityB, triggerEvent.EntityA);
+                var colliderEntityA = UpdateEntityWithChilds(triggerEvent.EntityA, triggerEvent.ColliderKeyA.Value);
+                var colliderEntityB = UpdateEntityWithChilds(triggerEvent.EntityB, triggerEvent.ColliderKeyB.Value);
+
+                CalculateDamage(colliderEntityA, colliderEntityB);
+                CalculateDamage(colliderEntityB, colliderEntityA);
             }
 
+            Entity UpdateEntityWithChilds(Entity entity, uint colliderKey)
+            {
+                if (!ColliderPairs.HasComponent(entity)) return entity;
+                
+                var colliderPairs = ColliderPairs[entity];
+                for (int i = 0; i < colliderPairs.Length; i++)
+                {
+                    if (colliderPairs[i].Key.Value == colliderKey)
+                    {
+                        return colliderPairs[i].Entity;
+                    }
+                }
+
+                return entity;
+            }
+            
             void CalculateDamage(Entity EntityA, Entity EntityB)
             {
                 if(DeadGroup.HasComponent(EntityB)) return;
-                if (!DealDamageGroup.HasComponent(EntityA)) return;
+                if (!DealDamageGroup.HasComponent(EntityA) || DealDamageGroup[EntityA].isReloading) return;
+                if (!DamageGroup.HasComponent(EntityB)) return;
                 
-                if (DamageGroup.HasComponent(EntityB))
+                var dealDamage = DealDamageGroup[EntityA];
+                DamageGroup[EntityB].Add(new Damage()
                 {
-                    DamageGroup[EntityB].Add(new Damage()
-                    {
-                        Value = DealDamageGroup[EntityA].Value
-                    });
-                }
+                    Value = dealDamage.Value
+                });
+                    
+                dealDamage.PrevHitTime = Time;
+                DealDamageGroup[EntityA] = dealDamage;
             }
         }
 
@@ -76,20 +128,26 @@ namespace DamageSystem.Systems
         protected override void OnUpdate()
         {                                                        
             var damage = GetBufferFromEntity<Damage>();
-            var dealDamage = GetComponentDataFromEntity<DealDamage>(true);
+            var colliderPair = GetBufferFromEntity<PhysicsColliderKeyEntityPair>(true);
+            var dealDamage = GetComponentDataFromEntity<DealDamage>();
             var dead = GetComponentDataFromEntity<Dead>(true);
+            var time = Time.ElapsedTime;
             
             var damageTriggerJob = new DamageTriggerJob()
             {
                 DamageGroup = damage,
                 DeadGroup = dead,
-                DealDamageGroup = dealDamage
+                DealDamageGroup = dealDamage,
+                Time = time,
+                ColliderPairs = colliderPair
             };
             var damageCollisionJob = new DamageCollisionJob()
             {
                 DamageGroup = damage,
                 DeadGroup = dead,
-                DealDamageGroup = dealDamage
+                DealDamageGroup = dealDamage,
+                Time = time,
+                ColliderPairs = colliderPair
             };
             
             damageTriggerJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
