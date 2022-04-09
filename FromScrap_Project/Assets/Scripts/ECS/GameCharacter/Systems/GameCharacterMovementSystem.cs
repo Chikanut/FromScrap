@@ -11,8 +11,11 @@ public partial class GameCharacterMovementSystem : SystemBase
         float fixedDeltaTime = Time.fixedDeltaTime;
         float deltaTime = Time.DeltaTime;
 
+        var groundInfo = GetComponentDataFromEntity<GroundInfoData>(true);
+        var multyGroundInfo = GetBufferFromEntity<MultyGroundInfoData>(true);
+        
         Entities.WithAll<
-            GameCharacterMovementComponent>().ForEach((
+            GameCharacterMovementComponent>().ForEach((Entity entity,
             ref GameCharacterMovementComponent movementComponent,
             ref PhysicsVelocity velocity,
             ref PhysicsMass mass,
@@ -37,6 +40,25 @@ public partial class GameCharacterMovementSystem : SystemBase
             var newDirection = new float3(movementComponent.HorizontalAxis, 0f, movementComponent.VerticalAxis);
             newDirection = Vector3.ClampMagnitude(newDirection, 1f);
 
+            if (groundInfo.HasComponent(entity) && !groundInfo[entity].isGrounded)
+            {
+                return;
+            }
+
+            if (multyGroundInfo.HasComponent(entity))
+            {
+                var collided = false;
+                var groundInfo = multyGroundInfo[entity];
+                for (int i = 0; i < groundInfo.Length; i++)
+                {
+                    if (groundInfo[i].isGrounded)
+                        collided = true;
+                }
+                
+                if(!collided)
+                    return;
+            }
+
             // var horizonNormal = new Vector3(0f, 1f, 0f);
             // var horizonLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
             //
@@ -44,7 +66,7 @@ public partial class GameCharacterMovementSystem : SystemBase
             //     newDirection = float3.zero;
 
             float boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
-
+            
             movementComponent.CurrentVelocity = Vector3.Lerp(
                 movementComponent.CurrentVelocity,
                 newDirection * movementComponent.MaxSpeed * boost * fixedDeltaTime,
@@ -71,6 +93,6 @@ public partial class GameCharacterMovementSystem : SystemBase
             //     velocity.Angular.x = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
             //     velocity.Angular.z = (1f - horizonLevel) * movementComponent.CarStabilizationSpeed * fixedDeltaTime;
             // }
-        }).ScheduleParallel();
+        }).WithReadOnly(groundInfo).WithReadOnly(multyGroundInfo).ScheduleParallel();
     }
 }

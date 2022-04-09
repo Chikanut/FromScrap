@@ -23,8 +23,9 @@ public partial class CheckGroundSystem : SystemBase
 
         Entities.ForEach((ref GroundInfoData groundInfoData, in LocalToWorld localToWorld) =>
         {
+            var downDir = groundInfoData.isLocalDown ? localToWorld.Up : math.up();
             var (isHit, hitInfo) = PhysicsUtils.Raycast(localToWorld.Position,
-                localToWorld.Position - new float3(0, groundInfoData.CheckDistance, 0),
+                localToWorld.Position - downDir * groundInfoData.CheckDistance,
                 collisionWorld, groundInfoData.CollisionFilter);
             groundInfoData.isGrounded = isHit;
             groundInfoData.GroundPosition = hitInfo.Position;
@@ -35,9 +36,10 @@ public partial class CheckGroundSystem : SystemBase
         {
             for (var i = 0; i < groundInfoData.Length; i++)
             {
+                var downDir = groundInfoData[i].isLocalDown ? localToWorld.Up : math.up();
                 var startPoint = localToWorld.Value.LocalToWorld(groundInfoData[i].AnchorPoints);
                 var (isHit, hitInfo) = PhysicsUtils.Raycast(startPoint,
-                    startPoint - new float3(0, groundInfoData[i].CheckDistance, 0),
+                    startPoint - downDir * groundInfoData[i].CheckDistance,
                     collisionWorld,
                     groundInfoData[i].CollisionFilter);
 

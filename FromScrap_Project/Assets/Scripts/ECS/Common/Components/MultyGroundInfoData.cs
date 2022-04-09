@@ -11,4 +11,6 @@ public struct MultyGroundInfoData : IBufferElementData
     public float3 GroundPosition;
     public float3 GroundNormal;
     public bool isGrounded;
+    
+    public bool isLocalDown;
 }

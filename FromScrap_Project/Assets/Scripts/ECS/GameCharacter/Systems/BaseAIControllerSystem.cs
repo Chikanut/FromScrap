@@ -31,7 +31,6 @@ public partial class BaseAIControllerSystem : SystemBase
             
             controller.HorizontalAxis = dir.x;
             controller.VerticalAxis = dir.z;
-            controller.SpaceKey = target.TargetPosition.y > (translation.Value.y + 1.5f);
         }).ScheduleParallel(_findClosestTargetSystem.FindTargetHandle);
     }
 }

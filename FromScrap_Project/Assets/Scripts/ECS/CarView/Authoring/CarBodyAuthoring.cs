@@ -66,6 +66,7 @@ namespace Cars.View.Authorings
                         CollidesWith = CollideWith.Value,
                         BelongsTo = BelongsTo.Value
                     },
+                    isLocalDown = true
                 });
             }
         }
