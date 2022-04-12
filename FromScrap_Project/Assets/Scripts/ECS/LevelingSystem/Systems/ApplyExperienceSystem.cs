@@ -3,6 +3,7 @@ using Unity.Entities;
 
 namespace LevelingSystem.Systems
 {
+    [UpdateAfter(typeof(GatherExperienceSystem))]
     public partial class ApplyExperienceSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -16,14 +17,14 @@ namespace LevelingSystem.Systems
                 }
                 
                 addExperienceBuffer.Clear();
-
-                if (levelsInfo.Length <= levelComponent.Level + 1) return;
-                if (levelComponent.Experience < levelsInfo[levelComponent.Level].TargetExperience) return;
                 
-                newLevelBuffer.Add(new NewLevelBuffer() {Level = levelComponent.Level});
-                        
-                levelComponent.Experience = 0;
-                levelComponent.Level++;
+                while (levelsInfo.Length > levelComponent.Level + 1 && levelComponent.Experience >= levelsInfo[levelComponent.Level].TargetExperience)
+                {
+                    newLevelBuffer.Add(new NewLevelBuffer() {Level = levelComponent.Level});
+
+                    levelComponent.Experience -= levelsInfo[levelComponent.Level].TargetExperience;
+                    levelComponent.Level++;
+                }
             }).ScheduleParallel();
         }
     }
