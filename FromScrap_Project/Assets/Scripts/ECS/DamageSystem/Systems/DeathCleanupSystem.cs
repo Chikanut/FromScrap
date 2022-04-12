@@ -23,7 +23,6 @@ namespace DamageSystem.Systems
             {
                 ecb.DestroyEntity(entity);
             }).Run();
-            
         }
     }
 }

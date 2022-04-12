@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using IsVisible.Components;
 using Unity.Collections;
 using Unity.Entities;

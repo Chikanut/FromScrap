@@ -73,4 +73,13 @@ public class EntityPoolManager : MonoBehaviour
         
         return entity;
     }
+    
+    public Entity GetObject(Entity template, Action<Entity, EntityManager> setupCallback = null)
+    {
+        var entity = _entityManager.Instantiate(template);
+
+        setupCallback?.Invoke(entity, _entityManager);
+        
+        return entity;
+    }
 }

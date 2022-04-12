@@ -19,7 +19,7 @@ namespace DamageSystem.Systems
         {
             var ecb = _ecbSystem.CreateCommandBuffer();
 
-            Entities.WithoutBurst().WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref Health health) =>
+            Entities.WithoutBurst().WithNone<Dead, DamageBlockTimer>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref Health health) =>
             {
                 foreach (var damage in damages)
                 {
@@ -32,6 +32,18 @@ namespace DamageSystem.Systems
 
                     break;
                 }
+
+                damages.Clear();
+            }).Run();
+
+            float deltaTime = Time.DeltaTime;
+            
+            Entities.WithoutBurst().WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref DamageBlockTimer blockTimer) =>
+            {
+                blockTimer.Value -= deltaTime;
+
+                if (blockTimer.Value <= 0)
+                    ecb.RemoveComponent<DamageBlockTimer>(entity);
 
                 damages.Clear();
             }).Run();

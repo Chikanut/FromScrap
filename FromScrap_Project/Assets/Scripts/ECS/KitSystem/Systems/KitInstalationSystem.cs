@@ -89,9 +89,7 @@ namespace Kits.Systems
                     ecb.AddComponent(entity, new Parent() {Value = intalationTarget.TargetEntity});
                     ecb.AddComponent(entity, new LocalToParent());
                     ecb.SetComponent(entity, new Translation() {Value = instalationData.Offset});
-
-
-
+                    
                     if (platformInfo.CanOccupy)
                     {
                         ecb.SetComponent(intalationTarget.TargetEntity, new KitPlatformComponent()
