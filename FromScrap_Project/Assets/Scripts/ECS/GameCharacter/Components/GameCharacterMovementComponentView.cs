@@ -15,13 +15,16 @@ public struct GameCharacterMovementComponent : IComponentData
         public float MaxAcceleration { get; set; }
         public float JetPower { get; set; }
         public float JetPowerAcceleration { get; set; }
-        public float CarStabilizationLevel { get; set; }
+        public float CarStabilizationStartLevel { get; set; }
+        public float CarStabilizationEndLevel { get; set; }
         public float CarStabilizationSpeed { get; set; }
         public float CarCriticalMovementLevel { get; set; }
 
         public float3 CurrentVelocity { get; set; }
         public float CurrentJetPower { get; set; }
         public float3 CurrentDirection { get; set; }
+        public bool IsStabilization { get; set; }
+        public float CurrentSpeedModificator { get; set; }
     }
 
 [Serializable]
@@ -34,7 +37,8 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
     public float maxAcceleration = 5f;
     public float jetPower = 100f;
     public float jetPowerAcceleration = 2f;
-    public float carStabilizationLevel = 0.85f;
+    public float carStabilizationStartLevel = 0.75f;
+    public float carStabilizationEndLevel = 0.85f;
     public float carStabilizationSpeed = 50f;
     public float carCriticalMovementLevel = 0.6f;
 
@@ -42,6 +46,8 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
     public float3 currentVelocity = new float3(0f, 0f, 0f);
     public float currentJetPower = 0f;
     public float3 currentDirection = new float3(0f, 0f, 0f);
+    public bool isStabilization = false;
+    public float currentSpeedModificator = 1f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -61,9 +67,12 @@ public sealed class GameCharacterMovementComponentView : MonoBehaviour, IConvert
             CurrentVelocity = currentVelocity,
             CurrentJetPower = currentJetPower,
             CurrentDirection = currentDirection,
-            CarStabilizationLevel = carStabilizationLevel,
+            IsStabilization = isStabilization,
+            CarStabilizationStartLevel = carStabilizationStartLevel,
+            CarStabilizationEndLevel = carStabilizationEndLevel,
             CarStabilizationSpeed = carStabilizationSpeed,
-            CarCriticalMovementLevel = carCriticalMovementLevel
+            CarCriticalMovementLevel = carCriticalMovementLevel,
+            CurrentSpeedModificator = currentSpeedModificator
         });
     }
 }
