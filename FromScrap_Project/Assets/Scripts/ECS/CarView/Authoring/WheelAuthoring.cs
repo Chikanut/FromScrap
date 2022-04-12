@@ -31,8 +31,7 @@ namespace Cars.View.Authorings
         }
 
         [Header("Car Parts")] [SerializeField] private Wheel wheel;
-
-        private GroundInfoData data;
+        
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             if (transform.parent == null)

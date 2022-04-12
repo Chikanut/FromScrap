@@ -22,7 +22,7 @@ public partial class BaseAIControllerSystem : SystemBase
         {
             if (target.TargetEntity == Entity.Null )
             {
-                Debug.Log("No target");
+                // Debug.Log("No target");
                 return;
             }
         

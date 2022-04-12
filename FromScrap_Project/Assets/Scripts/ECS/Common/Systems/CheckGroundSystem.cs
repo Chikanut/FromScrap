@@ -43,11 +43,11 @@ public partial class CheckGroundSystem : SystemBase
                     collisionWorld,
                     groundInfoData[i].CollisionFilter);
 
-                if (isHit)
-                {
-                    Debug.DrawLine(localToWorld.Value.LocalToWorld(groundInfoData[i].AnchorPoints), hitInfo.Position,
-                        Color.green);
-                }
+                // if (isHit)
+                // {
+                //     Debug.DrawLine(localToWorld.Value.LocalToWorld(groundInfoData[i].AnchorPoints), hitInfo.Position,
+                //         Color.green);
+                // }
 
                 groundInfoData[i] = new MultyGroundInfoData()
                 {
