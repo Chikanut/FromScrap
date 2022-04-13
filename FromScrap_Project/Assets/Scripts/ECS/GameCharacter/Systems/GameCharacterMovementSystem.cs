@@ -66,18 +66,24 @@ public partial class GameCharacterMovementSystem : SystemBase
                 //    return;
             }
 
-            var horizonNormal = new Vector3(0f, 1f, 0f);
-            var horizonLevel = Vector3.Dot(localToWorld.Right, horizonNormal);
-            var horizonStabilityLevel = Vector3.Dot(localToWorld.Up, horizonNormal);
+            var longitudinalNormal = new Vector3(0f, 1f, 0f);
+            var lateralNormal = new Vector3(0f, 0f, 1f);
+            var horizonLevel = Vector3.Dot(localToWorld.Right, longitudinalNormal);
+            var longitudinalStabilityLevel = Vector3.Dot(localToWorld.Up, longitudinalNormal);
+            var lateralStabilityLevel = Vector3.Dot(localToWorld.Forward, lateralNormal);
             //
             // if (horizonLevel < movementComponent.CarCriticalMovementLevel)
             //     newDirection = float3.zero;
 
             if (carWheelContactedCount > 0)
             {
-                float boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
+                var boost = movementComponent.BoostKey ? movementComponent.BoostSpeedMultiplier : 1.0f;
+                var carStabilizationSpeedMultiplier = 0.5f * (longitudinalStabilityLevel + 1) / 2;
 
-                movementComponent.CurrentSpeedModificator = carWheelContactedCount / 4f * 0.5f + 0.5f;
+                if (!movementComponent.IsLongitudinalStabilization)
+                    carStabilizationSpeedMultiplier = 1f;
+
+                movementComponent.CurrentSpeedModificator = carStabilizationSpeedMultiplier * (carWheelContactedCount / 4f * 0.5f + 0.5f);
 
                 movementComponent.CurrentVelocity = Vector3.Lerp(
                     movementComponent.CurrentVelocity,
@@ -90,37 +96,52 @@ public partial class GameCharacterMovementSystem : SystemBase
                     velocity.Linear.y,
                     movementComponent.CurrentVelocity.z);
 
-                float3 dir = Vector3.Normalize(velocity.Linear);
-                dir.y = 0f;
+                if (carWheelContactedCount > 1)
+                {
+                    var dir = new float3(0f, 0f, 0f);
 
-                var orient = Vector3.Dot(dir, localToWorld.Right);
+                    if (Vector3.Magnitude(newDirection) > 0)
+                        dir = Vector3.Normalize(velocity.Linear);
 
-                if (math.abs(movementComponent.VerticalAxis) + math.abs(movementComponent.HorizontalAxis) > 0)
-                    movementComponent.CurrentDirection = Vector3.Lerp(
-                        movementComponent.CurrentDirection,
-                        dir,
-                        movementComponent.RotationSpeed * deltaTime);
+                    dir.y = 0f;
 
-                velocity.Angular.y = orient * movementComponent.RotationSpeed;
+                    var orientTarget = localToWorld.Right;
+                    var orient = Vector3.Dot(dir, orientTarget);
+
+                    orient = Mathf.Clamp(orient, -1f, 1f);
+                    movementComponent.CurrentTurnSpeedModificator = carWheelContactedCount / 4f;
+
+                    if (math.abs(movementComponent.VerticalAxis) + math.abs(movementComponent.HorizontalAxis) > 0)
+                        movementComponent.CurrentDirection = Vector3.Lerp(
+                            movementComponent.CurrentDirection,
+                            dir,
+                            movementComponent.TurnSpeed * movementComponent.CurrentTurnSpeedModificator * deltaTime);
+
+                    velocity.Angular.y = orient * movementComponent.TurnSpeed;
+                }
             }
+            
+            var alpha = horizonLevel < 0? 1: -1;
+            var carStabilizationForceMultiplier = (1 - carWheelContactedCount / 4) * 0.7f + 0.3f;
 
-            if (horizonStabilityLevel < movementComponent.CarStabilizationStartLevel && carWheelContactedCount == 0)
-                movementComponent.IsStabilization = true;
+            if (longitudinalStabilityLevel < movementComponent.CarLongitudinalStabilizationStartLevel && carWheelContactedCount == 0)
+                movementComponent.IsLongitudinalStabilization = true;
 
-            if (horizonStabilityLevel > movementComponent.CarStabilizationEndLevel)
-            {
-                movementComponent.IsStabilization = false;
-                movementComponent.CurrentSpeedModificator = 1f;
-            }
+            if (longitudinalStabilityLevel > movementComponent.CarLongitudinalStabilizationEndLevel)
+                movementComponent.IsLongitudinalStabilization = false;
 
-            if (movementComponent.IsStabilization && Vector3.Magnitude(newDirection) > 0) 
-            {
-                var alpha = horizonLevel < 0? 1: -1;
-                
-                movementComponent.CurrentSpeedModificator = (horizonStabilityLevel + 1) / 2;
-                velocity.Angular.z = alpha * movementComponent.CarStabilizationSpeed * fixedDeltaTime;// * Mathf.Abs(horizonLevel);
-                velocity.Angular.x = -alpha * movementComponent.CarStabilizationSpeed * fixedDeltaTime;// * Mathf.Abs(horizonLevel);
-            }
+            if (movementComponent.IsLongitudinalStabilization && Vector3.Magnitude(newDirection) > 0)
+                velocity.Angular.z = alpha * movementComponent.CarLongitudinalStabilizationForce * fixedDeltaTime * carStabilizationForceMultiplier;
+
+            if (lateralStabilityLevel < movementComponent.CarLateralStabilizationStartLevel && carWheelContactedCount == 0)
+                movementComponent.IsLateralStabilization = true;
+
+            if (lateralStabilityLevel > movementComponent.CarLateralStabilizationEndLevel)
+                movementComponent.IsLateralStabilization = false;
+
+            if (movementComponent.IsLateralStabilization && Vector3.Magnitude(newDirection) > 0)
+                velocity.Angular.x = -alpha * movementComponent.CarLateralStabilizationForce * fixedDeltaTime * carStabilizationForceMultiplier;
+           
             /*
             var angular = new float3(0f, 2f, 0f);
             var q = rotation.Value;
