@@ -2,7 +2,7 @@
 
 namespace Kits.Components
 {
-    public struct AddKitBuffer : IBufferElementData
+    public struct KitAddBuffer : IBufferElementData
     {
         public int CarID;
         public int PlatformID;

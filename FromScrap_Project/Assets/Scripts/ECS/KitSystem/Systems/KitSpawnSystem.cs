@@ -38,7 +38,7 @@ namespace Kits.Systems
 
         protected override void OnUpdate()
         {
-            Entities.ForEach((ref DynamicBuffer<AddKitBuffer> addKits, in DynamicBuffer<KitSchemeBuffer> scheme) =>
+            Entities.ForEach((ref DynamicBuffer<KitAddBuffer> addKits, in DynamicBuffer<KitSchemeBuffer> scheme) =>
             {
                 for (int i = 0; i < addKits.Length; i++)
                 {

@@ -53,11 +53,11 @@ namespace Kits.Authoring
                 var platformsBuffer = dstManager.GetBuffer<KitSchemeBuffer>(entity);
                 platformsBuffer.Add(new KitSchemeBuffer() {Platform = platform});
 
-                var addKitBuffer = dstManager.AddBuffer<AddKitBuffer>(entity);
+                var addKitBuffer = dstManager.AddBuffer<KitAddBuffer>(entity);
                 
                 for (int i = 0; i < data.DefaultKits.Length; i++)
                 {
-                    addKitBuffer.Add(new AddKitBuffer()
+                    addKitBuffer.Add(new KitAddBuffer()
                     {
                         PlatformID = i,
                         CarID = 0, //get car ID component
@@ -68,15 +68,4 @@ namespace Kits.Authoring
             }
         }
     }
-    
-    // // var ID = dstManager.GetComponentData<CarIDComponent>(entity).ID;
-    // var carData = _carsConfigController.GetCarData(0);
-    // for (int i = 0; i < data.DefaultKits.Length; i++)
-    // {
-    //     var i1 = i;
-    //     EntityPoolManager.Instance.GetObject(carData.UpgradesConfigs[data.DefaultKits[i]].KitObjects[0].gameObject, (kit, manager) =>
-    //     {
-    //         dstManager.AddComponentData(kit, new KitInstalatorTargetComponent() {TargetEntity = platformsBuffer[i1].Platform});
-    //     });
-    // }
 }
