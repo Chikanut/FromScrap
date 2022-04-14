@@ -1,4 +1,5 @@
-using Packages.Common.Storage.Config;
+using Packages.Common.Storage.Config.Cars;
+using Packages.Common.Storage.Config.EnemySpawner;
 using Zenject;
 
 namespace Packages.Common.Storage
@@ -8,6 +9,7 @@ namespace Packages.Common.Storage
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<EnemySpawnerConfigController>().AsSingle();
+            Container.BindInterfacesTo<CarsConfigController>().AsSingle();
         }
     }
 }

@@ -3,6 +3,7 @@ using ShootCommon.GlobalStateMachine.States;
 using ShootCommon.Signals;
 using Stateless;
 using UniRx;
+using UnityEngine;
 using Zenject;
 
 namespace ShootCommon.GlobalStateMachine

@@ -12,8 +12,6 @@ namespace Packages.Common.StateMachineGlobal
             
             Container.BindState<StartState>();
             Container.BindState<InitGameState>();
-
-            //Bind states inside
             
             Container.BindInterfacesTo<StateMachineController>().AsSingle();
         }

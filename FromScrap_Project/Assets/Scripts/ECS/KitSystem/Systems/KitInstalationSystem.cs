@@ -57,6 +57,8 @@ namespace Kits.Systems
                         ecb.DestroyEntity(entity);
                         return;
                     }
+                    
+                    var platformInfo = kpc[intalationTarget.TargetEntity];
 
                     if (!kitComponent.IsStacked)
                     {
@@ -65,15 +67,15 @@ namespace Kits.Systems
                             for (int i = 0; i < kpkb[intalationTarget.TargetEntity].Length; i++)
                             {
                                 if (GetComponent<KitComponent>(kpkb[intalationTarget.TargetEntity][i].ConnectedKit)
-                                        .ID == kitComponent.ID)
-                                {
-                                    kpkb[intalationTarget.TargetEntity].RemoveAt(i);
-                                }
+                                        .ID != kitComponent.ID) continue;
+                                
+                                ecb.DestroyEntity(kpkb[intalationTarget.TargetEntity][i].ConnectedKit);
+                                kpkb[intalationTarget.TargetEntity].RemoveAt(i);
+                                platformInfo.IsFree = true;
                             }
                         }
                     }
-
-                    var platformInfo = kpc[intalationTarget.TargetEntity];
+                    
                     if (!platformInfo.IsFree)
                     {
                         Debug.LogError("Cant connect kit to entity! Platform is occupied!");
@@ -106,6 +108,7 @@ namespace Kits.Systems
                         ecb.SetComponent(entity, new Rotation() {Value = quaternion.LookRotation(forward, up)});
                     }
 
+                    // ecb.RemoveComponent<KitInstalatorTargetComponent>(entity);
                     ecb.RemoveComponent<KitInstalatorComponent>(entity);
                 }).WithReadOnly(kpc).WithReadOnly(kpcb).Run();
         }

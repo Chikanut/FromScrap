@@ -26,7 +26,6 @@ namespace ShootCommon.GlobalStateMachine
         [Inject]
         public void Init(IState[] states)
         {
-            Debug.Log("StateMachineController Init");
             for (var i = 0; i != states.Length; i++)
             {
                 var state = states[i];
@@ -36,7 +35,6 @@ namespace ShootCommon.GlobalStateMachine
 
         public void Initialize()
         {
-            Debug.Log("StateMachineController Initialize");
             Fire(StateMachineTriggers.Start);
         }
 

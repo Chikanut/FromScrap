@@ -1,4 +1,4 @@
-using Packages.Common.Storage.Config;
+using Packages.Common.Storage.Config.EnemySpawner;
 using Packages.Utils.Extensions;
 using ShootCommon.GlobalStateMachine;
 using ShootCommon.GlobalStateMachine.States;
@@ -48,6 +48,12 @@ public partial class EnemiesSpawnerSystem : SystemBase
         _screenSize = new Vector2(Screen.width, Screen.height);
         
         ProjectContext.Instance.Container.Inject(this);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        _disposeOnDestroy.Dispose();
     }
 
     [Inject]

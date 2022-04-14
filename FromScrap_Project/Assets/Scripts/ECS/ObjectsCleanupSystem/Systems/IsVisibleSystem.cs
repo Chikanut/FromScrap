@@ -24,6 +24,12 @@ namespace IsVisible.Systems
             _screenSize = new Vector2(Screen.width, Screen.height);
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _cameraPoints.Dispose();
+        }
+
         protected override void OnUpdate()
         {
             PrepareCameraPoints();

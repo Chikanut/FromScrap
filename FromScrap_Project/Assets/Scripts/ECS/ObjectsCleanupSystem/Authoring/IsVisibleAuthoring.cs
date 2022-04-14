@@ -18,10 +18,12 @@ namespace IsVisible.Authoring
             dstManager.AddComponentData(entity, isVisibleData);
         }
 
+        #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             UnityEditor.Handles.color = Color.green;
             UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.up, ObjectRadius);
         }
+        #endif
     }
 }

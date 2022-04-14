@@ -13,7 +13,10 @@ namespace Packages.Common.StateMachineGlobal.States
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
         {
-            SubscribeToSignal<ConfigUpdatedSignal>((signal) => { Fire(StateMachineTriggers.InitGame); });
+            SubscribeToSignal<GameInfoUpdatedSignal>((signal) =>
+            {
+                Fire(StateMachineTriggers.InitGame);
+            });
             
             SignalService.Publish(new LoadGameInfoSignal());
         }

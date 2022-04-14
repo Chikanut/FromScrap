@@ -13,18 +13,10 @@ namespace Visartech.Progress
 
             public PlayerData()
             {
-                BestRecord = 0;
+                CurrentCar = 0;
             }
-            
-            private int _bestRecord;
 
-            public int BestRecord {
-                get => _bestRecord;
-                set {
-                    if(_bestRecord >= value) return;
-                    _bestRecord = value;
-                }
-            }
+            public int CurrentCar;
 
         }
 
