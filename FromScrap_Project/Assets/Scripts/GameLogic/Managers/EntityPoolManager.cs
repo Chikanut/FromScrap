@@ -36,6 +36,7 @@ public class EntityPoolManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        _poolBlobStore.Dispose();
         _entitiesLibrary.Dispose();
     }
 

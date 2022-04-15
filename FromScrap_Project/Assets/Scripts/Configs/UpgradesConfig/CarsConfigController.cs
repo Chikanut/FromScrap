@@ -21,8 +21,7 @@ namespace Packages.Common.Storage.Config.Cars
                 {
                     ID = i,
                     Prefab = data.CarsData[i].Prefab.gameObject,
-                    UpgradesConfigs = data.CarsData[i].Upgrades.Kits.Select(kitScriptable=>kitScriptable.Data).ToList(),
-                    DefaultUpgrades = data.CarsData[i].DefaultUpgrades
+                    UpgradesConfigs = data.CarsData[i].Upgrades.Kits.Select(kitScriptable=>kitScriptable.Data).ToList()
                 });
             }
         }

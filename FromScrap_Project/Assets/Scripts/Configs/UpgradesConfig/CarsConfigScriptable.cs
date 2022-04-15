@@ -14,7 +14,6 @@ namespace Packages.Common.Storage.Config.Cars
         {
             public CarViewAuthoring Prefab;
             public UpgradesConfigScriptable Upgrades;
-            public List<int> DefaultUpgrades = new List<int>();
         }
 
         public List<CarInfo> CarsData = new List<CarInfo>();

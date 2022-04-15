@@ -10,7 +10,6 @@ namespace Packages.Common.Storage.Config.Cars
         public int ID;
         public GameObject Prefab;
         public List<KitInfoData> UpgradesConfigs = new List<KitInfoData>();
-        public List<int> DefaultUpgrades = new List<int>();
     }
 
     [Serializable]
