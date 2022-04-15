@@ -162,7 +162,7 @@ public partial class EnemiesSpawnerSystem : SystemBase
         
         var collisionWorld = _physicsWorldSystem.PhysicsWorld.CollisionWorld;
         var (isHit, hitInfo) = PhysicsUtils.Raycast(spawnPoint + math.up() * 50,
-            spawnPoint - math.up() * 5, collisionWorld);
+            spawnPoint - math.up() * 50, collisionWorld);
 
         if (isHit)
             spawnPoint = hitInfo.Position;
