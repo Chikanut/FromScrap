@@ -49,7 +49,7 @@ namespace DamageSystem.Authoring
             {
                 dstManager.AddComponentData(entity, new DamageBlockTimer() {Value = _blockAllDamageOnStartSeconds});
             }
-
+            
             if (!_addHealthBar) return;
 
             var healthBarData = new AddHealthBarData()

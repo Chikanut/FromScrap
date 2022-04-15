@@ -3,7 +3,7 @@ using Unity.Entities;
 
 namespace DamageSystem.Systems
 {
-    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
+   [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public partial class DeathCleanupSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
@@ -17,12 +17,14 @@ namespace DamageSystem.Systems
 
         protected override void OnUpdate()
         {
-            EntityCommandBuffer ecb = _ecbSystem.CreateCommandBuffer();
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter ();
 
-            Entities.WithoutBurst().WithAll<Dead>().ForEach((Entity entity) =>
+            Dependency = Entities.WithoutBurst().WithAll<Dead>().ForEach((Entity entity, int entityInQueryIndex) =>
             {
-                ecb.DestroyEntity(entity);
-            }).Run();
+                ecb.DestroyEntity(entityInQueryIndex, entity);
+            }).ScheduleParallel(Dependency);
+            
+            _ecbSystem.AddJobHandleForProducer (Dependency);
         }
     }
 }

@@ -17,12 +17,15 @@ namespace ObjectsCleanup.Systems
 
         protected override void OnUpdate()
         {
-            var ecb = _ecbSystem.CreateCommandBuffer();
-            Entities.ForEach((Entity entity, in IsVisibleComponent isVisible, in LifetimeComponent lifetime) =>
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
+            
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in IsVisibleComponent isVisible, in LifetimeComponent lifetime) =>
             {
                 if(lifetime.CurrentLifetime > lifetime.MaxLifeTime && !isVisible.Value)
-                    ecb.DestroyEntity(entity);
-            }).Run();
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+            }).ScheduleParallel(Dependency);
+            
+            _ecbSystem.AddJobHandleForProducer (Dependency);
         }
     }
 }
