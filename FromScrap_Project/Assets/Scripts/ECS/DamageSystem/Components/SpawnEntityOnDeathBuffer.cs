@@ -1,10 +1,11 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 
 namespace DamageSystem.Components
 {
     [GenerateAuthoringComponent]
     public struct SpawnEntityOnDeathBuffer : IBufferElementData
     {
-        public Entity SpawnEntity;
+        public FixedString32Bytes SpawnEntity;
     }
 }

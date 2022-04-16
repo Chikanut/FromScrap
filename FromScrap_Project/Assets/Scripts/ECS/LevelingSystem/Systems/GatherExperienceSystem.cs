@@ -111,13 +111,12 @@ namespace LevelingSystem.Systems
             }
         }
         
-        private EventSystem eventSystem;
+      
         
         protected override void OnCreate()
         {
             _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            eventSystem = this.World.GetOrCreateSystem<EventSystem>();
             base.OnCreate();
         }
         
@@ -144,19 +143,18 @@ namespace LevelingSystem.Systems
             experienceTriggerJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
             experienceCollisionJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
             
-            var writer = eventSystem.CreateEventWriter<SpawnGameObjectEvent>();
+          
             var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Entities.ForEach((Entity entity, int entityInQueryIndex , in ExperienceComponent experience, in LocalToWorld localToWorld) =>
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex , in ExperienceComponent experience, in LocalToWorld localToWorld) =>
             {
                 if (experience.Gathered)
                 {
-                    writer.Write(new SpawnGameObjectEvent(){Position = localToWorld.Position, SpawnObjectName = "SmallExplosion"});
                     ecb.AddComponent<Dead>(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
             
-            eventSystem.AddJobHandleForProducer<SpawnGameObjectEvent>(Dependency);
+            _ecbSystem.AddJobHandleForProducer (Dependency);
         }
     }
 }

@@ -5,9 +5,10 @@ using Unity.Entities.Hybrid.Internal;
 using Unity.Mathematics;
 using UnityEngine;
 
+
 namespace DamageSystem.Authoring
 {
-    public class HealthSystemAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+    public class HealthSystemAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Header("Health Info")]
         [SerializeField] private int _health;
@@ -19,7 +20,8 @@ namespace DamageSystem.Authoring
         [SerializeField] private float3 _healthBarOffset;
 
         [Header("Death Info")]
-        [SerializeField] private GameObject[] SpawnEntitiesOnDeath;
+        [SerializeField] private string[] SpawnEntitiesOnDeath;
+        [SerializeField] private string[] SpawnPoolObjectsOnDeath;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -40,7 +42,20 @@ namespace DamageSystem.Authoring
                     for (int i = 0; i < SpawnEntitiesOnDeath.Length; i++)
                     {
                         spawnAfterDeathBuffer.Add(new SpawnEntityOnDeathBuffer()
-                            {SpawnEntity = conversionSystem.GetPrimaryEntity(SpawnEntitiesOnDeath[i])});
+                            {SpawnEntity = SpawnEntitiesOnDeath[i]});
+                    }
+                }
+            }
+            
+            if (SpawnPoolObjectsOnDeath != null)
+            {
+                if (SpawnPoolObjectsOnDeath.Length > 0)
+                {
+                    var spawnAfterDeathBuffer = dstManager.AddBuffer<SpawnPoolObjectOnDeathBuffer>(entity);
+                    for (int i = 0; i < SpawnPoolObjectsOnDeath.Length; i++)
+                    {
+                        spawnAfterDeathBuffer.Add(new SpawnPoolObjectOnDeathBuffer()
+                            {SpawnObjectName = SpawnPoolObjectsOnDeath[i]});
                     }
                 }
             }
@@ -59,16 +74,6 @@ namespace DamageSystem.Authoring
             };
             
             dstManager.AddComponentData(entity, healthBarData);
-        }
-
-        public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
-        {
-            if(SpawnEntitiesOnDeath == null) return;
-            for (int i = 0; i < SpawnEntitiesOnDeath.Length; i++)
-            {
-                GeneratedAuthoringComponentImplementation
-                    .AddReferencedPrefab(referencedPrefabs, SpawnEntitiesOnDeath[i]);
-            }
         }
     }
 }
