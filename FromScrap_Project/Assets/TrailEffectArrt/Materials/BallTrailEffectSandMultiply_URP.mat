@@ -39,11 +39,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - OtherNormal:
-        m_Texture: {fileID: 2800000, guid: 0da3875ca2cd0be4db9f6aeeb631007d, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6b6262d070de9544a8cc66570270498b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - OtherTexture:
-        m_Texture: {fileID: 2800000, guid: 388db986db7ead44287441cc86b4fd1c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6b31c9b2c5458874fb0d2f69e26b3a43, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - Texture2D_750980E1:
@@ -296,7 +296,7 @@ Material:
     - _ZWrite: 1
     - shift: 0
     m_Colors:
-    - Color_50C2EF28: {r: 0.3207547, g: 0.293322, b: 0.27990386, a: 0.27058825}
+    - Color_50C2EF28: {r: 0, g: 0, b: 0, a: 0.27058825}
     - Tile: {r: 1, g: 0.5, b: 0, a: 0.5}
     - Vector2_60628C: {r: 0, g: 0.5, b: 0, a: 0}
     - Vector2_BF10803: {r: 1, g: 0.5, b: 0, a: 0}
