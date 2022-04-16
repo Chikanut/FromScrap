@@ -9,6 +9,12 @@ using UnityEngine;
 
 public partial class GameCharacterMovementSystem : SystemBase
 {
+    private EndSimulationEntityCommandBufferSystem entityCommandBufferSystem;
+    protected override void OnCreate() {
+        entityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        base.OnCreate();
+    }
+    
     protected override void OnUpdate()
     {
         float fixedDeltaTime = Time.fixedDeltaTime;
@@ -16,6 +22,8 @@ public partial class GameCharacterMovementSystem : SystemBase
 
         var groundInfo = GetComponentDataFromEntity<GroundInfoData>(true);
         var multyGroundInfo = GetBufferFromEntity<MultyGroundInfoData>(true);
+        
+        var ecb = entityCommandBufferSystem.CreateCommandBuffer();
 
         Entities.WithAll<
             GameCharacterMovementComponent>().ForEach((Entity entity,
@@ -23,7 +31,8 @@ public partial class GameCharacterMovementSystem : SystemBase
             ref PhysicsVelocity velocity,
             ref PhysicsMass mass,
             ref LocalToWorld localToWorld,
-            ref Rotation rotation 
+            ref Rotation rotation,
+            ref Translation translation
             //ref PhysicsJoint PJ
         ) =>
         {
@@ -141,7 +150,44 @@ public partial class GameCharacterMovementSystem : SystemBase
 
             if (movementComponent.IsLateralStabilization && Vector3.Magnitude(newDirection) > 0)
                 velocity.Angular.x = -alpha * movementComponent.CarLateralStabilizationForce * fixedDeltaTime * carStabilizationForceMultiplier;
-           
+            
+            
+            /*
+            var rigidTransform = new RigidTransform( rotation.Value, translation.Value);
+ 
+            var body = new BodyFrame(rigidTransform);
+ 
+            PhysicsJoint joint = new PhysicsJoint
+            {
+                BodyAFromJoint = body,
+            };
+ 
+            FixedList128Bytes<Constraint> constraints = new FixedList128Bytes<Constraint> {
+                new Constraint
+                {
+                    ConstrainedAxes = new bool3(true, false, true),
+                    Type = ConstraintType.Linear,
+                    Min = 0,
+                    Max = 0,
+                    SpringFrequency = Constraint.DefaultSpringFrequency,
+                    SpringDamping = Constraint.DefaultSpringDamping
+                },
+                new Constraint
+                {
+                    ConstrainedAxes = new bool3(false, false, true),
+                    Type = ConstraintType.Angular,
+                    Min = 0,
+                    Max = 0,
+                    SpringFrequency = Constraint.DefaultSpringFrequency,
+                    SpringDamping = Constraint.DefaultSpringDamping
+                }
+            };
+ 
+            joint.SetConstraints(constraints);
+ 
+            ecb.AddComponent(entity, joint);
+            */
+
             /*
             var angular = new float3(0f, 2f, 0f);
             var q = rotation.Value;
@@ -159,6 +205,7 @@ public partial class GameCharacterMovementSystem : SystemBase
             //PJ.SetConstraints(constraints);
             */
         }).
+            //WithoutBurst().Run();
             //WithReadOnly(groundInfo).
             WithReadOnly(multyGroundInfo).
             ScheduleParallel();
