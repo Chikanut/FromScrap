@@ -17,7 +17,7 @@ namespace DamageSystem.Systems
 
         protected override void OnUpdate()
         {
-            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter ();
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
             Dependency = Entities.WithoutBurst().WithAll<Dead>().ForEach((Entity entity, int entityInQueryIndex) =>
             {

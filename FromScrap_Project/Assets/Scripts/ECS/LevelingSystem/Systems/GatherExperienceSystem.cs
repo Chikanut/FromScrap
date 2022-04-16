@@ -1,10 +1,13 @@
+using BovineLabs.Event.Systems;
 using DamageSystem.Components;
 using LevelingSystem.Components;
+using SpawnGameObjects.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Physics;
 using Unity.Physics.Systems;
+using Unity.Transforms;
 
 namespace LevelingSystem.Systems
 {
@@ -108,10 +111,13 @@ namespace LevelingSystem.Systems
             }
         }
         
+        private EventSystem eventSystem;
+        
         protected override void OnCreate()
         {
             _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            eventSystem = this.World.GetOrCreateSystem<EventSystem>();
             base.OnCreate();
         }
         
@@ -138,13 +144,19 @@ namespace LevelingSystem.Systems
             experienceTriggerJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
             experienceCollisionJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
             
-            var ecb = _ecbSystem.CreateCommandBuffer();
+            var writer = eventSystem.CreateEventWriter<SpawnGameObjectEvent>();
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Entities.ForEach((Entity entity, ExperienceComponent experience) =>
+            Entities.ForEach((Entity entity, int entityInQueryIndex , in ExperienceComponent experience, in LocalToWorld localToWorld) =>
             {
-                if(experience.Gathered)
-                    ecb.AddComponent<Dead>(entity);
-            }).Run();
+                if (experience.Gathered)
+                {
+                    writer.Write(new SpawnGameObjectEvent(){Position = localToWorld.Position, SpawnObjectName = "SmallExplosion"});
+                    ecb.AddComponent<Dead>(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel();
+            
+            eventSystem.AddJobHandleForProducer<SpawnGameObjectEvent>(Dependency);
         }
     }
 }

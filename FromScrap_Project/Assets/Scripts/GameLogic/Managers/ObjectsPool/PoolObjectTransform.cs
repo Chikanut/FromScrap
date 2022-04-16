@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PoolObjectTransform : MonoBehaviour
 {
-    public string ObjectName;
+    [HideInInspector]public string ObjectName;
     [HideInInspector]public string InstanceID;
     [HideInInspector]public List<string> Links;
 
