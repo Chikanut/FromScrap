@@ -17,9 +17,9 @@ namespace WeaponsSystem.Base.Systems
 
         protected override void OnUpdate()
         {
-            var ecb = _ecbSystem.CreateCommandBuffer();
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
             
-            Entities.ForEach((ref SpawnShotData spawnShotData, in MuzzleData muzzleData, in LocalToWorld localToWorld) =>
+            Dependency = Entities.ForEach((int entityInQueryIndex, ref SpawnShotData spawnShotData, in MuzzleData muzzleData, in LocalToWorld localToWorld) =>
             {
                 if(spawnShotData.NumberShotsToSpawn == 0){return;}
 
@@ -29,24 +29,26 @@ namespace WeaponsSystem.Base.Systems
                     var curAngle = 0 - (spawnShotData.ShotSpreadAngle / 2f);
                     for (var i = 0; i < spawnShotData.NumberShotsToSpawn; i++)
                     {
-                        var newShot = SpawnNewShot(ref spawnShotData, muzzleData, localToWorld, ecb);
+                        var newShot = SpawnNewShot(entityInQueryIndex, ref spawnShotData, muzzleData, localToWorld, ecb);
                         var newRotation = new Rotation {Value = quaternion.AxisAngle(new float3(0f,1f, 0f), math.radians(curAngle))};
-                        ecb.SetComponent(newShot, newRotation);
+                        ecb.SetComponent(entityInQueryIndex, newShot, newRotation);
                         curAngle += angleIncrement;
                     }
                 }
                 else
                 {
-                    SpawnNewShot(ref spawnShotData, muzzleData, localToWorld, ecb);
+                    SpawnNewShot(entityInQueryIndex, ref spawnShotData, muzzleData, localToWorld, ecb);
                 }
 
                 spawnShotData = new SpawnShotData();
-            }).Run();
+            }).ScheduleParallel(Dependency);
+            
+            _ecbSystem.AddJobHandleForProducer (Dependency);
         }
 
-        private static Entity SpawnNewShot(ref SpawnShotData spawnShotData, in MuzzleData muzzleData, in LocalToWorld localToWorld, EntityCommandBuffer ecb)
+        private static Entity SpawnNewShot(int entityInQueryIndex, ref SpawnShotData spawnShotData, in MuzzleData muzzleData, in LocalToWorld localToWorld, EntityCommandBuffer.ParallelWriter ecb)
         {
-            var newShot = ecb.Instantiate(spawnShotData.ShotPrefab);
+            var newShot = ecb.Instantiate(entityInQueryIndex, spawnShotData.ShotPrefab);
             var newRotation = new Rotation()
             {
                 Value = quaternion.LookRotation(localToWorld.Forward, localToWorld.Up)
@@ -56,8 +58,8 @@ namespace WeaponsSystem.Base.Systems
                 Value = localToWorld.Value.LocalToWorld(muzzleData.Offset)
             };
             
-            ecb.SetComponent(newShot, newRotation);
-            ecb.SetComponent(newShot, newTranslation);
+            ecb.SetComponent(entityInQueryIndex,newShot, newRotation);
+            ecb.SetComponent(entityInQueryIndex,newShot, newTranslation);
             
             return newShot;
         }

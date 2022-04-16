@@ -1,6 +1,6 @@
+using DamageSystem.Components;
 using Unity.Entities;
 using Unity.Transforms;
-using VertexFragment;
 using WeaponsSystem.Base.Components;
 
 namespace WeaponsSystem.Base.Systems
@@ -27,8 +27,10 @@ namespace WeaponsSystem.Base.Systems
                 shotData.Lifetime -= deltaTime;
 
                 if (shotData.Lifetime <= 0f)
-                    ecbParallel.DestroyEntity(e.Index, e);
+                    ecbParallel.AddComponent<Dead>(e.Index, e);
             }).ScheduleParallel();
+            
+            _ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

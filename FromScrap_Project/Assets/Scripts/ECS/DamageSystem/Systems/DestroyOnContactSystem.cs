@@ -27,7 +27,7 @@ namespace DamageSystem.Systems
             void Calculate(Entity entity)
             {
                 if(destroyOnContactGroup.HasComponent(entity))
-                    ecb.DestroyEntity(entity);
+                    ecb.AddComponent<Dead>(entity);
             }
         }
         
@@ -45,7 +45,7 @@ namespace DamageSystem.Systems
             void Calculate(Entity entity)
             {
                 if(destroyOnContactGroup.HasComponent(entity))
-                    ecb.DestroyEntity(entity);
+                    ecb.AddComponent<Dead>(entity);
             }
         }
 

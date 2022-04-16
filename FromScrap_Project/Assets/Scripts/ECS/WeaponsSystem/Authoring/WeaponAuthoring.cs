@@ -15,8 +15,8 @@ namespace WeaponsSystem.Base.Authoring
             ShotIfRotated
         }
 
-        [Header("Muzzle Info")] [SerializeField]
-        private float3 _shotOffset;
+        [Header("Muzzle Info")]
+        [SerializeField] private float3 _shotOffset;
 
         [SerializeField] private float _shotFrequency;
         [SerializeField] private GameObject _projectile;
