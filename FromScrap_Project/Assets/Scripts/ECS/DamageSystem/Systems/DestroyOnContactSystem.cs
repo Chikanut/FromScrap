@@ -7,7 +7,7 @@ using Unity.Physics.Systems;
 
 namespace DamageSystem.Systems
 {
-    [UpdateBefore(typeof(SpawnEntityOnDeathSystem))]
+    [UpdateBefore(typeof(SpawnOnDeathSystem))]
     public partial class DestroyOnContactSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
@@ -27,7 +27,7 @@ namespace DamageSystem.Systems
             void Calculate(Entity entity)
             {
                 if(destroyOnContactGroup.HasComponent(entity))
-                    ecb.DestroyEntity(entity);
+                    ecb.AddComponent<Dead>(entity);
             }
         }
         
@@ -45,7 +45,7 @@ namespace DamageSystem.Systems
             void Calculate(Entity entity)
             {
                 if(destroyOnContactGroup.HasComponent(entity))
-                    ecb.DestroyEntity(entity);
+                    ecb.AddComponent<Dead>(entity);
             }
         }
 

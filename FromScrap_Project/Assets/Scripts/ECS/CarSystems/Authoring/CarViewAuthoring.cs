@@ -55,6 +55,7 @@ namespace Cars.View.Authorings
         [Header("Car view parts")]
         [SerializeField] private Body _body;
         [SerializeField] private List<Wheel> _wheels = new List<Wheel>();
+        [SerializeField] private GameObject TrailObject;
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {

@@ -25,7 +25,9 @@ public class EntityPoolManager : MonoBehaviour
     private GameObjectConversionSettings _conversionSettings;
     private EntityManager _entityManager;
 
-    private NativeHashMap<int, Entity> _entitiesLibrary = new NativeHashMap<int, Entity>(0, Allocator.Persistent);
+    public int _entitiesLibraryIndexes;
+
+    private NativeHashMap<FixedString32Bytes, Entity> _entitiesLibrary = new NativeHashMap<FixedString32Bytes, Entity>(0, Allocator.Persistent);
 
     private bool _inited;
     
@@ -53,12 +55,26 @@ public class EntityPoolManager : MonoBehaviour
 
     public Entity GetObject(string templateName, Action<Entity, EntityManager> setupCallback = null)
     {
-        return GetObject(Resources.Load(templateName) as GameObject, setupCallback);
+
+        _entitiesLibraryIndexes = _entitiesLibrary.Capacity;
+        if (!_entitiesLibrary.ContainsKey(templateName))
+        {
+            return GetObject(Resources.Load(templateName) as GameObject, setupCallback);
+        }
+        else
+        {
+            var entity = _entityManager.Instantiate(_entitiesLibrary[templateName]);
+
+            setupCallback?.Invoke(entity, _entityManager);
+        
+            return entity;  
+        }
     }
 
     public Entity GetObject(GameObject template, Action<Entity, EntityManager> setupCallback = null)
     {
-        var instanceID = template.GetInstanceID();
+        _entitiesLibraryIndexes = _entitiesLibrary.Capacity;
+        var instanceID = template.name;
 
         if (!_entitiesLibrary.ContainsKey(instanceID))
         {
