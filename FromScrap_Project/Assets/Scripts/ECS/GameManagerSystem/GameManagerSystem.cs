@@ -55,7 +55,7 @@ public partial class GameManagerSystem : SystemBase
         {
             manager.SetComponentData(entity, new Translation()
             {
-                Value = new float3(0,2,0)
+                Value = new float3(5,15,-20)
             });
         }); 
     }

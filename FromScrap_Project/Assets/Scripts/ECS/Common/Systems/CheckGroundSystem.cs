@@ -1,8 +1,8 @@
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics.Systems;
 using Unity.Transforms;
-using UnityEngine;
 using VertexFragment;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -15,10 +15,14 @@ public partial class CheckGroundSystem : SystemBase
         base.OnCreate();
 
         _physicsWorldSystem = World.GetOrCreateSystem<BuildPhysicsWorld>();
+    
     }
 
     protected override void OnUpdate()
     {
+        //chack another solutions
+        World.GetOrCreateSystem<StepPhysicsWorld>().FinalSimulationJobHandle.Complete();
+        
         var collisionWorld = _physicsWorldSystem.PhysicsWorld.CollisionWorld;
 
         Entities.ForEach((ref GroundInfoData groundInfoData, in LocalToWorld localToWorld) =>
