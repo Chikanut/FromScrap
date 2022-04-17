@@ -20,6 +20,7 @@ namespace Packages.Utils.SoundManager.Signals
         public float Delay = 0;
         public float Pitch = 1;
         public float PitchTime = 0;
+        public Vector3? Position;
         public Action<AudioSource> Source;
     }
 

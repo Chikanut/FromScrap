@@ -37,6 +37,25 @@ namespace DamageSystem.Systems
                 }
             }).ScheduleParallel();
             
+            var writerSoundObjectPoolEvent = _eventSystem.CreateEventWriter<SpawnSoundObjectEvent>();
+            
+            Entities.WithAll<Dead>().ForEach((int entityInQueryIndex, in DynamicBuffer<SpawnSoundObjectOnDeathBuffer> spawnSoundObjectOnDeath, in LocalToWorld localToWorld) =>
+            {
+                for (int i = 0; i < spawnSoundObjectOnDeath.Length; i++)
+                {
+                    writerSoundObjectPoolEvent.Write(new SpawnSoundObjectEvent()
+                    {
+                       ClipName = spawnSoundObjectOnDeath[i].ClipName,
+                       ClipType = spawnSoundObjectOnDeath[i].Type,
+                       Delay = spawnSoundObjectOnDeath[i].Delay,
+                       Pitch = spawnSoundObjectOnDeath[i].Pitch,
+                       PitchTime = spawnSoundObjectOnDeath[i].PitchTime,
+                       Position = localToWorld.Position
+                    });
+                }
+            }).ScheduleParallel();
+            
+            _eventSystem.AddJobHandleForProducer<SpawnSoundObjectEvent>(Dependency);
             _eventSystem.AddJobHandleForProducer<SpawnPoolObjectEvent>(Dependency);
             _eventSystem.AddJobHandleForProducer<SpawnEntityPoolObjectEvent>(Dependency);
         }

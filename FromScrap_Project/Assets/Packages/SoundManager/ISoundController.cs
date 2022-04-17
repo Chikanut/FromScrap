@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Packages.Common.Storage.Config;
 using Packages.Utils.SoundManager.Signals;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -11,7 +12,7 @@ namespace Packages.Utils.SoundManager
         string CurrentMusicClip { get; }
         AudioSource MusicSource { set; }
         AudioMixer MasterMixer { set; }
-        SoundsConfig SoundConfig { set; }
+        ISoundConfigController SoundConfig { set; }
         bool SoundOn { get; set; }
         bool MusicOn { get; set; }
         float Volume { get; set; }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using MEC;
+using Packages.Common.Storage.Config;
 using Packages.Utils.SoundManager.Signals;
 using ShootCommon.Signals;
 using UniRx;
@@ -24,6 +25,7 @@ namespace Packages.Utils.SoundManager
             public AudioMixerGroup OutputAudioMixerGroup;
             public Action<AudioSource> SourceCallback;
             public int MaxSimultaneouslyCalls = 4;
+            public Vector3? Position;
         }
         
         public static SoundController Instance;
@@ -34,7 +36,11 @@ namespace Packages.Utils.SoundManager
         private string _currentMusicClip;
         public string CurrentMusicClip => _currentMusicClip;
         
-        private SoundsConfig _soundsConfig;
+        private ISoundConfigController _soundsConfig;
+        public ISoundConfigController SoundConfig
+        {
+            set => _soundsConfig = value; 
+        }
 
         private readonly List<AudioSource> _activeAudioSources;
         
@@ -48,10 +54,12 @@ namespace Packages.Utils.SoundManager
         private ISignalService _signalService;
 
         [Inject]
-        public void Init(ISignalService signalService)
+        public void Init(ISignalService signalService,
+            ISoundConfigController soundConfigController)
         {
             _signalService = signalService;
-
+            _soundsConfig = soundConfigController;
+            
             CreateListeners();
             
             Instance = this;
@@ -76,11 +84,6 @@ namespace Packages.Utils.SoundManager
                 MusicOutputGroup = _masterMixer.FindMatchingGroups("MusicMixer")[0];
             }
         }
-
-        public SoundsConfig SoundConfig
-        {
-            set => _soundsConfig = value; 
-        }
         
         public bool SoundOn {
             get => _soundOn;
@@ -92,8 +95,7 @@ namespace Packages.Utils.SoundManager
                 _masterMixer.SetFloat("SoundVolume", value ? 0f : -60f);
             }
         }
-
-
+        
         public bool MusicOn {
             get => _musicOn;
             set {
@@ -104,8 +106,7 @@ namespace Packages.Utils.SoundManager
                 _masterMixer.SetFloat("MusicVolume", value ? 0f : -60f);
             }
         }
-
-
+        
         public float Volume {
             get => _volume;
             set {
@@ -193,7 +194,7 @@ namespace Packages.Utils.SoundManager
         {
             if (_soundsConfig == null) return;
          
-            if (!_soundsConfig.ClipsDictionary.TryGetValue(clipInfo.ClipName, out var clip))
+            if (!_soundsConfig.GetSoundData.SoundsDictionary.TryGetValue(clipInfo.ClipName, out var clip))
             {
                 Debug.LogError($"No clip config found for {clipInfo.ClipName} audio clip type");
                 return;
@@ -243,7 +244,8 @@ namespace Packages.Utils.SoundManager
                 Volume = clipConfig.Volume,
                 OutputAudioMixerGroup = clipConfig.OutputAudioMixerGroup,
                 SourceCallback = clipInfo.Source,
-                MaxSimultaneouslyCalls = clipConfig.MaxSimultaneouslyCalls
+                MaxSimultaneouslyCalls = clipConfig.MaxSimultaneouslyCalls,
+                Position = clipInfo.Position
             };
 
             if (reference.OperationHandle.IsValid())
@@ -287,7 +289,7 @@ namespace Packages.Utils.SoundManager
             var soundsPlaying = _activeAudioSources.Count(a => a != null && a.clip == clip.Clip);
             if(soundsPlaying >= clip.MaxSimultaneouslyCalls) return;
 
-            CreateAndPlay2DAudioClip(clip, false, false, pitch);
+            CreateAndPlayAudioClip(clip, false, false, pitch);
         }
 
         void PlayAudioClipLoop(ClipInfo clip, float pitch = 1f, float pitchTime = 0.2f) {
@@ -305,7 +307,7 @@ namespace Packages.Utils.SoundManager
                 }
             }
             else {
-                CreateAndPlay2DAudioClip(clip, false, true, pitch);
+                CreateAndPlayAudioClip(clip, false, true, pitch);
             }
         }
         
@@ -320,7 +322,7 @@ namespace Packages.Utils.SoundManager
                 Object.Destroy(_clipInstance.gameObject);
             }
 
-            _clipInstance = CreateAndPlay2DAudioClip(clip, true);
+            _clipInstance = CreateAndPlayAudioClip(clip, true);
         }
 
         void PlayAudioClipSingleton(ClipInfo clip, float delay) {
@@ -336,17 +338,25 @@ namespace Packages.Utils.SoundManager
                 Object.Destroy(_clipInstance.gameObject);
             }
 
-            _clipInstance = CreateAndPlay2DAudioClip(clip, true);
+            _clipInstance = CreateAndPlayAudioClip(clip, true);
         }
         
-        private AudioSource CreateAndPlay2DAudioClip(ClipInfo clipConfig, bool cancelWithGo = false,
+        private AudioSource CreateAndPlayAudioClip(ClipInfo clipConfig, bool cancelWithGo = false,
             bool isOnLoop = false, float pitch = 1f)
         {
             var audioSource = new GameObject($"{clipConfig.Clip.name}").AddComponent<AudioSource>();
             
             audioSource.playOnAwake = false;
             audioSource.loop = isOnLoop;
-            audioSource.spatialize = false;
+            
+            if(clipConfig.Position == null)
+                audioSource.spatialize = false;
+            else
+            {
+                audioSource.transform.position = clipConfig.Position.Value;
+                audioSource.spatialBlend = 1;
+            }
+
             audioSource.clip = clipConfig.Clip;
             audioSource.volume = clipConfig.Volume;
             audioSource.outputAudioMixerGroup = clipConfig.OutputAudioMixerGroup;
@@ -400,7 +410,7 @@ namespace Packages.Utils.SoundManager
 
         private IEnumerator<float> PlayAudioClipDelayedCo(ClipInfo clipConfig, float delay) {
             yield return Timing.WaitForSeconds(delay);
-            CreateAndPlay2DAudioClip(clipConfig);
+            CreateAndPlayAudioClip(clipConfig);
         }
         
 

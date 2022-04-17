@@ -1,3 +1,4 @@
+using Packages.Common.Storage.Config;
 using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.EnemySpawner;
 using Zenject;
@@ -10,6 +11,7 @@ namespace Packages.Common.Storage
         {
             Container.BindInterfacesTo<EnemySpawnerConfigController>().AsSingle();
             Container.BindInterfacesTo<CarsConfigController>().AsSingle();
+            Container.BindInterfacesTo<SoundConfigController>().AsSingle();
         }
     }
 }

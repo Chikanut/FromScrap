@@ -1,6 +1,7 @@
 using Packages.Common.Storage.Config;
 using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.EnemySpawner;
+using Packages.Utils.SoundManager;
 using ShootCommon.Signals;
 using UniRx;
 using UnityEngine;
@@ -10,10 +11,12 @@ public class ConfigsPusher : MonoBehaviour
 {
     [SerializeField] private EnemySpawnerConfigScriptable _enemySpawnerConfig;
     [SerializeField] private CarsConfigScriptable _carsConfig;
+    [SerializeField] private SoundsConfig _soundsConfig;
     
     private ISignalService _signalService;
     private IEnemySpawnerConfigController _enemySpawnerConfigController;
     private ICarsConfigController _carsConfigController;
+    private ISoundConfigController _soundConfigController;
 
     private CompositeDisposable _disposeOnExit = new CompositeDisposable();
 
@@ -21,12 +24,14 @@ public class ConfigsPusher : MonoBehaviour
     public void Inject(
         ISignalService signalService,
         IEnemySpawnerConfigController enemySpawnerConfigController,
-        ICarsConfigController carsConfigController
+        ICarsConfigController carsConfigController,
+        ISoundConfigController soundConfigController
     )
     {
         _signalService = signalService;
         _enemySpawnerConfigController = enemySpawnerConfigController;
         _carsConfigController = carsConfigController;
+        _soundConfigController = soundConfigController;
         
         signalService.Receive<LoadGameInfoSignal>().Subscribe(ParsConfig).AddTo(_disposeOnExit);
     }
@@ -40,6 +45,7 @@ public class ConfigsPusher : MonoBehaviour
     {
         ParsEnemySpawnerConfig();
         ParsUpgradesConfig();
+        ParseSoundsConfig();
         
         _signalService.Publish(new GameInfoUpdatedSignal());
     }
@@ -54,6 +60,12 @@ public class ConfigsPusher : MonoBehaviour
     {
         if (_carsConfigController == null) return;
         _carsConfigController.SetInfo(_carsConfig);
+    }
+
+    private void ParseSoundsConfig()
+    {
+        if(_soundConfigController == null) return;
+        _soundConfigController.SetInfo(_soundsConfig);
     }
 
 }
