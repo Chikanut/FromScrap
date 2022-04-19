@@ -1,3 +1,4 @@
+using MenuNavigation;
 using Packages.Common.StateMachineGlobal;
 using Packages.Common.Storage;
 using Packages.Utils.SoundManager;
@@ -14,9 +15,11 @@ namespace Common
             SignalBusInstaller.Install(Container);
             SignalsInstaller.Install(Container);
             
-            SoundInstaller.Install(Container);
             GlobalStateMachineInstaller.Install(Container);
             StorageInstaller.Install(Container);
+            
+            SoundInstaller.Install(Container);
+            MenuNavigationInstaller.Install(Container);
             GamePlayInstaller.Install(Container);
         }
     }

@@ -1,4 +1,3 @@
-using Cars.View.Components;
 using Packages.Common.Storage.Config.Cars;
 using ShootCommon.GlobalStateMachine;
 using ShootCommon.GlobalStateMachine.States;
@@ -55,7 +54,7 @@ public partial class GameManagerSystem : SystemBase
         {
             manager.SetComponentData(entity, new Translation()
             {
-                Value = new float3(5,15,-20)
+                Value = new float3(0,3,0)
             });
         }); 
     }

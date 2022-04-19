@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using ShootCommon.Views.Mediation;
 using UnityEngine;
 
 namespace MenuNavigation {
-    public abstract class Showable : MonoBehaviour {
+    public abstract class Showable : View {
         
         public static string ShowableName = "ScreenName";
         public string CurrentShowableName;
@@ -29,13 +30,15 @@ namespace MenuNavigation {
 
                 return screen;
             }
-
+            
             Debug.LogError("Screen that you want to create - " + typeof(T) + " cant be created, check ShowableName parameter");
 
             return null;
         }
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
+          
         }
         
         public abstract void Show(Action onFinish);
