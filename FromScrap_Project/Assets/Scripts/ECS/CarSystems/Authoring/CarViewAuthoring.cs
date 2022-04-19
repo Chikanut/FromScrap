@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cars.View.Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -97,6 +98,22 @@ namespace Cars.View.Authorings
      
                 dstManager.AddComponentData(wheelEntity, wheelData);
                 dstManager.AddComponentData(wheelEntity, checkGround);
+
+                EntityPoolManager.Instance.GetObject(TrailObject, (entity, manager) =>
+                {
+                    manager.AddComponentData(entity,
+                        new TrailEffectData()
+                        {
+                            TargetEntity = wheelEntity
+                        });
+                    
+                    var trailEffectInfoBuffer = manager.AddBuffer<TrailEffectInfoData>(entity);
+
+                    trailEffectInfoBuffer.Add(new TrailEffectInfoData()
+                    {
+                        TrailPoint = new float3(0f, 0f, 0f)
+                    });
+                });
             }
             
             //Init Body
@@ -122,7 +139,7 @@ namespace Cars.View.Authorings
                 
                 dstManager.AddComponentData(bodyEntity, bodyInfo);
                 var buffer = dstManager.AddBuffer<MultyGroundInfoData>(parent);
-                
+
                 var BodyPoints = new[]
                 {
                     new float3(_body.CarSize.x, 0, _body.CarSize.y),
