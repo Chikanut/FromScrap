@@ -17,7 +17,7 @@ namespace LevelingSystem.Systems
         protected override void OnUpdate()
         {
             var experienceEvent = _eventSystem.CreateEventWriter<OnExperienceChangeSignal>();
-            var levelUpEvent = _eventSystem.CreateEventWriter<LevelUpSignal>();
+            var levelUpEvent = _eventSystem.CreateEventWriter<OnLevelUpSignal>();
             
             Entities.ForEach((ref DynamicBuffer<AddExperienceBuffer> addExperienceBuffer,
                 ref LevelComponent levelComponent, ref DynamicBuffer<NewLevelBuffer> newLevelBuffer, in DynamicBuffer<LevelsInfoBuffer> levelsInfo) =>
@@ -37,19 +37,26 @@ namespace LevelingSystem.Systems
                 while (levelsInfo.Length > levelComponent.Level + 1 && levelComponent.Experience >= levelsInfo[levelComponent.Level].TargetExperience)
                 {
                     newLevelBuffer.Add(new NewLevelBuffer() {Level = levelComponent.Level});
-
-                    levelUpEvent.Write(new LevelUpSignal()
+                    
+                    levelComponent.Experience -= levelsInfo[levelComponent.Level].TargetExperience;
+                    
+                    experienceEvent.Write(new OnExperienceChangeSignal()
+                    {
+                        Experience = levelComponent.Experience
+                    });
+                    
+                    levelComponent.Level++;
+                    
+                    levelUpEvent.Write(new OnLevelUpSignal()
                     {
                         Level = levelComponent.Level
                     });
-                    
-                    levelComponent.Experience -= levelsInfo[levelComponent.Level].TargetExperience;
-                    levelComponent.Level++;
                     
                 }
             }).ScheduleParallel();
             
             _eventSystem.AddJobHandleForProducer<OnExperienceChangeSignal>(Dependency);
+            _eventSystem.AddJobHandleForProducer<OnLevelUpSignal>(Dependency);
         }
     }
 }

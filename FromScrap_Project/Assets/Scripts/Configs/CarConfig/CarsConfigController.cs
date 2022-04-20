@@ -21,6 +21,8 @@ namespace Packages.Common.Storage.Config.Cars
                 {
                     ID = i,
                     Prefab = data.CarsData[i].Prefab.gameObject,
+                    Health = data.CarsData[i].BaseSettings.Health,
+                    LevelsExperience = data.CarsData[i].Levels.LevelsExperience,
                     UpgradesConfigs = data.CarsData[i].Upgrades.Kits.Select(kitScriptable=>kitScriptable.Data).ToList()
                 });
             }

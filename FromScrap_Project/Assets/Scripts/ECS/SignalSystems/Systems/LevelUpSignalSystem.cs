@@ -2,14 +2,14 @@ using BovineLabs.Event.Systems;
 using ShootCommon.Signals;
 using Zenject;
 
-public struct LevelUpSignal : ISignal
+public struct OnLevelUpSignal : ISignal
 {
     public int Level;
 }
 
 namespace SignalSystems
 {
-    public class LevelUpSignalSystem : ConsumeSingleEventSystemBase<LevelUpSignal>
+    public class LevelUpSignalSystem : ConsumeSingleEventSystemBase<OnLevelUpSignal>
     {
         protected override void Create()
         {
@@ -27,7 +27,7 @@ namespace SignalSystems
             _signalService = signalService;
         }
 
-        protected override void OnEvent(LevelUpSignal signal)
+        protected override void OnEvent(OnLevelUpSignal signal)
         {
             _signalService.Publish(signal);
         }

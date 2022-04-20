@@ -1,3 +1,4 @@
+using Cars.View.Components;
 using MenuNavigation;
 using Packages.Common.Storage.Config.Cars;
 using ShootCommon.GlobalStateMachine;
@@ -7,7 +8,6 @@ using UniRx;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 
@@ -57,6 +57,7 @@ public partial class GameManagerSystem : SystemBase
         
         EntityPoolManager.Instance.GetObject(carData.Prefab, (entity, manager) =>
         {
+            manager.AddComponentData(entity, new CarIDComponent() {ID = Progress.Player.CurrentCar});
             manager.SetComponentData(entity, new Translation()
             {
                 Value = new float3(0,3,0)

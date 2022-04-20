@@ -14,7 +14,7 @@ namespace Packages.Common.Storage.Config.Upgrades
         public List<KitComponentAuthoring> KitObjects = new List<KitComponentAuthoring>();
     }
 
-    [CreateAssetMenu(fileName = "KitInfo", menuName = "Configs/KitInfo", order = 3)]
+    [CreateAssetMenu(fileName = "KitInfo", menuName = "Configs/Cars/KitInfo", order = 3)]
     public class KitConfigScriptable : ScriptableObject
     {
         public KitInfoData Data = new KitInfoData();
