@@ -9,6 +9,7 @@ public struct QuadrantEntityData : IComponentData
     {
         Unit,
         Object,
+        Collectable,
         Player
     }
     

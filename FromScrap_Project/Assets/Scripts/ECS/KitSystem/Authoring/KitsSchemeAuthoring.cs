@@ -35,11 +35,12 @@ namespace Kits.Authoring
             ProjectContext.Instance.Container.Inject(this);
             
             dstManager.AddBuffer<KitSchemeBuffer>(entity);
-
-            foreach (var data in _kitPlatforms)
+            var id = dstManager.GetComponentData<CarIDComponent>(entity).ID;
+            for (var j = 0; j < _kitPlatforms.Count; j++)
             {
+                var data = _kitPlatforms[j];
                 var platform = conversionSystem.GetPrimaryEntity(data.KitPlatform);
-                
+
                 var componentData = new KitPlatformComponent() {CanOccupy = data.CanOccupy, IsFree = true};
 
                 dstManager.AddComponentData(platform, componentData);
@@ -54,15 +55,15 @@ namespace Kits.Authoring
                 platformsBuffer.Add(new KitSchemeBuffer() {Platform = platform});
 
                 var addKitBuffer = dstManager.AddBuffer<KitAddBuffer>(entity);
-                
+
                 for (int i = 0; i < data.DefaultKits.Length; i++)
                 {
                     addKitBuffer.Add(new KitAddBuffer()
                     {
-                        PlatformID = i,
-                        CarID = 0, //get car ID component
+                        PlatformID = j,
+                        CarID = id,
                         KitID = data.DefaultKits[i],
-                        KitLevel = 0//add kit level settings
+                        KitLevel = 0 //add kit level settings
                     });
                 }
             }

@@ -46,7 +46,7 @@ namespace Kits.Systems
                     for (var i = 0; i < connectionInfo.Length; i++)
                     {
                         if (connectionInfo[i].ConnectionType != kitComponent.Type) continue;
-
+                        
                         canInstall = true;
                         break;
                     }
