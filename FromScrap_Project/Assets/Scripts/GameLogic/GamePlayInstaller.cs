@@ -8,6 +8,7 @@ namespace Packages.Common.StateMachineGlobal
         {
             Container.BindInterfacesTo<EnemiesSpawnerSystem>().AsSingle();
             Container.BindInterfacesTo<GameManagerSystem>().AsSingle();
+            // Container.BindInterfacesTo<SignalSystem>().AsSingle();
         }
     }
 }

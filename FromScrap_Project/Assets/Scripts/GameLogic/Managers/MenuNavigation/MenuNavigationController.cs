@@ -23,18 +23,14 @@ namespace MenuNavigation {
         [Inject]
         public void Init()
         {
-            
-        }
-        
-        public void Initialize()
-        {
             _canvas = Object.Instantiate(Resources.Load("MenuNavigationCanvas") as GameObject).GetComponent<MenuNavigationControllerCanvas>();
             Instance = this;
         }
+        
+        public void Initialize() { }
 
         public async Task<T> ShowMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen
         {
-            showableName ??= typeof(T).GetField("ShowableName").GetValue(null).ToString();
             return await ShowShowable<T>(_menuScreens, _canvas.MenuScreensParent, onFinish, showableName);
         }
         
@@ -168,12 +164,12 @@ namespace MenuNavigation {
         private async Task<T> ShowShowable<T>(Dictionary<string, Showable> pool, Transform parent, Action onFinish = null, [CanBeNull] string showableName = null) where T : Showable
         { 
             showableName ??= typeof(T).GetField("ShowableName").GetValue(null).ToString();
-            
-            _canvas.CanvasGroup.interactable = false;
 
+            _canvas.CanvasGroup.interactable = false;
+            
             if (!TryGetShowable<T>(out var showable, pool, ShowableSearchMathod.onlyDisabled, showableName))
                 showable = await Showable.Create<T>(this, parent, showableName);
-            
+
             pool[showableName] = showable;
             showable.transform.SetAsLastSibling();
             showable.IsActive = true;
@@ -182,8 +178,8 @@ namespace MenuNavigation {
                 _canvas.CanvasGroup.interactable = true;
                 onFinish?.Invoke();
             });
-            return showable;
             
+            return showable;
         }
 
         private enum ShowableSearchMathod
@@ -195,16 +191,16 @@ namespace MenuNavigation {
 
         private bool TryGetShowable<T>(out T showable, Dictionary<string, Showable> pool, ShowableSearchMathod searchMethod, [CanBeNull] string showableName = null) where T : Showable
         {
-            var type = typeof(T);
-
             var sortedShowables = pool.Where(m =>
-                m.Value.GetType() == type && (showableName == null || m.Key == showableName) &&
+                (showableName == null || m.Key == showableName) &&
                 (searchMethod != ShowableSearchMathod.onlyDisabled || !m.Value.IsActive) &&
                 (searchMethod != ShowableSearchMathod.onlyEnabled || m.Value.IsActive)).ToList();
             
-            var hasMenuScreen = sortedShowables.Count > 0;
-            showable = sortedShowables[0].Value as T;
-            return hasMenuScreen;
+            var hasShowable = sortedShowables.Count > 0;
+
+            showable = hasShowable ? sortedShowables[0].Value as T : null;
+
+            return hasShowable;
         }
         
         private void HideShowable<T>(Dictionary<string, Showable> pool, Action onFinish = null, [CanBeNull] string showableName = null) where T : Showable

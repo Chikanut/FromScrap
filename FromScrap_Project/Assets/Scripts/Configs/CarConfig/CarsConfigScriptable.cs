@@ -6,13 +6,15 @@ using UnityEngine;
 
 namespace Packages.Common.Storage.Config.Cars
 {
-    [CreateAssetMenu(fileName = "CarsConfig", menuName = "Configs/CarsConfig", order = 1)]
+    [CreateAssetMenu(fileName = "CarsConfig", menuName = "Configs/Cars/CarsConfig", order = 1)]
     public class CarsConfigScriptable : ScriptableObject
     {
         [Serializable]
         public class CarInfo
         {
             public CarViewAuthoring Prefab;
+            public CarBaseCharacterisitcsScriptable BaseSettings;
+            public LevelsConfigScriptable Levels;
             public UpgradesConfigScriptable Upgrades;
         }
 

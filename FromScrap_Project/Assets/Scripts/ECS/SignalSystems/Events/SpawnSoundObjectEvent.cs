@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 namespace SpawnGameObjects.Components
 {
-    public struct SpawnSoundObjectEvent : IComponentData
+    public struct SpawnSoundObjectEvent
     {
         public FixedString32Bytes ClipName;
         public SoundType ClipType;

@@ -1,3 +1,4 @@
+using ShootCommon.Views.Mediation;
 using Zenject;
 
 namespace MenuNavigation
@@ -7,6 +8,8 @@ namespace MenuNavigation
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<MenuNavigationController>().AsSingle();
+
+            Container.BindViewToMediator<GamePlayScreenView, GamePlayScreenMediator>();
         }
     }
 }
