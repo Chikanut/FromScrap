@@ -4,7 +4,7 @@ using Unity.Mathematics;
 
 namespace SpawnGameObjects.Components
 {
-    public struct SpawnPoolObjectEvent : IComponentData
+    public struct SpawnPoolObjectEvent
     {
         public FixedString32Bytes SpawnObjectName;
         public float3 Position;

@@ -10,8 +10,8 @@ namespace MenuNavigation {
 
         private Vector3 _shownPosition;
 
-        protected new virtual void Awake() {
-            base.Awake();
+        protected void Awake() {
+
             RectTransform = GetComponent<RectTransform>();
             if (transform.childCount < 1) {
                 IsTransitionsAvailable = false;

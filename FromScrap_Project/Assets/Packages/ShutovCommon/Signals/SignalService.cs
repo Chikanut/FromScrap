@@ -30,10 +30,10 @@ namespace ShootCommon.Signals
             }
         }
 
-        public void Publish<TSignal>(TSignal signal = null)
-            where TSignal: class, ISignal, new()
+        public void Publish<TSignal>(TSignal signal)
+            where TSignal:ISignal
         {
-            _messageBroker.Publish(signal ?? new TSignal());
+            _messageBroker.Publish(signal);
         }
 
         public IObservable<TSignal> Receive<TSignal>() 

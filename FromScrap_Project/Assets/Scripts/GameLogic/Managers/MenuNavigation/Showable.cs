@@ -8,7 +8,7 @@ namespace MenuNavigation {
     public abstract class Showable : View {
         
         public static string ShowableName = "ScreenName";
-        public string CurrentShowableName;
+        [HideInInspector] public string CurrentShowableName;
 
         protected MenuNavigationController MenuNavigationController;
 
@@ -36,11 +36,6 @@ namespace MenuNavigation {
             return null;
         }
 
-        protected virtual void Awake()
-        {
-          
-        }
-        
         public abstract void Show(Action onFinish);
 
         public abstract void Hide(Action onFinish);

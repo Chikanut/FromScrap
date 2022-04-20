@@ -1,3 +1,4 @@
+using MenuNavigation;
 using Packages.Common.Storage.Config.Cars;
 using ShootCommon.GlobalStateMachine;
 using ShootCommon.GlobalStateMachine.States;
@@ -6,6 +7,7 @@ using UniRx;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 
@@ -24,21 +26,24 @@ public partial class GameManagerSystem : SystemBase
     
     protected override void OnDestroy()
     {
-        base.OnDestroy();
         _disposeOnDestroy.Dispose();
+        
+        base.OnDestroy();
     }
-    
-    
+
+    private ISignalService _signalService;
     [Inject]
-    public void Init(ISignalService signalService, ICarsConfigController carsConfigController)
+    public void Init(ISignalService signalService, ICarsConfigController carsConfigController, IMenuNavigationController menuNavigationController)
     {
         _carsConfigController = carsConfigController;
-        
+        _signalService = signalService;
         signalService.Receive<ChangeStateSignal>().Subscribe((stateSignal) =>
         {
             if(stateSignal.SelectedState == StateMachineTriggers.InitGame)
                 InitGame();
         }).AddTo(_disposeOnDestroy);
+        
+        menuNavigationController.ShowMenuScreen<GamePlayScreenView>(null, "GamePlayScreen");
     }
 
     void InitGame()
@@ -56,7 +61,7 @@ public partial class GameManagerSystem : SystemBase
             {
                 Value = new float3(0,3,0)
             });
-        }); 
+        });
     }
 
     protected override void OnUpdate()

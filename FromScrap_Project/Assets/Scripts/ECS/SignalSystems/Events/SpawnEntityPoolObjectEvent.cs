@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SpawnGameObjects.Components
 {
-    public struct SpawnEntityPoolObjectEvent : IComponentData
+    public struct SpawnEntityPoolObjectEvent 
     { 
         public FixedString32Bytes EntityName;
         public float3 Position;
