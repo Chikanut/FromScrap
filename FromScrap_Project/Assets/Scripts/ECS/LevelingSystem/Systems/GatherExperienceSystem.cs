@@ -40,12 +40,11 @@ namespace LevelingSystem.Systems
                 ColliderPairs = colliderPair
             };
 
-            experienceTriggerJob.Schedule(_stepPhysicsWorld.Simulation,
-                JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
-            experienceCollisionJob.Schedule(_stepPhysicsWorld.Simulation,
-                JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
-
-
+           Dependency = experienceTriggerJob.Schedule(_stepPhysicsWorld.Simulation,
+                JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle));
+           Dependency = experienceCollisionJob.Schedule(_stepPhysicsWorld.Simulation,
+                JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle));
+           
             var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
             Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in ExperienceComponent experience,
