@@ -17,8 +17,8 @@ public class TrailController : MonoBehaviour
     public int startFadePoints = 5;
     private readonly List<TrailPoint> _points = new List<TrailPoint>();
     private TrailPoint LastPoint;
-    private RaycastHit hit;
-    private LayerMask lmask;
+    //private RaycastHit hit;
+    //private LayerMask lmask;
     private float UVPos;    
     private Mesh _trailMesh;
 

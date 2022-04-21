@@ -11,10 +11,11 @@ public struct TrailEffectViewComponent : IComponentData
     public float BallSpeedToTrailSize { get; set; }
     public float TrackWidthVariation { get; set; }
     public int MaxTrailPoints { get; set; }
+    public bool FadeTrail { get; set; }
     public float TrailLifetime { get; set; }
+    public int StartFadePoints { get; set; }
     public float UVInc { get; set; }
 
-    public float3 LastPoint { get; set; }
     public float UVPos { get; set; }
     public bool MeshUpdated { get; set; }
 }
@@ -28,12 +29,13 @@ public sealed class TrailEffectViewAuthoring : MonoBehaviour, IConvertGameObject
     public float ballSpeedToTrailSize = 1f;
     public float trackWidthVariation = 0.2f;
     public int maxTrailPoints = 300;
+    public bool fadeTrail = false;
     public float trailLifetime = 5f;
+    public int startFadePoints = 5;
     public float uVInc = 0.5f;
 
-    [Header("Current Parameters")] public float3 lastPoint;
+    [Header("Current Parameters")]
     public float uVPos;
-    public float3[] points = new float3[100];
     public bool meshUpdated = false;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -50,11 +52,12 @@ public sealed class TrailEffectViewAuthoring : MonoBehaviour, IConvertGameObject
             BallSizeToTrailSize = ballSizeToTrailSize,
             BallSpeedToTrailSize = ballSpeedToTrailSize,
             TrackWidthVariation = trackWidthVariation,
+            FadeTrail = fadeTrail,
             MaxTrailPoints = maxTrailPoints,
             TrailLifetime = trailLifetime,
+            StartFadePoints = startFadePoints,
             UVInc = uVInc,
 
-            LastPoint = lastPoint,
             UVPos = uVPos,
             MeshUpdated = meshUpdated
         });

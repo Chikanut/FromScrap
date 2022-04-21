@@ -39,6 +39,7 @@ public partial class TrailEffectCalculateSystem : SystemBase
         Entities.ForEach((
                 Entity entity,
                 ref DynamicBuffer<TrailEffectInfoData> trailEffectBuffer,
+                ref DynamicBuffer<TrailEffectLastInfoData> trailEffectLastBuffer,
                 ref TrailEffectViewComponent trailEffectViewComponent,
                 in TrailEffectData trailEffectData
         ) =>
@@ -48,7 +49,15 @@ public partial class TrailEffectCalculateSystem : SystemBase
                     var gInfo = groundInfo[trailEffectData.TargetEntity];
                     var pos = gInfo.GroundPosition;
                   
-                    AddNewPosition(ref trailEffectViewComponent, ref trailEffectBuffer, pos, Vector3.up);
+                    AddNewPosition(ref trailEffectViewComponent,
+                        ref trailEffectBuffer,
+                        ref trailEffectLastBuffer,
+                        pos,
+                        new float3(0f, 1f, 0f), 
+                        new float3(1f, 0f, 0f),
+                        1f, 
+                        1f
+                        );
                 }
             }).WithReadOnly(groundInfo).
             ScheduleParallel();
@@ -57,35 +66,81 @@ public partial class TrailEffectCalculateSystem : SystemBase
     private static void AddNewPosition(
         ref TrailEffectViewComponent trailEffectViewComponent,
         ref DynamicBuffer<TrailEffectInfoData> trailEffectBuffer,
-        Vector3 point, 
-        Vector3 normal
+        ref DynamicBuffer<TrailEffectLastInfoData> trailEffectLastBuffer,
+        float3 point, 
+        float3 normal, 
+        float3 forward,
+        float speed,
+        float size
     )
     {
-        /*
-        if (trailEffectViewComponent.LastPoint.Magnitude() != 0)
+        var LastPoint = trailEffectLastBuffer[0];
+        
+        if (LastPoint.IsActive)
         {   
-            Vector2 curPos = new Vector2(point.x, point.z);
-            Vector2 prevPointPos = new Vector2(trailEffectViewComponent.LastPoint.x, trailEffectViewComponent.LastPoint.z);
+            var curPos = new float2(point.x, point.z);
+            var prevPointPos = new float2(LastPoint.Point_Center.x, LastPoint.Point_Center.z);
 
-            if (Vector2.Distance(curPos, prevPointPos) < trailEffectViewComponent.PointsDistance)
+            if (Vector2.Distance(curPos, prevPointPos) < trailEffectViewComponent.PointsDistance)    
                 return;
         }
-        */
-        float3 PlacePoint = point + normal * trailEffectViewComponent.HeightOffset;
 
-        trailEffectViewComponent.LastPoint = PlacePoint;
+        var placePoint = point + normal * trailEffectViewComponent.HeightOffset;
+        var hitCross = !LastPoint.IsActive ? Vector3.Cross(-forward, normal).normalized : Vector3.Cross(LastPoint.Point_Center - placePoint, normal).normalized;
+      
+        var Point1_Lt = placePoint 
+                        + new float3(hitCross.x, hitCross.y, hitCross.z) 
+                        * trailEffectViewComponent.BallSizeToTrailSize 
+                        * size 
+                        * trailEffectViewComponent.BallSpeedToTrailSize 
+                        * speed 
+                        * (1f 
+                           //+ UnityEngine.Random.Range(-trailEffectViewComponent.TrackWidthVariation, trailEffectViewComponent.TrackWidthVariation)
+                           );
+        var Point2_Rt = placePoint 
+                        - new float3(hitCross.x, hitCross.y, hitCross.z) 
+                        * trailEffectViewComponent.BallSizeToTrailSize 
+                        * size 
+                        * trailEffectViewComponent.BallSpeedToTrailSize 
+                        * speed 
+                        * (1f
+                           //+ UnityEngine.Random.Range(-trailEffectViewComponent.TrackWidthVariation, trailEffectViewComponent.TrackWidthVariation)
+                           );
 
-        trailEffectBuffer.Add(new TrailEffectInfoData()
+        var lifetime = trailEffectViewComponent.TrailLifetime;        
+       
+        if (!LastPoint.IsActive)
+            lifetime = 0f;
+
+        trailEffectLastBuffer[0] = new TrailEffectLastInfoData()
         {
-            TrailPoint = trailEffectViewComponent.LastPoint
-        });
+            Point_Center = placePoint,
+            Point1_Lt = Point1_Lt,
+            Point2_Rt = Point2_Rt,
+            UVPos1_Lt = new Vector2(trailEffectViewComponent.UVPos, 0),
+            UVPos2_Rt = new Vector2(trailEffectViewComponent.UVPos, 1),
+            Lifetime = lifetime,
+            IsActive = true
+        };
 
+        var newPoint = new TrailEffectInfoData()
+        {
+            Point_Center =  LastPoint.Point_Center,
+            Point1_Lt = LastPoint.Point1_Lt,
+            Point2_Rt = LastPoint.Point2_Rt,
+            UVPos1_Lt = LastPoint.UVPos1_Lt,
+            UVPos2_Rt = LastPoint.UVPos2_Rt,
+            Lifetime = LastPoint.Lifetime
+        };
+
+        trailEffectBuffer.Add(newPoint);
+        
         if (trailEffectBuffer.Length > trailEffectViewComponent.MaxTrailPoints)
             trailEffectBuffer.RemoveAt(0);
 
-        //trailEffectViewComponent.UVPos += trailEffectViewComponent.UVInc;
-        //if (trailEffectViewComponent.UVPos > 1000)
-        //    trailEffectViewComponent.UVPos = 0;
+        trailEffectViewComponent.UVPos += trailEffectViewComponent.UVInc;
+        if (trailEffectViewComponent.UVPos > 1000)
+            trailEffectViewComponent.UVPos = 0;
 
         trailEffectViewComponent.MeshUpdated = true;
     }

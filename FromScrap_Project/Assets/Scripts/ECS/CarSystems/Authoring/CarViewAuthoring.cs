@@ -111,7 +111,25 @@ namespace Cars.View.Authorings
 
                     trailEffectInfoBuffer.Add(new TrailEffectInfoData()
                     {
-                        TrailPoint = new float3(0f, 0f, 0f)
+                        Point_Center = float3.zero,
+                        Point1_Lt = float3.zero,
+                        Point2_Rt = float3.zero,
+                        UVPos1_Lt = float2.zero,
+                        UVPos2_Rt = float2.zero,
+                        Lifetime = 0f
+                    });
+                    
+                    var trailEffectLastInfoBuffer = manager.AddBuffer<TrailEffectLastInfoData>(entity);
+
+                    trailEffectLastInfoBuffer.Add(new TrailEffectLastInfoData()
+                    {
+                        Point_Center = float3.zero,
+                        Point1_Lt = float3.zero,
+                        Point2_Rt = float3.zero,
+                        UVPos1_Lt = float2.zero,
+                        UVPos2_Rt = float2.zero,
+                        Lifetime = 0f,
+                        IsActive = false
                     });
                 });
             }
