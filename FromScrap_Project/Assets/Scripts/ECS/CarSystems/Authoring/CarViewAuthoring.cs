@@ -68,10 +68,10 @@ namespace Cars.View.Authorings
                     Debug.LogError("Wheel has no parent to connect to!");
                     continue;
                 }
-                
+
                 var wheelEntity = conversionSystem.GetPrimaryEntity(wheel.WheelObject);
                 var parent = dstManager.GetComponentData<Parent>(wheelEntity).Value;
-                
+
                 var wheelData = new WheelData()
                 {
                     Parent = parent,
@@ -85,7 +85,7 @@ namespace Cars.View.Authorings
                     LocalAnchor = wheel.WheelObject.transform.localPosition,
                     isLeft = wheel.isLeft
                 };
-                
+
                 var checkGround = new GroundInfoData()
                 {
                     CheckDistance = wheel.Radius + wheel.WheelSkinWidth,
@@ -95,45 +95,46 @@ namespace Cars.View.Authorings
                         BelongsTo = wheel.BelongsTo.Value
                     }
                 };
-     
+
                 dstManager.AddComponentData(wheelEntity, wheelData);
                 dstManager.AddComponentData(wheelEntity, checkGround);
 
-                EntityPoolManager.Instance.GetObject(TrailObject, (entity, manager) =>
-                {
-                    manager.AddComponentData(entity,
-                        new TrailEffectData()
+                if (TrailObject != null)
+                    EntityPoolManager.Instance.GetObject(TrailObject, (entity, manager) =>
+                    {
+                        manager.AddComponentData(entity,
+                            new GeometryTrailEffectData()
+                            {
+                                TargetEntity = wheelEntity
+                            });
+
+                        var trailEffectInfoBuffer = manager.AddBuffer<GeometryTrailEffectInfoData>(entity);
+
+                        trailEffectInfoBuffer.Add(new GeometryTrailEffectInfoData()
                         {
-                            TargetEntity = wheelEntity
+                            Point_Center = float3.zero,
+                            Point1_Lt = float3.zero,
+                            Point2_Rt = float3.zero,
+                            UVPos1_Lt = float2.zero,
+                            UVPos2_Rt = float2.zero,
+                            Lifetime = 0f
                         });
-                    
-                    var trailEffectInfoBuffer = manager.AddBuffer<TrailEffectInfoData>(entity);
 
-                    trailEffectInfoBuffer.Add(new TrailEffectInfoData()
-                    {
-                        Point_Center = float3.zero,
-                        Point1_Lt = float3.zero,
-                        Point2_Rt = float3.zero,
-                        UVPos1_Lt = float2.zero,
-                        UVPos2_Rt = float2.zero,
-                        Lifetime = 0f
-                    });
-                    
-                    var trailEffectLastInfoBuffer = manager.AddBuffer<TrailEffectLastInfoData>(entity);
+                        var trailEffectLastInfoBuffer = manager.AddBuffer<GeometryTrailEffectLastInfoData>(entity);
 
-                    trailEffectLastInfoBuffer.Add(new TrailEffectLastInfoData()
-                    {
-                        Point_Center = float3.zero,
-                        Point1_Lt = float3.zero,
-                        Point2_Rt = float3.zero,
-                        UVPos1_Lt = float2.zero,
-                        UVPos2_Rt = float2.zero,
-                        Lifetime = 0f,
-                        IsActive = false
+                        trailEffectLastInfoBuffer.Add(new GeometryTrailEffectLastInfoData()
+                        {
+                            Point_Center = float3.zero,
+                            Point1_Lt = float3.zero,
+                            Point2_Rt = float3.zero,
+                            UVPos1_Lt = float2.zero,
+                            UVPos2_Rt = float2.zero,
+                            Lifetime = 0f,
+                            IsActive = false
+                        });
                     });
-                });
             }
-            
+
             //Init Body
             if (_body.BodyObject.transform.parent == null)
             {
