@@ -1,6 +1,7 @@
 using ECS.Common.Authoring;
 using Magnet.Components;
 using Unity.Entities;
+using Unity.Physics.Stateful;
 
 namespace Magnet.Authorings
 {
@@ -14,7 +15,7 @@ namespace Magnet.Authorings
             {
                 Speed = MoveSpeed
             });
-            dstManager.AddBuffer<MagnetTargetsBuffer>(entity);
+            dstManager.AddBuffer<StatefulTriggerEvent>(entity);
         }
     }
 }

@@ -9,7 +9,6 @@ public class CarIDAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        Debug.Log("ID setted");
         dstManager.AddComponentData(entity, new CarIDComponent() {ID = ID});
     }
 }

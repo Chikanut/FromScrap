@@ -1,7 +1,6 @@
 using Packages.Common.Storage.Config;
 using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.EnemySpawner;
-using Packages.Utils.SoundManager;
 using ShootCommon.Signals;
 using UniRx;
 using UnityEngine;
@@ -32,7 +31,7 @@ public class ConfigsPusher : MonoBehaviour
         _enemySpawnerConfigController = enemySpawnerConfigController;
         _carsConfigController = carsConfigController;
         _soundConfigController = soundConfigController;
-        
+
         signalService.Receive<LoadGameInfoSignal>().Subscribe(ParsConfig).AddTo(_disposeOnExit);
     }
 
@@ -46,7 +45,7 @@ public class ConfigsPusher : MonoBehaviour
         ParsEnemySpawnerConfig();
         ParsUpgradesConfig();
         ParseSoundsConfig();
-        
+
         _signalService.Publish(new GameInfoUpdatedSignal());
     }
     
@@ -67,5 +66,4 @@ public class ConfigsPusher : MonoBehaviour
         if(_soundConfigController == null) return;
         _soundConfigController.SetInfo(_soundsConfig);
     }
-
 }

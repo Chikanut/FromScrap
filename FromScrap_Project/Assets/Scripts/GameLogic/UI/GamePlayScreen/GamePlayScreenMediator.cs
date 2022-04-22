@@ -3,7 +3,6 @@ using Packages.Common.Storage.Config.Cars;
 using ShootCommon.Signals;
 using ShootCommon.Views.Mediation;
 using UniRx;
-using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 

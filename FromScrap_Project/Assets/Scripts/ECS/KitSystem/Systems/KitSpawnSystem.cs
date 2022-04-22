@@ -15,7 +15,7 @@ namespace Kits.Systems
 
         private ICarsConfigController _carsConfigController;
         
-        private readonly List<(Entity platform, GameObject kit)> _spawnKits = new List<(Entity platform, GameObject kit)>();
+        private readonly List<(Entity platform, int kitID, GameObject kit)> _spawnKits = new List<(Entity platform, int kitID, GameObject kit)>();
 
         protected override void OnCreate()
         {
@@ -47,7 +47,7 @@ namespace Kits.Systems
 
                     var platform = scheme[addKits[i].PlatformID].Platform;
                     
-                    _spawnKits.Add((platform, kitInfo.gameObject));
+                    _spawnKits.Add((platform, addKits[i].KitID, kitInfo.gameObject));
                 }
                 
                 addKits.Clear();
@@ -60,6 +60,10 @@ namespace Kits.Systems
                 {
                     manager.AddComponentData(entity,
                         new KitInstalatorTargetComponent() {TargetEntity = _spawnKits[i1].platform});
+                    
+                    var kitInfo = manager.GetComponentData<KitComponent>(entity);
+                    kitInfo.ID = _spawnKits[i1].kitID;
+                    manager.SetComponentData(entity, kitInfo);
                 });
             }
             
