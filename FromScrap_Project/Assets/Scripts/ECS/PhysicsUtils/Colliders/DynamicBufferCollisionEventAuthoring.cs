@@ -174,12 +174,18 @@ namespace Unity.Physics.Stateful
         private NativeList<StatefulCollisionEvent> m_PreviousFrameCollisionEvents;
         private NativeList<StatefulCollisionEvent> m_CurrentFrameCollisionEvents;
 
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+            this.RegisterPhysicsRuntimeSystemReadWrite();
+        }
+
         protected override void OnCreate()
         {
             m_StepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
             m_BuildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             m_EndFramePhysicsSystem = World.GetOrCreateSystem<EndFramePhysicsSystem>();
-            m_EndFramePhysicsSystem.RegisterPhysicsRuntimeSystemReadWrite();
+          
             m_Query = GetEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[]

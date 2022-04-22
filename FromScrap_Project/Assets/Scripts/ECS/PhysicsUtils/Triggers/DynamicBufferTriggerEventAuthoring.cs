@@ -134,7 +134,7 @@ namespace Unity.Physics.Stateful
             m_StepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
             m_BuildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
             m_EndFramePhysicsSystem = World.GetOrCreateSystem<EndFramePhysicsSystem>();
-            m_EndFramePhysicsSystem.RegisterPhysicsRuntimeSystemReadWrite();
+          
             m_Query = GetEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[]
@@ -149,6 +149,12 @@ namespace Unity.Physics.Stateful
 
             m_PreviousFrameTriggerEvents = new NativeList<StatefulTriggerEvent>(Allocator.Persistent);
             m_CurrentFrameTriggerEvents = new NativeList<StatefulTriggerEvent>(Allocator.Persistent);
+        }
+
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+            this.RegisterPhysicsRuntimeSystemReadWrite();
         }
 
         protected override void OnDestroy()
