@@ -9,6 +9,6 @@ public class ExperiencePointAuthoring : SpawnAfterDeathAuthoring
     {
         base.ConvertAncestors(entity, dstManager, conversionSystem);
 
-        dstManager.AddComponentData(entity, new ExperienceComponent() {Value = ExperiencePoints, Gathered = false});
+        dstManager.AddComponentData(entity, new ExperienceComponent() {Value = ExperiencePoints});
     }
 }

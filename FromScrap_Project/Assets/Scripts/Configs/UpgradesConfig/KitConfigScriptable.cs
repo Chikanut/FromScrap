@@ -8,6 +8,12 @@ namespace Packages.Common.Storage.Config.Upgrades
     [System.Serializable]
     public class KitInfoData
     {
+        [Header("Info")]
+        public string NameLocKey;
+        public string DescriptionLocKey;
+        public Sprite Icon;
+        
+        [Header("Settings")]
         public KitType Type;
         public bool IsStacked;
         

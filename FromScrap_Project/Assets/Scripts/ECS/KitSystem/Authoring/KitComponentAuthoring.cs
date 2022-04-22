@@ -7,7 +7,6 @@ namespace Kits.Authoring
 {
     public class KitComponentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
-        [HideInInspector] public int ID;
         [ReadOnly] public KitType Type;
         [ReadOnly] public bool IsStacked;
         [ReadOnly] public int KitLevel;
@@ -16,7 +15,6 @@ namespace Kits.Authoring
         {
             dstManager.AddComponentData(entity, new KitComponent()
             {
-                ID = ID,
                 Type = Type,
                 IsStacked = IsStacked,
                 KitLevel = KitLevel

@@ -1,8 +1,6 @@
 ﻿using DamageSystem.Components;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Physics;
+using Unity.Physics.Stateful;
 using Unity.Physics.Systems;
 
 namespace DamageSystem.Systems
@@ -13,42 +11,6 @@ namespace DamageSystem.Systems
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
         private StepPhysicsWorld _stepPhysicsWorld;
         
-        struct DestroyTriggerJob : ITriggerEventsJob
-        {
-            public EntityCommandBuffer ecb;
-            [ReadOnly] public ComponentDataFromEntity<DestroyOnContact> destroyOnContactGroup;
-
-            public void Execute(TriggerEvent triggerEvent)
-            {
-                Calculate(triggerEvent.EntityA);
-                Calculate(triggerEvent.EntityB);
-            }
-
-            void Calculate(Entity entity)
-            {
-                if(destroyOnContactGroup.HasComponent(entity))
-                    ecb.AddComponent<Dead>(entity);
-            }
-        }
-        
-        struct DestroyCollisionJob : ICollisionEventsJob
-        {
-            public EntityCommandBuffer ecb;
-            [ReadOnly] public ComponentDataFromEntity<DestroyOnContact> destroyOnContactGroup;
-
-            public void Execute(CollisionEvent triggerEvent)
-            {
-                Calculate(triggerEvent.EntityA);
-                Calculate(triggerEvent.EntityB);
-            }
-
-            void Calculate(Entity entity)
-            {
-                if(destroyOnContactGroup.HasComponent(entity))
-                    ecb.AddComponent<Dead>(entity);
-            }
-        }
-
         protected override void OnCreate()
         {
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -59,23 +21,29 @@ namespace DamageSystem.Systems
 
         protected override void OnUpdate()
         {
-            var destroyOnContactGroup = GetComponentDataFromEntity<DestroyOnContact>(true);
             var ecb = _ecbSystem.CreateCommandBuffer();
 
-            var destroyTriggerJob = new DestroyTriggerJob()
+            Entities.WithNone<Dead>().ForEach((Entity entity, in DestroyOnContact destroyOnContact, in DynamicBuffer<StatefulTriggerEvent> triggerEvents) =>
             {
-                ecb = ecb,
-                destroyOnContactGroup = destroyOnContactGroup
-            };
+                for (int i = 0; i < triggerEvents.Length; i++)
+                {
+                    if (triggerEvents[i].State != EventOverlapState.Enter ||
+                        !destroyOnContact.IncludeTriggerEvent) continue;
+                    ecb.AddComponent(entity, new Dead());
+                    break;
+                }
+
+            }).Schedule();
             
-            var destroyCollisionJob = new DestroyCollisionJob()
+            Entities.WithNone<Dead>().WithAll<DestroyOnContact>().ForEach((Entity entity, in DynamicBuffer<StatefulCollisionEvent> collisionEvents) =>
             {
-                ecb = ecb,
-                destroyOnContactGroup = destroyOnContactGroup
-            };
-            
-            destroyTriggerJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
-            destroyCollisionJob.Schedule(_stepPhysicsWorld.Simulation, JobHandle.CombineDependencies(Dependency, _stepPhysicsWorld.FinalSimulationJobHandle)).Complete();
+                for (int i = 0; i < collisionEvents.Length; i++)
+                {
+                    if (collisionEvents[i].CollidingState != EventCollidingState.Enter) continue;
+                    ecb.AddComponent(entity, new Dead());
+                    break;
+                }
+            }).Schedule();
         }
     }
 }

@@ -35,7 +35,12 @@ public class ObjectsPool : MonoBehaviour
     //     _objectsParent = objectsParent;
     //     _instantiatedObjectsPerType = new Dictionary<string, List<PoolObject>>();
     // }
-    
+
+    public void ReturnObject(PoolObject obj)
+    {
+        obj.transform.SetParent(_objectsParent);
+    }
+
     /// <summary>
     /// Returns existed inactive object of base type.
     /// Instantiates object first if there are no inactive objects of given type yet
