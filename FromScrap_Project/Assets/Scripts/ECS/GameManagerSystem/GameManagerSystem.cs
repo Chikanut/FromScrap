@@ -16,6 +16,7 @@ public partial class GameManagerSystem : SystemBase
     private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
     
     private ICarsConfigController _carsConfigController;
+    private IMenuNavigationController _menuNavigationController;
     
     protected override void OnCreate()
     {
@@ -37,18 +38,21 @@ public partial class GameManagerSystem : SystemBase
     {
         _carsConfigController = carsConfigController;
         _signalService = signalService;
+        _menuNavigationController = menuNavigationController;
+        
         signalService.Receive<ChangeStateSignal>().Subscribe((stateSignal) =>
         {
             if(stateSignal.SelectedState == StateMachineTriggers.InitGame)
                 InitGame();
         }).AddTo(_disposeOnDestroy);
         
-        menuNavigationController.ShowMenuScreen<GamePlayScreenView>(null, "GamePlayScreen");
+       
     }
 
     void InitGame()
     {
         SpawnPlayer();
+        _menuNavigationController.ShowMenuScreen<GamePlayScreenView>(null, "GamePlayScreen");
     }
 
     void SpawnPlayer()
