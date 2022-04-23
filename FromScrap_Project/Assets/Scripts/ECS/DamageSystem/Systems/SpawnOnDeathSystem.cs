@@ -6,7 +6,7 @@ using Unity.Transforms;
 
 namespace DamageSystem.Systems
 {
-    [UpdateInGroup(typeof(LateSimulationSystemGroup)), UpdateAfter(typeof(ResolveDamageSystem))]
+    [UpdateAfter(typeof(ResolveDamageSystem))]
     public partial class SpawnOnDeathSystem : SystemBase
     {
         private EventSystem _eventSystem;

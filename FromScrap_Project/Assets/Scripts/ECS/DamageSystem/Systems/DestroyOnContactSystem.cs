@@ -1,20 +1,17 @@
 ﻿using DamageSystem.Components;
 using Unity.Entities;
 using Unity.Physics.Stateful;
-using Unity.Physics.Systems;
 
 namespace DamageSystem.Systems
 {
-    [UpdateBefore(typeof(SpawnOnDeathSystem))]
+    [UpdateAfter(typeof(ResolveDamageSystem))]
     public partial class DestroyOnContactSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
-        private StepPhysicsWorld _stepPhysicsWorld;
-        
+
         protected override void OnCreate()
         {
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            _stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
 
             base.OnCreate();
         }
@@ -35,11 +32,12 @@ namespace DamageSystem.Systems
 
             }).Schedule();
             
-            Entities.WithNone<Dead>().WithAll<DestroyOnContact>().ForEach((Entity entity, in DynamicBuffer<StatefulCollisionEvent> collisionEvents) =>
+            Entities.WithNone<Dead>().ForEach((Entity entity, in DestroyOnContact destroyOnContact, in DynamicBuffer<StatefulCollisionEvent> collisionEvents) =>
             {
                 for (int i = 0; i < collisionEvents.Length; i++)
                 {
-                    if (collisionEvents[i].CollidingState != EventCollidingState.Enter) continue;
+                    if (collisionEvents[i].CollidingState != EventCollidingState.Enter ||
+                        !destroyOnContact.IncludeCollisionEvents) continue;
                     ecb.AddComponent(entity, new Dead());
                     break;
                 }

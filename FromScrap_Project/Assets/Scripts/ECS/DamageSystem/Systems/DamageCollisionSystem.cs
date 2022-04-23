@@ -24,6 +24,7 @@ namespace DamageSystem.Systems
                     
                     damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
                     dealDamage.PrevHitTime = time;
+                    dealDamage.CurrentHit++;
                 }
             }).Schedule();
             
@@ -39,6 +40,7 @@ namespace DamageSystem.Systems
                     
                     damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
                     dealDamage.PrevHitTime = time;
+                    dealDamage.CurrentHit++;
                 }
             }).Schedule();
         }

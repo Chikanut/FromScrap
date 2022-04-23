@@ -3,7 +3,6 @@ using Unity.Entities;
 
 namespace DamageSystem.Systems
 {
-   [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public partial class DeathCleanupSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;

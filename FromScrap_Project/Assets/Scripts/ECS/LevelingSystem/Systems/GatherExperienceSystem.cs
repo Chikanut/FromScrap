@@ -33,7 +33,7 @@ namespace LevelingSystem.Systems
                    experienceBuffer[otherEntity].Add(new AddExperienceBuffer()
                        {Value = experience.Value});
                    
-                   ecb.AddComponent<Dead>(entityInQueryIndex, entity);
+                   ecb.AddComponent(entityInQueryIndex, entity, new Dead());
                    
                    break;
 

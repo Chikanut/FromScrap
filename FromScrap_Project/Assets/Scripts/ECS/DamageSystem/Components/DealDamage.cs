@@ -8,10 +8,13 @@ namespace DamageSystem.Components
     [Serializable]
     public struct DealDamage : IComponentData
     {
-        public float DamageDelay;
         public int Value;
+        
+        public float DamageDelay;
         public bool isReloading;
         public double PrevHitTime;
         
+        public int MaxHits;
+        public int CurrentHit;
     }
 }
