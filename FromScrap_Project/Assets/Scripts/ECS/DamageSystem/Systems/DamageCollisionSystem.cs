@@ -18,13 +18,20 @@ namespace DamageSystem.Systems
                 
                 foreach (var triggerEvent in triggerEvents)
                 {
-                    var otherEntity = triggerEvent.GetOtherEntity(entity);
+                    if(triggerEvent.State != EventOverlapState.Enter) continue;
                     
-                    if (!damageBuffers.HasComponent(otherEntity)) continue;
+                    dealDamage.CurrentHit++;
+                    
+                    var otherEntity = triggerEvent.GetOtherEntity(entity);
+
+                    if (!damageBuffers.HasComponent(otherEntity))
+                    {
+                        dealDamage.CurrentHit = dealDamage.MaxHits;
+                        continue;
+                    }
                     
                     damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
                     dealDamage.PrevHitTime = time;
-                    dealDamage.CurrentHit++;
                 }
             }).Schedule();
             
@@ -34,13 +41,20 @@ namespace DamageSystem.Systems
                 
                 foreach (var collisionEvent in collisionEvents)
                 {
-                    var otherEntity = collisionEvent.GetOtherEntity(entity);
+                    if(collisionEvent.CollidingState != EventCollidingState.Enter) continue;
                     
-                    if (!damageBuffers.HasComponent(otherEntity)) continue;
+                    dealDamage.CurrentHit++;
+                    
+                    var otherEntity = collisionEvent.GetOtherEntity(entity);
+
+                    if (!damageBuffers.HasComponent(otherEntity))
+                    {
+                        dealDamage.CurrentHit = dealDamage.MaxHits;
+                        continue;
+                    }
                     
                     damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
                     dealDamage.PrevHitTime = time;
-                    dealDamage.CurrentHit++;
                 }
             }).Schedule();
         }

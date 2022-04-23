@@ -85,6 +85,7 @@ public class EntityPoolManager : MonoBehaviour
         }
         
         var entity = _entityManager.Instantiate(_entitiesLibrary[instanceID]);
+        _entityManager.SetName(entity, template.name);
 
         setupCallback?.Invoke(entity, _entityManager);
         

@@ -16,6 +16,8 @@ namespace Packages.Common.Storage.Config.Upgrades
         [Header("Settings")]
         public KitType Type;
         public bool IsStacked;
+
+        public bool isDefault;
         
         public List<KitComponentAuthoring> KitObjects = new List<KitComponentAuthoring>();
     }

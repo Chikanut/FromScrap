@@ -58,12 +58,8 @@ namespace Kits.Systems
                 var i1 = i;
                 EntityPoolManager.Instance.GetObject(_spawnKits[i].kit, (entity, manager) =>
                 {
-                    manager.AddComponentData(entity,
-                        new KitInstalatorTargetComponent() {TargetEntity = _spawnKits[i1].platform});
-                    
-                    var kitInfo = manager.GetComponentData<KitComponent>(entity);
-                    kitInfo.ID = _spawnKits[i1].kitID;
-                    manager.SetComponentData(entity, kitInfo);
+                    manager.AddComponentData(entity, new KitInstalatorTargetComponent() {TargetEntity = _spawnKits[i1].platform});
+                    manager.AddComponentData(entity, new KitIDComponent() {ID = _spawnKits[i1].kitID});
                 });
             }
             

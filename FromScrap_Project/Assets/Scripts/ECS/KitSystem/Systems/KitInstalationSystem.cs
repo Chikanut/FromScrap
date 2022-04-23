@@ -26,8 +26,8 @@ namespace Kits.Systems
             var kpkb = GetBufferFromEntity<KitPlatformKitsBuffer>();
 
             Entities.WithNone<Parent>().ForEach(
-                (Entity entity, in LocalToWorld localToWorld, in KitInstalatorComponent instalationData,
-                    in KitInstalatorTargetComponent intalationTarget, in KitComponent kitComponent) =>
+                (Entity entity, ref KitComponent kitComponent, in KitIDComponent kitID, in LocalToWorld localToWorld, in KitInstalatorComponent instalationData,
+                    in KitInstalatorTargetComponent intalationTarget) =>
                 {
                     if (!kpcb.HasComponent(intalationTarget.TargetEntity) ||
                         !kpc.HasComponent(intalationTarget.TargetEntity))
@@ -66,8 +66,8 @@ namespace Kits.Systems
                         {
                             for (int i = 0; i < kpkb[intalationTarget.TargetEntity].Length; i++)
                             {
-                                if (GetComponent<KitComponent>(kpkb[intalationTarget.TargetEntity][i].ConnectedKit)
-                                        .ID != kitComponent.ID) continue;
+                                if (GetComponent<KitIDComponent>(kpkb[intalationTarget.TargetEntity][i].ConnectedKit)
+                                        .ID != kitID.ID) continue;
                                 
                                 ecb.DestroyEntity(kpkb[intalationTarget.TargetEntity][i].ConnectedKit);
                                 kpkb[intalationTarget.TargetEntity].RemoveAt(i);
@@ -88,6 +88,8 @@ namespace Kits.Systems
                         kpkb[intalationTarget.TargetEntity].Add(new KitPlatformKitsBuffer() {ConnectedKit = entity});
                     }
 
+                    kitComponent.Platform = intalationTarget.TargetEntity;
+                    
                     ecb.AddComponent(entity, new Parent() {Value = intalationTarget.TargetEntity});
                     ecb.AddComponent(entity, new LocalToParent());
                     ecb.SetComponent(entity, new Translation() {Value = instalationData.Offset});
@@ -107,8 +109,7 @@ namespace Kits.Systems
                         var up = localToWorld.Value.WorldToLocal(localToWorld.Position + math.up());
                         ecb.SetComponent(entity, new Rotation() {Value = quaternion.LookRotation(forward, up)});
                     }
-
-                    // ecb.RemoveComponent<KitInstalatorTargetComponent>(entity);
+                    
                     ecb.RemoveComponent<KitInstalatorComponent>(entity);
                 }).WithReadOnly(kpc).WithReadOnly(kpcb).Run();
         }

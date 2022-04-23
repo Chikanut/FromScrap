@@ -5,7 +5,7 @@ namespace Kits.Components
 {
     public struct KitComponent : IComponentData
     {
-        public int ID;
+        public Entity Platform;
         public KitType Type;
         public bool IsStacked;
         public int KitLevel;

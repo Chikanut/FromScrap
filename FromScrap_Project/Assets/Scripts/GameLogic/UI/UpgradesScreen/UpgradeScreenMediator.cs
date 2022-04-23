@@ -20,6 +20,7 @@ namespace UI.Upgrades
 			public List<KitType> Connections = new List<KitType>();
 			public bool isFree;
 			public List<KitComponent> ConnectedKits = new List<KitComponent>();
+			public List<KitIDComponent> ConnectedKitsIDs = new List<KitIDComponent>();
 		}
 
 		private EntityManager _entityManager;
@@ -97,7 +98,9 @@ namespace UI.Upgrades
 				foreach (var kit in platformConnectedKits)
 				{
 					var kitComponent = _entityManager.GetComponentData<KitComponent>(kit.ConnectedKit);
+					var kitID = _entityManager.GetComponentData<KitIDComponent>(kit.ConnectedKit);
 					platformInfo.ConnectedKits.Add(kitComponent);
+					platformInfo.ConnectedKitsIDs.Add(kitID);
 				}
 				
 				_data.platformInfos.Add(platformInfo);
@@ -108,9 +111,14 @@ namespace UI.Upgrades
 		{
 			int cardsCount = 3;
 
-			var kitsList = GetAllFreeSuitableKits();
+			var kitsList = GetAllFreeSuitableKits(false);
 			kitsList.AddRange(GetAllUpgradeSuitableKits());
-			
+
+			if (kitsList.Count < cardsCount)
+			{
+				kitsList.AddRange(GetAllFreeSuitableKits(true));
+			}
+
 			var rng = new System.Random();
 			kitsList = kitsList.OrderBy(a => rng.Next()).ToList();
 
@@ -125,14 +133,14 @@ namespace UI.Upgrades
 			for (var i = 0; i < cardsCount; i++)
 			{
 				var kitInfo = kitsList[i];
-				var kitData = _data.carData.UpgradesConfigs[kitInfo.kitID];
+				var kitData = kitInfo.KitInfo;
 				var cardInfo = new UpgradeCardData
 				{
 					NameKey = kitData.NameLocKey,
 					DescriptionKey = kitData.DescriptionLocKey,
 					Icon = kitData.Icon,
-					Type = kitInfo.level == 0 ? UpgradeCardType._new : UpgradeCardType._upgrade,
-					UpgradeLevel = kitInfo.level
+					Type = kitInfo.Level == 0 ? UpgradeCardType._new : UpgradeCardType._upgrade,
+					UpgradeLevel = kitInfo.Level
 				};
 
 				View.ShowCard(cardInfo,()=>
@@ -142,27 +150,34 @@ namespace UI.Upgrades
 			}
 		}
 
-		private void ApplyUpgrade((int platform, int level, int kitID) info)
+		private void ApplyUpgrade(InstallKitInfo info)
 		{
 			var addKitBuffer = _entityManager.GetBuffer<KitAddBuffer>(_data.carEntity);
 			
 			addKitBuffer.Add(new KitAddBuffer()
 			{
-				PlatformID = info.platform,
+				PlatformID = info.PlatformID,
 				CarID = _data.carID,
-				KitID = info.kitID,
-				KitLevel = info.level
+				KitID = info.KitID,
+				KitLevel = info.Level
 			});
 			
 			View.HideCards();
 			View.Complete();
 		}
 
-		List<(int platformID, int level, int kitID)> GetAllFreeSuitableKits()
+		public class InstallKitInfo
 		{
-			var suitableKits = new List<(int platformID, int kitLevel, int kitID)>();
+			public int PlatformID;
+			public int Level;
+			public int KitID;
+			public KitInfoData KitInfo;
+		}
 
-			var platformID = 0;
+		List<InstallKitInfo> GetAllFreeSuitableKits(bool withDefault)
+		{
+			var suitableKits = new List<InstallKitInfo>();
+			
 			foreach (var platform in _data.platformInfos)
 			{
 				if (!platform.isFree) continue;
@@ -178,33 +193,43 @@ namespace UI.Upgrades
 
 				for (var i = 0; i < _data.carData.UpgradesConfigs.Count; i++)
 				{
+					if(_data.carData.UpgradesConfigs[i].isDefault && !withDefault) continue;
+					
 					if (freeConnectors.Contains(_data.carData.UpgradesConfigs[i].Type))
 					{
-						suitableKits.Add((platformID, 0, i));
+						suitableKits.Add(new InstallKitInfo()
+						{
+							PlatformID = platform.ID,
+							KitID = i,
+							Level = 0,
+							KitInfo = _data.carData.UpgradesConfigs[i]
+						});
 					}
 				}
-
-				platformID++;
+				
 			}
 
 			return suitableKits;
 		}
 		
-		List<(int platformID, int kitLevel, int kitID)> GetAllUpgradeSuitableKits()
+		List<InstallKitInfo> GetAllUpgradeSuitableKits()
 		{
-			var suitableKits = new List<(int platformID, int kitLevel, int kitID)>();
+			var suitableKits = new List<InstallKitInfo>();
 			
-			var platformID = 0;
 			foreach (var platform in _data.platformInfos)
 			{
 				for (var i = 0; i < platform.ConnectedKits.Count; i++)
 				{
-					var kitInfo = _data.carData.UpgradesConfigs[platform.ConnectedKits[i].ID];
+					var kitInfo = _data.carData.UpgradesConfigs[platform.ConnectedKitsIDs[i].ID];
 					if (kitInfo.KitObjects.Count > platform.ConnectedKits[i].KitLevel + 1)
-						suitableKits.Add((platformID, platform.ConnectedKits[i].KitLevel + 1, platform.ConnectedKits[i].ID));
+						suitableKits.Add(new InstallKitInfo()
+						{
+							PlatformID = platform.ID,
+							Level = platform.ConnectedKits[i].KitLevel + 1,
+							KitID = platform.ConnectedKitsIDs[i].ID,
+							KitInfo = kitInfo
+						});
 				}
-
-				platformID++;
 			}
 
 			return suitableKits;
