@@ -296,7 +296,7 @@ Material:
     - _ZWrite: 1
     - shift: 0
     m_Colors:
-    - Color_50C2EF28: {r: 0, g: 0, b: 0, a: 0.27058825}
+    - Color_50C2EF28: {r: 0, g: 0, b: 0, a: 0.49803922}
     - Tile: {r: 1, g: 0.5, b: 0, a: 0.5}
     - Vector2_60628C: {r: 0, g: 0.5, b: 0, a: 0}
     - Vector2_BF10803: {r: 1, g: 0.5, b: 0, a: 0}
