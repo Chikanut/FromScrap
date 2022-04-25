@@ -3,7 +3,7 @@ using MenuNavigation;
 using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
-using UI.MainMenu;
+using UI.Screens.MainMenu;
 using UnityEngine.SceneManagement;
 using Zenject;
 

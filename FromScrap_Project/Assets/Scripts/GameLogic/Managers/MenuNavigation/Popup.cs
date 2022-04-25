@@ -34,6 +34,7 @@ namespace MenuNavigation {
 
         public override void Hide(Action onFinish) {
             TransitionState = ShowableTransitionState.Hidden;
+            IsActive = false;
             onFinish?.Invoke();
         }
 

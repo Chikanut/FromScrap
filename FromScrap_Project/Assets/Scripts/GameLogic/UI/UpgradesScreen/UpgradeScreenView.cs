@@ -4,7 +4,7 @@ using MenuNavigation;
 using Unity.Entities;
 using UnityEngine;
 
-namespace UI.Upgrades
+namespace UI.Screens.Upgrades
 {
     public class UpgradeScreenView : MenuScreen
     {

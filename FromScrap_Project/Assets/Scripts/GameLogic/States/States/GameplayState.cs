@@ -1,5 +1,7 @@
 ﻿using ShootCommon.GlobalStateMachine;
+using Signals;
 using Stateless;
+using UnityEngine;
 
 namespace GameLogic.States.States
 {
@@ -8,7 +10,7 @@ namespace GameLogic.States.States
         protected override void Configure()
         {
             Permit<EndGameState>(StateMachineTriggers.EndGame);
-            //TODO: Add pause state
+            Permit<PauseGameState>(StateMachineTriggers.Pause);
         }
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
@@ -19,6 +21,12 @@ namespace GameLogic.States.States
         private void SubscribeToSignals()
         {
            SubscribeToSignal<OnEndGameSignal>(OnEndGame);
+           SubscribeToSignal<OnPauseSignal>(OnPause);
+        }
+
+        private void OnPause(OnPauseSignal signal)
+        {
+            Fire(StateMachineTriggers.Pause);
         }
 
         void OnEndGame(OnEndGameSignal signal)

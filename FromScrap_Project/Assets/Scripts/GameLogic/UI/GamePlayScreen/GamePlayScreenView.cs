@@ -5,41 +5,58 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GamePlayScreenView : MenuScreen
+namespace UI.Screens.Loading
 {
-    [Header("Components")]
-    [SerializeField] private Slider _experienceSlider;
-    [SerializeField] private TextMeshProUGUI _levelLabel;
-
-    [Header("Settings")] 
-    [SerializeField] private float _experienceFillSpeed;
-    [SerializeField] private Ease _experienceFillEasing;
-
-    private Action<float> _setExperience;
-
-    private Sequence _experienceFillSequence;
-    
-    public void SetExperience(float value)
+    public class GamePlayScreenView : MenuScreen
     {
-        value = Mathf.Clamp01(value);
+        [Header("Components")]
+        [SerializeField] private Button _pause;
+        [SerializeField] private Slider _experienceSlider;
+        [SerializeField] private TextMeshProUGUI _levelLabel;
+
+        [Header("Settings")]
+        [SerializeField] private float _experienceFillSpeed;
+        [SerializeField] private Ease _experienceFillEasing;
         
-        _experienceFillSequence?.Kill();
-        _experienceFillSequence = DOTween.Sequence();
+        private Sequence _experienceFillSequence;
 
-        if (value > _experienceSlider.value)
-        {
-            var fillTime = (value - _experienceSlider.value) / _experienceFillSpeed;
-            _experienceFillSequence.Insert(0,_experienceSlider.DOValue(value, fillTime).SetEase(_experienceFillEasing));
-            _experienceFillSequence.Play();
-        }
-        else
-        {
-            _experienceSlider.value = value;
-        }
-    }
+        public Action PauseAction;
 
-    public void SetCurrentLevel(int level)
-    {
-        _levelLabel.text = $"LvL {level + 1}";
+        protected override void Start()
+        {
+            base.Start();
+            
+            _pause.onClick.AddListener(OnPause);
+        }
+
+        void OnPause()
+        {
+            PauseAction?.Invoke();
+        }
+
+        public void SetExperience(float value)
+        {
+            value = Mathf.Clamp01(value);
+
+            _experienceFillSequence?.Kill();
+            _experienceFillSequence = DOTween.Sequence();
+
+            if (value > _experienceSlider.value)
+            {
+                var fillTime = (value - _experienceSlider.value) / _experienceFillSpeed;
+                _experienceFillSequence.Insert(0,
+                    _experienceSlider.DOValue(value, fillTime).SetEase(_experienceFillEasing));
+                _experienceFillSequence.Play();
+            }
+            else
+            {
+                _experienceSlider.value = value;
+            }
+        }
+
+        public void SetCurrentLevel(int level)
+        {
+            _levelLabel.text = $"LvL {level + 1}";
+        }
     }
 }

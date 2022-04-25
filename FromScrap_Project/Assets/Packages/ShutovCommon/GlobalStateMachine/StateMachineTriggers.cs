@@ -13,6 +13,7 @@ namespace ShootCommon.GlobalStateMachine
         InitGame,
         StartGame,
         Game,
+        Pause,
         EndGame,
         Results
     }

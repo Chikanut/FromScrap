@@ -1,21 +1,11 @@
-﻿using ShootCommon.Signals;
-using ShootCommon.Views.Mediation;
+﻿using ShootCommon.Views.Mediation;
 using Signals;
 using UnityEngine;
-using Zenject;
 
-namespace UI.MainMenu
+namespace UI.Screens.MainMenu
 {
     public class MainManuScreenMadiator : Mediator<MainMenuScreenView>
     {
-        private ISignalService _signalService;
-        
-        [Inject]
-        public void Init(ISignalService signalService)
-        {
-            _signalService = signalService;
-        }
-    
         protected override void OnMediatorInitialize()
         {
             base.OnMediatorInitialize();
@@ -26,7 +16,7 @@ namespace UI.MainMenu
         
         private void OnStartGame()
         {
-            _signalService.Publish(new StartGameSignal());
+            SignalService.Publish(new StartGameSignal());
         }
         
         private void OnGameExit()

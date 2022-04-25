@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.Upgrades
+namespace UI.Screens.Upgrades
 {
     public enum UpgradeCardType
     {

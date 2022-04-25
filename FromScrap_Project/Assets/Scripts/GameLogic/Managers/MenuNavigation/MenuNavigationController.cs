@@ -38,7 +38,16 @@ namespace MenuNavigation {
         {
             return await ShowShowable<T>(_menuScreens, _canvas.MenuScreensParent, onFinish, showableName);
         }
-        
+
+        public void HideAllMenuScreens()
+        {
+            HideAllPopups();
+            HideAllScreensElements();
+            
+            foreach (var menu in _menuScreens.Values)
+                menu.IsActive = false;
+        }
+
         public void HideMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen
         {
             showableName ??= typeof(T).GetField("ShowableName").GetValue(null).ToString();
@@ -94,7 +103,7 @@ namespace MenuNavigation {
                 onFinish?.Invoke();
             });
         }
-
+        
         public void HideAllPopups()
         {
             foreach (var popup in _popups.Values)

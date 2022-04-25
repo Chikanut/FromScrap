@@ -1,8 +1,9 @@
 using ShootCommon.Views.Mediation;
-using UI.Loading;
-using UI.MainMenu;
-using UI.Preloader;
-using UI.Upgrades;
+using UI.PopUps.Pause;
+using UI.Screens.Loading;
+using UI.Screens.MainMenu;
+using UI.Screens.Preloader;
+using UI.Screens.Upgrades;
 using Zenject;
 
 namespace MenuNavigation
@@ -13,11 +14,16 @@ namespace MenuNavigation
         {
             Container.BindInterfacesTo<MenuNavigationController>().AsSingle();
 
+            //Screens
             Container.BindViewToMediator<GamePlayScreenView, GamePlayScreenMediator>();
             Container.BindViewToMediator<UpgradeScreenView, UpgradeScreenMediator>();
             Container.BindViewToMediator<PreloaderScreenView, PreloaderScreenMediator>();
             Container.BindViewToMediator<LoadingScreenView, LoadingScreenMediator>();
             Container.BindViewToMediator<MainMenuScreenView, MainManuScreenMadiator>();
+            Container.BindViewToMediator<EndGameScreenView, EndGameScreenMediator>();
+            
+            //PopUps
+            Container.BindViewToMediator<PausePopUpView, PausePopUpMediator>();
         }
     }
 }

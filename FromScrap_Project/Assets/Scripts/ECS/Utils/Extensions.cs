@@ -167,14 +167,9 @@ public static class ECS_Math_Extensions
 
 public static class ECS_Logic_Extentions
 {
-    public static void ClearScene(Action onCleanedUp)
+    public static void ClearScene(Action onCleanedUp = null)
     {
         var world = World.DefaultGameObjectInjectionWorld;
-            
-        world.EntityManager.CompleteAllJobs();
-            
-        world.EntityManager.DestroyEntity(world.EntityManager.UniversalQuery);
-            
         if (world.IsCreated)
         {
             var systems = world.Systems;
@@ -183,15 +178,21 @@ public static class ECS_Logic_Extentions
                 s.Enabled = false;
             }
         }
-
-        DOVirtual.DelayedCall(0.1f, () =>
-        {
+        world.EntityManager.CompleteAllJobs();
+        world.EntityManager.DestroyEntity(world.EntityManager.UniversalQuery);
+        world.Dispose();
+        
+        //     
+     
+        //
+        // DOVirtual.DelayedCall(0.1f, () =>
+        // {
             onCleanedUp?.Invoke();
                 
-            World.DisposeAllWorlds();
+            // World.DisposeAllWorlds();
 
             DefaultWorldInitialization.Initialize("Default World", false);
-            GameObjectSceneUtility.AddGameObjectSceneReferences();
-        });
+            // GameObjectSceneUtility.AddGameObjectSceneReferences();
+        // });
     }
 }

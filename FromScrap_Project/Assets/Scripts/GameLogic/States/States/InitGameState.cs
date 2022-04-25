@@ -1,11 +1,10 @@
 ﻿using Cars.View.Components;
 using DamageSystem.Components;
-using DG.Tweening;
 using MenuNavigation;
 using Packages.Common.Storage.Config.Cars;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
-using UI.Loading;
+using UI.Screens.Loading;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Visartech.Progress;

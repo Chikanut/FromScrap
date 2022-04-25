@@ -3,7 +3,7 @@ using MenuNavigation;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.MainMenu
+namespace UI.Screens.MainMenu
 {
     public class MainMenuScreenView : MenuScreen
     {

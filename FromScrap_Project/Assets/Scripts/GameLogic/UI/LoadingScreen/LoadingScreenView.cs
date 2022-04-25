@@ -1,6 +1,6 @@
 ﻿using MenuNavigation;
 
-namespace UI.Loading
+namespace UI.Screens.Loading
 {
     public class LoadingScreenView : MenuScreen
     {

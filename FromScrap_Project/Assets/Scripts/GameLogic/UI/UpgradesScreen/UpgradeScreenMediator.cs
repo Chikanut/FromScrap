@@ -4,13 +4,12 @@ using Cars.View.Components;
 using Kits.Components;
 using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.Upgrades;
-using ShootCommon.Signals;
 using ShootCommon.Views.Mediation;
 using Unity.Entities;
 using UnityEngine;
 using Zenject;
 
-namespace UI.Upgrades
+namespace UI.Screens.Upgrades
 {
 	public class UpgradeScreenMediator : Mediator<UpgradeScreenView>
 	{
@@ -24,7 +23,6 @@ namespace UI.Upgrades
 		}
 
 		private EntityManager _entityManager;
-		private ISignalService _signalService;
 		private ICarsConfigController _carsConfigController;
 
 		public class UpgradesInfoDataBuffer
@@ -40,9 +38,8 @@ namespace UI.Upgrades
 		
 
 		[Inject]
-		public void Init(ISignalService signalService, ICarsConfigController carsConfigController)
+		public void Init( ICarsConfigController carsConfigController)
 		{
-			_signalService = signalService;
 			_carsConfigController = carsConfigController;
 		}
 		

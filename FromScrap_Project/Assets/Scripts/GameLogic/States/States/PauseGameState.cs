@@ -2,29 +2,18 @@
 using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
-using UI.Screens.Loading;
+using UI.PopUps.Pause;
 using Zenject;
 
 namespace GameLogic.States.States
 {
-    public class EndGameState : GlobalState
+    public class PauseGameState : GlobalState
     {
         protected override void Configure()
         {
+            Permit<GameplayState>(StateMachineTriggers.Game);
             Permit<MainMenuState>(StateMachineTriggers.MainMenu);
             Permit<LoadGameSceneState>(StateMachineTriggers.LoadGameScene);
-        }
-        
-        protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
-        {
-            _menuNavigationController.HideAllMenuScreens();
-            _menuNavigationController.ShowMenuScreen<EndGameScreenView>(SubscribeToSignals, "EndGameScreen");
-        }
-        
-        private void SubscribeToSignals()
-        {
-            SubscribeToSignal<GoToMainMenuSignal>(GoToMainMenu);
-            SubscribeToSignal<RestartGameSignal>(RestartGame);
         }
         
         private IMenuNavigationController _menuNavigationController;
@@ -33,6 +22,26 @@ namespace GameLogic.States.States
         public void Init(IMenuNavigationController menuNavigationController)
         {
             _menuNavigationController = menuNavigationController;
+        }
+        
+        protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
+        {
+            _menuNavigationController.ShowPopup<PausePopUpView>(SubscribeToSignals, "PausePopUp");
+        }
+        
+        private void SubscribeToSignals()
+        {
+            SubscribeToSignal<ContinueGameSignal>(OnContinue);
+            SubscribeToSignal<GoToMainMenuSignal>(GoToMainMenu);
+            SubscribeToSignal<RestartGameSignal>(RestartGame);
+        }
+
+        void OnContinue(ContinueGameSignal signal)
+        {
+            _menuNavigationController.HidePopup<PausePopUpView>(() =>
+            {
+                Fire(StateMachineTriggers.Game);
+            }, "PausePopUp");
         }
         
         void GoToMainMenu(GoToMainMenuSignal signal)

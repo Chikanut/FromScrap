@@ -1,7 +1,7 @@
 ﻿using MenuNavigation;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
-using UI.Loading;
+using UI.Screens.Loading;
 using UnityEngine.SceneManagement;
 using Zenject;
 

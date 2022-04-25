@@ -4,7 +4,7 @@ using Kits.Components;
 using LevelingSystem.Components;
 using MenuNavigation;
 using ShootCommon.Signals;
-using UI.Upgrades;
+using UI.Screens.Upgrades;
 using Unity.Entities;
 using Zenject;
 

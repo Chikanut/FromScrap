@@ -1,6 +1,6 @@
 ﻿using ShootCommon.Views.Mediation;
 
-namespace UI.Preloader
+namespace UI.Screens.Preloader
 {
     public class PreloaderScreenMediator : Mediator<PreloaderScreenView>
     {

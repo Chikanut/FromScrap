@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using MenuNavigation;
-using Unity.Entities;
-using UnityEngine;
+﻿using MenuNavigation;
 
-namespace UI.Preloader
+namespace UI.Screens.Preloader
 {
     public class PreloaderScreenView : MenuScreen
     {

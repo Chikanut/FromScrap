@@ -3,7 +3,7 @@ using Packages.Common.Storage.Config;
 using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
-using UI.Preloader;
+using UI.Screens.Preloader;
 using UnityEngine.SceneManagement;
 using Visartech.Progress;
 using Zenject;

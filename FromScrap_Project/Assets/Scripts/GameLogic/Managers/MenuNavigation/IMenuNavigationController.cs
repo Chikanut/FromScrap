@@ -6,6 +6,7 @@ namespace MenuNavigation {
     public interface IMenuNavigationController
     {
         Task<T> ShowMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen;
+        void HideAllMenuScreens();
         void HideMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen;
         void HideMenuScreen(MenuScreen menuScreen, Action onFinish = null);
         Task<T> ShowPopup<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : Popup;

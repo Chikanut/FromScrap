@@ -15,6 +15,7 @@ namespace Packages.Common.StateMachineGlobal
             Container.BindState<LoadGameSceneState>();
             Container.BindState<InitGameState>();
             Container.BindState<GameplayState>();
+            Container.BindState<PauseGameState>();
             Container.BindState<EndGameState>();
             
             Container.BindInterfacesTo<StateMachineController>().AsSingle();
