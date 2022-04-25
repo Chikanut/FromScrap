@@ -2,8 +2,14 @@ namespace ShootCommon.GlobalStateMachine
 {
     public enum StateMachineTriggers 
     {
-        Start,
-        //GamePlayStates
+        //InitialStates
+        LoadInfo,
+        
+        //MenusStates
+        MainMenu,
+        
+        //GameStates
+        LoadGameScene,
         InitGame,
         StartGame,
         Game,

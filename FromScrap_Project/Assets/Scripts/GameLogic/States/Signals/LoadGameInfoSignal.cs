@@ -1,6 +1,6 @@
 using ShootCommon.Signals;
 
-namespace Packages.Common.Storage.Config
+namespace Signals
 {
     public class LoadGameInfoSignal : Signal { }
 }

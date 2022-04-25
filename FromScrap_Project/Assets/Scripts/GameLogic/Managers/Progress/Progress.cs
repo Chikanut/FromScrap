@@ -1,15 +1,17 @@
 ﻿using UnityEngine;
 using System;
 using System.Linq;
+using ShootCommon.GlobalStateMachine;
 
 namespace Visartech.Progress
 {
     [Serializable]
     public class Progress : ProgressBase<Progress>
     {
-        
+
         [Serializable]
-        public class PlayerData : Observable {
+        public class PlayerData : Observable
+        {
 
             public PlayerData()
             {
@@ -25,6 +27,14 @@ namespace Visartech.Progress
         {
             public bool SoundEnabled = true;
             public bool MusicEnabled = true;
+        }
+
+        [Serializable]
+        public class DevelopmentData
+        {
+            public bool isTesting;
+            public string testSceneName;
+            public StateMachineTriggers testState;
         }
 
         [Serializable]
@@ -60,6 +70,7 @@ namespace Visartech.Progress
 
         private PlayerData _playerData;
         private GameData _gameData = new GameData();
+        private DevelopmentData _developmentData = new DevelopmentData();
         private StatisticsData _statisticsData = new StatisticsData();
 
         public static PlayerData Player
@@ -71,6 +82,11 @@ namespace Visartech.Progress
         public static GameData Game {
             get => instance._gameData;
             set => instance._gameData = value;
+        }
+        
+        public static DevelopmentData Development {
+            get => instance._developmentData;
+            set => instance._developmentData = value;
         }
         
         public static StatisticsData Statistics {

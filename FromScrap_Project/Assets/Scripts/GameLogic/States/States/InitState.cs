@@ -7,7 +7,7 @@ namespace Packages.Common.StateMachineGlobal.States
     {
         protected override void Configure()
         {
-             Permit<StartState>(StateMachineTriggers.Start);
+             Permit<LoadInfoState>(StateMachineTriggers.LoadInfo);
         }
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)

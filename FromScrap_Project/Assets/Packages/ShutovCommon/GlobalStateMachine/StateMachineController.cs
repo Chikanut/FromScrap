@@ -35,7 +35,7 @@ namespace ShootCommon.GlobalStateMachine
 
         public void Initialize()
         {
-            Fire(StateMachineTriggers.Start);
+            Fire(StateMachineTriggers.LoadInfo);
         }
 
         public IState GetState<TState>()

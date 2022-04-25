@@ -1,0 +1,96 @@
+using MenuNavigation;
+using Packages.Common.Storage.Config;
+using ShootCommon.GlobalStateMachine;
+using Signals;
+using Stateless;
+using UI.Preloader;
+using UnityEngine.SceneManagement;
+using Visartech.Progress;
+using Zenject;
+
+namespace Packages.Common.StateMachineGlobal.States
+{
+    public class LoadInfoState : GlobalState
+    {
+        public const string PreloaderScene = "Preloader";
+        
+        protected override void Configure()
+        {
+            Permit<MainMenuState>(StateMachineTriggers.MainMenu);
+        }
+        
+        protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
+        {
+            SubscribeToSignals();
+            LoadScene();
+        }
+
+
+        private IMenuNavigationController _menuNavigationController;
+        
+        [Inject]
+        public void Init(IMenuNavigationController menuNavigationController)
+        {
+            _menuNavigationController = menuNavigationController;
+        }
+
+        void SubscribeToSignals()
+        {
+            SubscribeToSignal<GameInfoUpdatedSignal>((signal) =>
+            {
+                OnSettingsLoaded();
+            });
+        }
+
+        void LoadScene()
+        {
+            if (SceneManager.GetActiveScene().name == PreloaderScene)
+            {
+                SetupScene();
+            }
+            else
+            {
+                SceneManager.LoadScene(PreloaderScene, new LoadSceneParameters()
+                {
+                    loadSceneMode = LoadSceneMode.Single,
+                    localPhysicsMode = LocalPhysicsMode.None
+                });
+                
+                SceneManager.sceneLoaded += OnPreloaderSceneLoaded;
+            }
+        }
+         
+        private void OnPreloaderSceneLoaded(Scene arg0, LoadSceneMode arg1)
+        {
+            if (arg0.name == PreloaderScene)
+            {
+                SetupScene();
+            }
+        }
+
+        void SetupScene()
+        {
+            _menuNavigationController.ShowMenuScreen<PreloaderScreenView>(() =>
+            {
+                SignalService.Publish(new LoadGameInfoSignal());
+            }, "PreloaderScreen");
+        }
+
+        protected override void OnExit()
+        {
+            base.OnExit();
+            _menuNavigationController.HideMenuScreen<PreloaderScreenView>(null, "PreloaderScreen");
+            SceneManager.sceneLoaded -= OnPreloaderSceneLoaded;
+        }
+
+        void OnSettingsLoaded()
+        {
+            if(!Progress.Development.isTesting)
+                Fire(StateMachineTriggers.MainMenu);
+            else
+            {
+                
+            }
+        }
+    }
+}

@@ -23,7 +23,12 @@ namespace MenuNavigation {
         [Inject]
         public void Init()
         {
-            _canvas = Object.Instantiate(Resources.Load("MenuNavigationCanvas") as GameObject).GetComponent<MenuNavigationControllerCanvas>();
+            _canvas = Object.Instantiate(Resources.Load("MenuNavigationCanvas") as GameObject)
+                .GetComponent<MenuNavigationControllerCanvas>();
+            var eventsSystem = Object.Instantiate(Resources.Load("EventSystem") as GameObject);
+            
+            Object.DontDestroyOnLoad(eventsSystem.gameObject);
+            Object.DontDestroyOnLoad(_canvas.gameObject);
             Instance = this;
         }
         
