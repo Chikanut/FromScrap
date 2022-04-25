@@ -7,7 +7,7 @@ using UI.MainMenu;
 using UnityEngine.SceneManagement;
 using Zenject;
 
-namespace Packages.Common.StateMachineGlobal.States
+namespace GameLogic.States.States
 {
     public class MainMenuState : GlobalState
     {

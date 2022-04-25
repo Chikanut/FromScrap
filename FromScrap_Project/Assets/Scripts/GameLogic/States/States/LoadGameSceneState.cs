@@ -1,7 +1,9 @@
-﻿using Packages.Common.StateMachineGlobal.States;
+﻿using MenuNavigation;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
+using UI.Loading;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace GameLogic.States.States
 {
@@ -16,31 +18,26 @@ namespace GameLogic.States.States
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
         {
-            SubscribeToSignals();
-            LoadScene();
+            _menuNavigationController.ShowMenuScreen<LoadingScreenView>(LoadScene, "LoadingScreen");
         }
         
-        private void SubscribeToSignals()
+        private IMenuNavigationController _menuNavigationController;
+        
+        [Inject]
+        public void Init(IMenuNavigationController menuNavigationController)
         {
-            //showLoadingScreen
+            _menuNavigationController = menuNavigationController;
         }
-
+        
         void LoadScene()
         {
-            if (SceneManager.GetActiveScene().name == GameScene)
+            SceneManager.LoadScene(GameScene, new LoadSceneParameters()
             {
-                OnStartGame();
-            }
-            else
-            {
-                SceneManager.LoadScene(GameScene, new LoadSceneParameters()
-                {
-                    loadSceneMode = LoadSceneMode.Single,
-                    localPhysicsMode = LocalPhysicsMode.None
-                });
-                
-                SceneManager.sceneLoaded += OnSceneLoaded;
-            }
+                loadSceneMode = LoadSceneMode.Single,
+                localPhysicsMode = LocalPhysicsMode.None
+            });
+            
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         
         private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)

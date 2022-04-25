@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Packages.Common.StateMachineGlobal.States;
+using GameLogic.States.States;
 using Stateless;
-using UnityEngine;
 using Zenject;
 
 namespace ShootCommon.GlobalStateMachine

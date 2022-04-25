@@ -13,7 +13,7 @@ namespace IsVisible.Systems
         private Plane _groundPlane;
         private Vector2 _screenSize;
 
-        private static NativeArray<float3> _cameraPoints = new NativeArray<float3>(4, Allocator.Persistent);
+        private static NativeArray<float3> _cameraPoints;
 
         protected override void OnCreate()
         {
@@ -22,6 +22,7 @@ namespace IsVisible.Systems
             _camera = Camera.main;
             _groundPlane = new Plane(Vector3.up, Vector3.zero);
             _screenSize = new Vector2(Screen.width, Screen.height);
+            _cameraPoints = new NativeArray<float3>(4, Allocator.Persistent);
         }
 
         protected override void OnDestroy()

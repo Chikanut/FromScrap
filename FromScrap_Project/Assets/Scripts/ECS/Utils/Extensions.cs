@@ -1,5 +1,9 @@
+using System;
 using System.ComponentModel;
+using DG.Tweening;
+using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -159,4 +163,35 @@ public static class ECS_Math_Extensions
         return num8;
     }
 
+}
+
+public static class ECS_Logic_Extentions
+{
+    public static void ClearScene(Action onCleanedUp)
+    {
+        var world = World.DefaultGameObjectInjectionWorld;
+            
+        world.EntityManager.CompleteAllJobs();
+            
+        world.EntityManager.DestroyEntity(world.EntityManager.UniversalQuery);
+            
+        if (world.IsCreated)
+        {
+            var systems = world.Systems;
+            foreach (var s in systems)
+            {
+                s.Enabled = false;
+            }
+        }
+
+        DOVirtual.DelayedCall(0.1f, () =>
+        {
+            onCleanedUp?.Invoke();
+                
+            World.DisposeAllWorlds();
+
+            DefaultWorldInitialization.Initialize("Default World", false);
+            GameObjectSceneUtility.AddGameObjectSceneReferences();
+        });
+    }
 }

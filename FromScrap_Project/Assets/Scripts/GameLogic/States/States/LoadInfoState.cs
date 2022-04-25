@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using Visartech.Progress;
 using Zenject;
 
-namespace Packages.Common.StateMachineGlobal.States
+namespace GameLogic.States.States
 {
     public class LoadInfoState : GlobalState
     {

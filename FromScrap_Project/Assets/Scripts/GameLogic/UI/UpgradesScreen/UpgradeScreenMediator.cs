@@ -44,19 +44,18 @@ namespace UI.Upgrades
 		{
 			_signalService = signalService;
 			_carsConfigController = carsConfigController;
-			_entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 		}
 		
 		protected override void OnMediatorEnable()
 		{
 			base.OnMediatorEnable();
-			
+
+			_entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 			_data = new UpgradesInfoDataBuffer();
 
 			InitCarInfo();
 			InitKits();
 			InitCards();
-			
 		}
 
 		void InitCarInfo()

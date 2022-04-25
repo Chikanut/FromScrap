@@ -1,5 +1,4 @@
 using GameLogic.States.States;
-using Packages.Common.StateMachineGlobal.States;
 using ShootCommon.GlobalStateMachine;
 using Zenject;
 
@@ -15,6 +14,8 @@ namespace Packages.Common.StateMachineGlobal
             Container.BindState<MainMenuState>();
             Container.BindState<LoadGameSceneState>();
             Container.BindState<InitGameState>();
+            Container.BindState<GameplayState>();
+            Container.BindState<EndGameState>();
             
             Container.BindInterfacesTo<StateMachineController>().AsSingle();
         }

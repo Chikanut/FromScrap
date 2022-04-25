@@ -8,7 +8,13 @@ using UnityEngine.InputSystem.LowLevel;
         {
             InputSystem.onEvent += OnInputSystemEvent;
         }
-        
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            InputSystem.onEvent -= OnInputSystemEvent;
+        }
+
         private void OnInputSystemEvent(InputEventPtr inputEventPtr, InputDevice inputDevice) {
             if (!inputEventPtr.IsA<StateEvent>() && !inputEventPtr.IsA<DeltaStateEvent>())
                 return;

@@ -1,7 +1,7 @@
 using ShootCommon.GlobalStateMachine;
 using Stateless;
 
-namespace Packages.Common.StateMachineGlobal.States
+namespace GameLogic.States.States
 {
     public class InitState : GlobalState
     {

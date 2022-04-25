@@ -64,7 +64,7 @@ public partial class EnemiesSpawnerSystem : SystemBase
 
         signalService.Receive<ChangeStateSignal>().Subscribe((stateSignal) =>
         {
-            if(stateSignal.SelectedState == StateMachineTriggers.InitGame)
+            if(stateSignal.SelectedState == StateMachineTriggers.Game)
                 StartSpawning();
             if (stateSignal.SelectedState == StateMachineTriggers.EndGame)
                 EndSpawning();

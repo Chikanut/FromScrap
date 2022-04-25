@@ -20,7 +20,8 @@ namespace DamageSystem.Systems
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
             Entities.WithNone<AddHealthBarData>().ForEach((Entity e, in HealthBarUI healthUI) =>
             {
-                Object.Destroy(healthUI.SliderContainer.gameObject);
+                if(healthUI.SliderContainer != null)
+                    Object.Destroy(healthUI.SliderContainer.gameObject);
                 ecb.RemoveComponent<HealthBarUI>(e);
             }).WithoutBurst().Run();
         }
