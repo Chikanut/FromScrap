@@ -32,6 +32,8 @@ namespace Cars.View.Authorings
 
             public PhysicsCategoryTags BelongsTo;
             public PhysicsCategoryTags CollideWith;
+
+            public GameObject WheelTrailObject;
         }
 
         [System.Serializable]
@@ -99,6 +101,15 @@ namespace Cars.View.Authorings
                 dstManager.AddComponentData(wheelEntity, wheelData);
                 dstManager.AddComponentData(wheelEntity, checkGround);
 
+                //init wheel trail effect
+                if (wheel.WheelTrailObject != null)
+                {
+                    var wheelTrailComponent = new GameObjectTrackEntityComponent().Init(wheel.WheelTrailObject);
+
+                    dstManager.AddComponentData(wheelEntity, wheelTrailComponent);
+                }
+
+                //Init geometry car trail system
                 if (TrailObject != null)
                     EntityPoolManager.Instance.GetObject(TrailObject, (entity, manager) =>
                     {
