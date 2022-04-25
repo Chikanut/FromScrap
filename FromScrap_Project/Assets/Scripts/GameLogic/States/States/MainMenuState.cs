@@ -1,18 +1,15 @@
-﻿using GameLogic.States.States;
-using MenuNavigation;
+﻿using MenuNavigation;
 using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
+using UI.Screens.Loading;
 using UI.Screens.MainMenu;
-using UnityEngine.SceneManagement;
 using Zenject;
 
 namespace GameLogic.States.States
 {
     public class MainMenuState : GlobalState
     {
-         public const string MenuScene = "MainMenu";
-        
         protected override void Configure()
         {
             Permit<LoadGameSceneState>(StateMachineTriggers.LoadGameScene);
@@ -20,8 +17,7 @@ namespace GameLogic.States.States
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
         {
-            SubscribeToSignals();
-            LoadScene();
+            _menuNavigationController.HideMenuScreen<LoadingScreenView>(SetupScene, "LoadingScreen");
         }
         
         private IMenuNavigationController _menuNavigationController;
@@ -40,34 +36,10 @@ namespace GameLogic.States.States
             });
         }
         
-        private void LoadScene()
-        {
-            if (SceneManager.GetActiveScene().name == MenuScene)
-            {
-                SetupScene();
-            }
-            else
-            {
-                SceneManager.sceneLoaded += OnSceneLoaded;
-                SceneManager.LoadScene(MenuScene, new LoadSceneParameters()
-                {
-                    loadSceneMode = LoadSceneMode.Single,
-                    localPhysicsMode = LocalPhysicsMode.None
-                });
-            }
-        }
-        
-        private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
-        {
-            if (arg0.name == MenuScene)
-            {
-                SetupScene();
-            }
-        }
-        
         void SetupScene()
         {
-             _menuNavigationController.ShowMenuScreen<MainMenuScreenView>(null, "MainMenuScreen");
+            SubscribeToSignals();
+            _menuNavigationController.ShowMenuScreen<MainMenuScreenView>(null, "MainMenuScreen");
         }
 
         void OnStartGame()
@@ -78,7 +50,6 @@ namespace GameLogic.States.States
         protected override void OnExit()
         {
             base.OnExit();
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             _menuNavigationController.HideMenuScreen<MainMenuScreenView>(null, "MainMenuScreen");
         }
     }

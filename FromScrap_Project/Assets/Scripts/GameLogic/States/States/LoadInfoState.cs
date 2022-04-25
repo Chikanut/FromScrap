@@ -16,7 +16,7 @@ namespace GameLogic.States.States
         
         protected override void Configure()
         {
-            Permit<MainMenuState>(StateMachineTriggers.MainMenu);
+            Permit<LoadMenuSceneState>(StateMachineTriggers.LoadMenuScene);
         }
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
@@ -86,11 +86,7 @@ namespace GameLogic.States.States
         void OnSettingsLoaded()
         {
             if(!Progress.Development.isTesting)
-                Fire(StateMachineTriggers.MainMenu);
-            else
-            {
-                
-            }
+                Fire(StateMachineTriggers.LoadMenuScene);
         }
     }
 }

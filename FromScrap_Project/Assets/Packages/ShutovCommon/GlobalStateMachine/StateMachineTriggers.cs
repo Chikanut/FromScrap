@@ -6,6 +6,7 @@ namespace ShootCommon.GlobalStateMachine
         LoadInfo,
         
         //MenusStates
+        LoadMenuScene,
         MainMenu,
         
         //GameStates

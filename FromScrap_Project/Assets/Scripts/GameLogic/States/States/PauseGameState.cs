@@ -12,7 +12,7 @@ namespace GameLogic.States.States
         protected override void Configure()
         {
             Permit<GameplayState>(StateMachineTriggers.Game);
-            Permit<MainMenuState>(StateMachineTriggers.MainMenu);
+            Permit<LoadMenuSceneState>(StateMachineTriggers.LoadMenuScene);
             Permit<LoadGameSceneState>(StateMachineTriggers.LoadGameScene);
         }
         
@@ -48,7 +48,7 @@ namespace GameLogic.States.States
         {
             _menuNavigationController.HideAllMenuScreens();
 
-            ECS_Logic_Extentions.ClearScene(() => { Fire(StateMachineTriggers.MainMenu); });
+            ECS_Logic_Extentions.ClearScene(() => { Fire(StateMachineTriggers.LoadMenuScene); });
         }
 
         void RestartGame(RestartGameSignal signal)

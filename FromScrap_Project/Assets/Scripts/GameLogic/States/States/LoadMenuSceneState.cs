@@ -7,13 +7,13 @@ using Zenject;
 
 namespace GameLogic.States.States
 {
-    public class LoadGameSceneState : GlobalState
+    public class LoadMenuSceneState : GlobalState
     {
-        public const string GameScene = "GameScene";
+        public const string MenuScene = "MainMenu";
         
         protected override void Configure()
         {
-            Permit<InitGameState>(StateMachineTriggers.InitGame);
+            Permit<MainMenuState>(StateMachineTriggers.MainMenu);
         }
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
@@ -31,7 +31,7 @@ namespace GameLogic.States.States
         
         void LoadScene()
         {
-            SceneManager.LoadScene(GameScene, new LoadSceneParameters()
+            SceneManager.LoadScene(MenuScene, new LoadSceneParameters()
             {
                 loadSceneMode = LoadSceneMode.Single,
                 localPhysicsMode = LocalPhysicsMode.None
@@ -42,15 +42,13 @@ namespace GameLogic.States.States
         
         private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
-            if (arg0.name == GameScene)
-            {
+            if (arg0.name == MenuScene)
                 OnStartGame();
-            }
         }
         
         void OnStartGame()
         {
-            Fire(StateMachineTriggers.InitGame);
+            Fire(StateMachineTriggers.MainMenu);
         }
     }
 }

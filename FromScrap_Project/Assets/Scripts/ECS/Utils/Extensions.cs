@@ -181,18 +181,9 @@ public static class ECS_Logic_Extentions
         world.EntityManager.CompleteAllJobs();
         world.EntityManager.DestroyEntity(world.EntityManager.UniversalQuery);
         world.Dispose();
-        
-        //     
-     
-        //
-        // DOVirtual.DelayedCall(0.1f, () =>
-        // {
-            onCleanedUp?.Invoke();
-                
-            // World.DisposeAllWorlds();
 
-            DefaultWorldInitialization.Initialize("Default World", false);
-            // GameObjectSceneUtility.AddGameObjectSceneReferences();
-        // });
+        onCleanedUp?.Invoke();
+        
+        DefaultWorldInitialization.Initialize("Default World", false);
     }
 }

@@ -11,6 +11,7 @@ namespace Packages.Common.StateMachineGlobal
             Container.BindState<InitState>();
             
             Container.BindState<LoadInfoState>();
+            Container.BindState<LoadMenuSceneState>();
             Container.BindState<MainMenuState>();
             Container.BindState<LoadGameSceneState>();
             Container.BindState<InitGameState>();
