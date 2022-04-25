@@ -66,7 +66,7 @@ namespace UI.Screens.Upgrades
             _icon.sprite = data.Icon;
             _name.text = LocalizationManager.GetTranslation("Kits/"+data.NameKey);
             _info.text = LocalizationManager.GetTranslation("Kits/"+data.DescriptionKey);
-            _lvl.text = string.Format(LocalizationManager.GetTranslation("_lvl") + " {0}", data.UpgradeLevel);
+            _lvl.text = string.Format(LocalizationManager.GetTranslation("UI/_lvl") + " {0}", data.UpgradeLevel);
             
             _onClick = onClick;
         }

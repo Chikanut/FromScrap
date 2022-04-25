@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using I2.Loc;
 using MenuNavigation;
 using TMPro;
 using UnityEngine;
@@ -56,7 +57,7 @@ namespace UI.Screens.Loading
 
         public void SetCurrentLevel(int level)
         {
-            _levelLabel.text = $"LvL {level + 1}";
+            _levelLabel.text = string.Format(LocalizationManager.GetTranslation("UI/_lvl") + "{0}", level + 1);
         }
     }
 }
