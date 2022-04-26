@@ -1,18 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
+using ShootCommon.GlobalStateMachine;
 using UnityEngine;
+using Visartech.Progress;
 
 public class SetTestScene : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public StateMachineTriggers TestState;
+    
+    private void Awake()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Progress.Development.isTesting = true;
+        Progress.Development.testState = TestState;
     }
 }

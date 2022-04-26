@@ -5,6 +5,7 @@ using Packages.Common.Storage.Config.Cars;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
 using UI.Screens.Loading;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Visartech.Progress;
@@ -44,6 +45,7 @@ namespace GameLogic.States.States
 
         void InitGame()
         {
+            // World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<CharacterControllerSystem>();
             SpawnPlayer();
  
             //TODO: Wait till all game parts is initialized

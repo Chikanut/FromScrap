@@ -1,5 +1,6 @@
 using ShootCommon.GlobalStateMachine;
 using Stateless;
+using UnityEngine;
 
 namespace GameLogic.States.States
 {
@@ -12,7 +13,7 @@ namespace GameLogic.States.States
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
         {
-
+        
         }
     }
 }

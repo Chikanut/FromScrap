@@ -4,6 +4,7 @@ using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
 using UI.Screens.Preloader;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Visartech.Progress;
 using Zenject;
@@ -21,6 +22,14 @@ namespace GameLogic.States.States
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
         {
+            Application.targetFrameRate = 120;
+            
+            if (Progress.Development.isTesting)
+            {
+                Progress.Development.isTesting = false;
+                return;
+            }
+
             SubscribeToSignals();
             LoadScene();
         }
@@ -85,8 +94,7 @@ namespace GameLogic.States.States
 
         void OnSettingsLoaded()
         {
-            if(!Progress.Development.isTesting)
-                Fire(StateMachineTriggers.LoadMenuScene);
+            Fire(StateMachineTriggers.LoadMenuScene);
         }
     }
 }

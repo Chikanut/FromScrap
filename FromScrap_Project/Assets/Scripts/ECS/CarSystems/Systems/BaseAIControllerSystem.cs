@@ -1,8 +1,8 @@
-﻿using Unity.Entities;
+﻿using Reese.Math;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using VertexFragment;
 
 [UpdateAfter(typeof(FindClosestTargetSystem))]
 public partial class BaseAIControllerSystem : SystemBase
@@ -18,7 +18,7 @@ public partial class BaseAIControllerSystem : SystemBase
     protected override void OnUpdate()
     {
         Dependency = Entities.WithAll<BaseAIControllerComponent>().ForEach((
-            ref GameCharacterMovementComponent controller, in Translation  translation, in HasTarget target) =>
+            ref CharacterControllerInternalData controller, in LocalToWorld localToWorld, in HasTarget target) =>
         {
             if (target.TargetEntity == Entity.Null )
             {
@@ -26,11 +26,13 @@ public partial class BaseAIControllerSystem : SystemBase
                 return;
             }
         
-            var dir = math.normalize(target.TargetPosition - translation.Value);
-            dir.y = 0; 
+            var dir = math.normalize(target.TargetPosition - localToWorld.Position);
+            dir.y = 0;
+            var forward = localToWorld.Forward;
+            var angle = math.clamp(dir.AngleSigned(forward, math.up())/180, -1, 1);
             
-            controller.HorizontalAxis = dir.x;
-            controller.VerticalAxis = dir.z;
+            controller.Input.Movement = new float2(dir.x, dir.z);
+            controller.Input.Rotation = -angle;
         }).ScheduleParallel(_findClosestTargetSystem.FindTargetHandle);
     }
 }
