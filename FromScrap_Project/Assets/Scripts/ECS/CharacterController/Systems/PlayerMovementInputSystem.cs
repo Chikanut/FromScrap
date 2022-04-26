@@ -1,8 +1,10 @@
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-    public class PlayerMovementInputSystem : ComponentSystem
+    public partial class PlayerMovementInputSystem : SystemBase
     {
         protected override void OnCreate()
         {
@@ -37,18 +39,16 @@ using UnityEngine.InputSystem.LowLevel;
 
         private void UpdatePlayerControls(InputEventPtr inputEventPtr, InputDevice inputDevice)
         {
-            Entities.WithAll<PlayerMovementInputComponent>().ForEach((
-                Entity entity,
-                ref GameCharacterMovementComponent controller) =>
+            Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref CharacterControllerInternalData controller, in LocalToWorld localToWorld) =>
             {
-                ProcessMovement(ref controller, inputEventPtr, inputDevice);
-            });
+                ProcessMovement(ref controller, inputEventPtr, inputDevice, localToWorld);
+            }).WithoutBurst().Run();
         }
 
         private void ProcessMovement(
-            ref GameCharacterMovementComponent controller,
+            ref CharacterControllerInternalData controller,
             InputEventPtr inputEventPtr, 
-            InputDevice inputDevice)
+            InputDevice inputDevice, LocalToWorld localToWorld)
         {
             float targetSteer = 0f;
             float targetThrottle = 0f;
@@ -61,17 +61,9 @@ using UnityEngine.InputSystem.LowLevel;
 		
             if (keyboard != null)
             {
-                //IsKeyboard = true;
-
-                //if (keyboard.spaceKey.ReadValueFromEvent(inputEventPtr) != 0)
-                //    PlayerModel.SetPlayerReady();
-
-                //if (!PlayerModel.StartScreenViewController.IsGameReady)
-                //    return;
 
                 targetThrottle = keyboard.wKey.ReadValueFromEvent(inputEventPtr) - keyboard.sKey.ReadValueFromEvent(inputEventPtr);;
                 targetSteer = keyboard.dKey.ReadValueFromEvent(inputEventPtr) - keyboard.aKey.ReadValueFromEvent(inputEventPtr); ;
-                //targetBrake = keyboard.sKey.ReadValueFromEvent(inputEventPtr);
 			
                 turrentRotationDir = keyboard.eKey.ReadValueFromEvent(inputEventPtr) - keyboard.qKey.ReadValueFromEvent(inputEventPtr);
 			
@@ -91,14 +83,9 @@ using UnityEngine.InputSystem.LowLevel;
                 //    return;
 
                 targetSteer = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).x;
-                //targetThrottle = gamepad.leftTrigger.ReadValueFromEvent(inputEventPtr);
-                //targetBrake = gamepad.leftShoulder.ReadValueFromEvent(inputEventPtr);
                 targetThrottle = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).y;
 			
                 turrentRotationDir = gamepad.rightStick.ReadValueFromEvent(inputEventPtr).x;
-                //turrentShoot = gamepad.rightTrigger.ReadValueFromEvent(inputEventPtr) > 0.3f;
-			
-                //rocketShoot = gamepad.rightShoulder.ReadValueFromEvent(inputEventPtr) > 0f;
 
                 boosterUsage = gamepad.crossButton.ReadValueFromEvent(inputEventPtr) > 0 ||
                                gamepad.aButton.ReadValueFromEvent(inputEventPtr) > 0;
@@ -106,17 +93,13 @@ using UnityEngine.InputSystem.LowLevel;
                 jumpUsage = gamepad.circleButton.ReadValueFromEvent(inputEventPtr) > 0 ||
                             gamepad.bButton.ReadValueFromEvent(inputEventPtr) > 0;
             }
-            
-            float movementX = targetSteer;
-            //float movementZ = targetThrottle - targetBrake;
-            float movementZ = targetThrottle;
-            //float boost = boosterUsage ? 2.5f : 1.0f;
-            
-            //controller.HorizontalAxis = movementX;
-            controller.HorizontalAxis = movementX;
-            controller.VerticalAxis = movementZ;
-            controller.SpaceKey = jumpUsage;
-            controller.BoostKey = boosterUsage;
+
+            var dir = new float3(targetSteer, 0, targetThrottle);
+            var forward = localToWorld.Forward;
+            var angle = math.clamp(dir.AngleSigned(forward, math.up())/180, -1, 1);
+
+            controller.Input.Movement = new float2(dir.x, dir.z);
+            controller.Input.Rotation = -angle;
         }
 
         protected override void OnUpdate()
