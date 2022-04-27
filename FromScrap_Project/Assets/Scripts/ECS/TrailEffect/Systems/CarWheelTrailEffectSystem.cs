@@ -15,7 +15,7 @@ public partial class CarWheelTrailEffectSystem : SystemBase
         ) =>
         {
             var isGrounded = groundInfoData.isGrounded;
-            var trailPos = groundInfoData.GroundPosition;
+            var trailPos = groundInfoData.Info.Position;
 
             trailEffectTrackComponent.InitTrackingGO(isGrounded);
             trailEffectTrackComponent.UpdateTrackingGOPosition(trailPos);

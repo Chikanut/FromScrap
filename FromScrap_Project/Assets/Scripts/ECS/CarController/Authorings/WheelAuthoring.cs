@@ -17,11 +17,11 @@ namespace Cars.View.Authorings
             public float WheelSkinWidth;
             public float Radius;
             public float SuspensionDistance;
-            public float SuspensionOffset;
             public float SuspensionDamping;
+            public float SuspensionStrength;
             
             public bool isGuide;
-            public bool isLeft;
+            // public bool isLeft;
             [Range(0, 1)]
             public float TurnRange;
             public float TurnDamping;
@@ -47,13 +47,11 @@ namespace Cars.View.Authorings
                 Parent = parent,
                 Radius = wheel.Radius,
                 SuspensionDistance = wheel.SuspensionDistance,
-                SuspensionOffset = wheel.SuspensionOffset,
                 SuspensionDamping = wheel.SuspensionDamping,
                 isGuide = wheel.isGuide,
                 TurnRange = wheel.TurnRange,
                 TurnDamping = wheel.TurnDamping,
-                LocalAnchor = transform.localPosition,
-                isLeft = wheel.isLeft
+                SuspensionStrength = wheel.SuspensionStrength
             };
 
             var checkGround = new GroundInfoData()
@@ -92,8 +90,8 @@ namespace Cars.View.Authorings
             
             UnityEditor.Handles.color = Color.green;
             UnityEditor.Handles.DrawWireDisc(transform.position, transform.right, wheel.Radius);
-            var startPoint = transform.position + transform.parent.up * wheel.SuspensionOffset;
-            Gizmos.DrawLine(startPoint,startPoint+transform.parent.up*wheel.SuspensionDistance);
+            var startPoint = transform.parent.position;
+            Gizmos.DrawLine(startPoint, startPoint - transform.parent.up * wheel.SuspensionDistance);
 
         }
 #endif

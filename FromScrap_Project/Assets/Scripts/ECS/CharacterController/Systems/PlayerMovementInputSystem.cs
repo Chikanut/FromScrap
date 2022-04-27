@@ -40,7 +40,7 @@ public partial class PlayerMovementInputSystem : SystemBase
                 ProcessCharacterMovement(ref controller, inputEventPtr, inputDevice, localToWorld);
             }).WithoutBurst().Run();
             
-            Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref VehicleSettingsComponent vehicleComponent, in LocalToWorld localToWorld) =>
+            Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref VehicleInputComponent vehicleComponent, in LocalToWorld localToWorld) =>
             {
                 ProcessVehicleMovement(ref vehicleComponent, inputEventPtr, inputDevice, localToWorld);
             }).WithoutBurst().Run();
@@ -74,7 +74,7 @@ public partial class PlayerMovementInputSystem : SystemBase
             controller.Input.Rotation = -angle;
         }
 
-        private void ProcessVehicleMovement(ref VehicleSettingsComponent vehicleComponent,
+        private void ProcessVehicleMovement(ref VehicleInputComponent vehicleComponent,
             InputEventPtr inputEventPtr,
             InputDevice inputDevice, LocalToWorld localToWorld)
         {
@@ -108,8 +108,6 @@ public partial class PlayerMovementInputSystem : SystemBase
             vehicleComponent.Acceleration = math.length(dir);// * math.sign(math.dot(forward, dir));
             vehicleComponent.MoveDir = dir;
             vehicleComponent.Steer = -angle * math.sign(math.dot(forward, dir));
-            
-            Debug.LogError(vehicleComponent.Steer);
         }
 
         protected override void OnUpdate()

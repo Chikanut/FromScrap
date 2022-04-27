@@ -12,7 +12,7 @@ namespace Packages.Common.Storage.Config.Cars
         [Serializable]
         public class CarInfo
         {
-            public CarViewAuthoring Prefab;
+            public VehicleAuthoring Prefab;
             public CarBaseCharacterisitcsScriptable BaseSettings;
             public LevelsConfigScriptable Levels;
             public UpgradesConfigScriptable Upgrades;
