@@ -1,10 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using Vehicles.Components;
 
-    public partial class PlayerMovementInputSystem : SystemBase
+public partial class PlayerMovementInputSystem : SystemBase
     {
         protected override void OnCreate()
         {
@@ -29,69 +31,39 @@ using UnityEngine.InputSystem.LowLevel;
 
             if (keyboard != null)
                 UpdatePlayerControls(inputEventPtr, inputDevice);
-
-            //var mouse = inputDevice as Mouse;
-            //if (mouse != null)
-            //{
-            //    _players.FirstOrDefault(i => i.View.IsKeyboard)?.View.SetControls(inputEventPtr, inputDevice);
-            //}
         }
 
         private void UpdatePlayerControls(InputEventPtr inputEventPtr, InputDevice inputDevice)
         {
             Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref CharacterControllerInternalData controller, in LocalToWorld localToWorld) =>
             {
-                ProcessMovement(ref controller, inputEventPtr, inputDevice, localToWorld);
+                ProcessCharacterMovement(ref controller, inputEventPtr, inputDevice, localToWorld);
+            }).WithoutBurst().Run();
+            
+            Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref VehicleSettingsComponent vehicleComponent, in LocalToWorld localToWorld) =>
+            {
+                ProcessVehicleMovement(ref vehicleComponent, inputEventPtr, inputDevice, localToWorld);
             }).WithoutBurst().Run();
         }
 
-        private void ProcessMovement(
+        private void ProcessCharacterMovement(
             ref CharacterControllerInternalData controller,
             InputEventPtr inputEventPtr, 
             InputDevice inputDevice, LocalToWorld localToWorld)
         {
-            float targetSteer = 0f;
-            float targetThrottle = 0f;
-            float targetBrake = 0f;
-            float turrentRotationDir;
-            bool boosterUsage = false;
-            bool jumpUsage = false;
-            
-            var keyboard = inputDevice as Keyboard;
-		
-            if (keyboard != null)
+            var targetSteer = 0f;
+            var targetThrottle = 0f;
+
+            switch (inputDevice)
             {
-
-                targetThrottle = keyboard.wKey.ReadValueFromEvent(inputEventPtr) - keyboard.sKey.ReadValueFromEvent(inputEventPtr);;
-                targetSteer = keyboard.dKey.ReadValueFromEvent(inputEventPtr) - keyboard.aKey.ReadValueFromEvent(inputEventPtr); ;
-			
-                turrentRotationDir = keyboard.eKey.ReadValueFromEvent(inputEventPtr) - keyboard.qKey.ReadValueFromEvent(inputEventPtr);
-			
-                boosterUsage = keyboard.leftShiftKey.ReadValueFromEvent(inputEventPtr) > 0;
-			
-                jumpUsage = keyboard.spaceKey.ReadValueFromEvent(inputEventPtr) > 0;
-            }
-            
-            var gamepad = inputDevice as Gamepad;
-		
-            if (gamepad != null)
-            {
-                //if (gamepad.aButton.ReadValueFromEvent(inputEventPtr) != 0)
-                //    PlayerModel.SetPlayerReady();
-
-                //if (!PlayerModel.StartScreenViewController.IsGameReady)
-                //    return;
-
-                targetSteer = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).x;
-                targetThrottle = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).y;
-			
-                turrentRotationDir = gamepad.rightStick.ReadValueFromEvent(inputEventPtr).x;
-
-                boosterUsage = gamepad.crossButton.ReadValueFromEvent(inputEventPtr) > 0 ||
-                               gamepad.aButton.ReadValueFromEvent(inputEventPtr) > 0;
-			
-                jumpUsage = gamepad.circleButton.ReadValueFromEvent(inputEventPtr) > 0 ||
-                            gamepad.bButton.ReadValueFromEvent(inputEventPtr) > 0;
+                case Keyboard keyboard:
+                    targetThrottle = keyboard.wKey.ReadValueFromEvent(inputEventPtr) - keyboard.sKey.ReadValueFromEvent(inputEventPtr);;
+                    targetSteer = keyboard.dKey.ReadValueFromEvent(inputEventPtr) - keyboard.aKey.ReadValueFromEvent(inputEventPtr); ;
+                    break;
+                case Gamepad gamepad:
+                    targetSteer = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).x;
+                    targetThrottle = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).y;
+                    break;
             }
 
             var dir = new float3(targetSteer, 0, targetThrottle);
@@ -100,6 +72,44 @@ using UnityEngine.InputSystem.LowLevel;
 
             controller.Input.Movement = new float2(dir.x, dir.z);
             controller.Input.Rotation = -angle;
+        }
+
+        private void ProcessVehicleMovement(ref VehicleSettingsComponent vehicleComponent,
+            InputEventPtr inputEventPtr,
+            InputDevice inputDevice, LocalToWorld localToWorld)
+        {
+            var targetSteer = 0f;
+            var targetThrottle = 0f;
+
+            switch (inputDevice)
+            {
+                case Keyboard keyboard:
+                    targetThrottle = keyboard.wKey.ReadValueFromEvent(inputEventPtr) - keyboard.sKey.ReadValueFromEvent(inputEventPtr);;
+                    targetSteer = keyboard.dKey.ReadValueFromEvent(inputEventPtr) - keyboard.aKey.ReadValueFromEvent(inputEventPtr); ;
+                    break;
+                case Gamepad gamepad:
+                    targetSteer = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).x;
+                    targetThrottle = gamepad.leftStick.ReadValueFromEvent(inputEventPtr).y;
+                    break;
+            }
+
+            var dir = new float3(targetSteer, 0, targetThrottle);
+            var forward = localToWorld.Forward;
+            // forward = ;
+            var angle = dir.AngleSigned(forward, math.up());
+            // Debug.LogError(math.dot(forward, dir));
+            if (angle > 180)
+                angle -= 360;
+
+            angle /= 180;
+
+            angle = Mathf.Clamp(angle, -1, 1);
+
+            vehicleComponent.Acceleration = math.length(dir);// * math.sign(math.dot(forward, dir));
+            vehicleComponent.MoveDir = dir;
+            vehicleComponent.Steer = -angle * math.sign(math.dot(forward, dir));
+            
+            Debug.LogError(vehicleComponent.Steer);
         }
 
         protected override void OnUpdate()
