@@ -1,330 +1,311 @@
-using System;
-using System.Collections.Generic;
-using Unity.Physics;
+using Reese.Math;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
 using Unity.Transforms;
 using UnityEngine;
 using RaycastHit = Unity.Physics.RaycastHit;
-using Unity.Burst;
-using Unity.Jobs;
+using VertexFragment;
 
 namespace Demos
 {
-    [GenerateAuthoringComponent]
     public struct VehicleMechanics : IComponentData
     {
-        //TODO: Create authoring for all wheels links
-        [Header("Chassis Parameters...")]
         public float3 chassisUp;
         public float3 chassisRight;
         public float3 chassisForward;
-        [Header("Wheel Parameters...")]
-        public List<GameObject> wheels;
-
         public float wheelBase;
         public float wheelFrictionRight;
         public float wheelFrictionForward;
         public float wheelMaxImpulseRight;
         public float wheelMaxImpulseForward;
-        [Header("Suspension Parameters...")] public float suspensionLength;
+        public float suspensionLength;
         public float suspensionStrength;
         public float suspensionDamping;
-        [Header("Steering Parameters...")]
-        public List<GameObject> steeringWheels;
-
         public float steeringAngle;
-        [Header("Drive Parameters...")]
-        public List<GameObject> driveWheels;
-
         public bool driveEngaged;
         public float driveDesiredSpeed;
-
-        [Header("Miscellaneous Parameters...")]
         public bool drawDebugInformation;
+        public CollisionFilter collisionFilter;
+    }
+
+    public struct WheelsBuffer : IBufferElementData
+    {
+        public Entity Wheel;
+        public bool isStearing;
+        public bool isDriven;
     }
 
     #region System
-    [UpdateAfter(typeof(BuildPhysicsWorld)), UpdateBefore(typeof(StepPhysicsWorld))]
+    [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(BuildPhysicsWorld)), UpdateBefore(typeof(StepPhysicsWorld))]
     public partial class VehicleMechanicsSystem : SystemBase
     {
-        BuildPhysicsWorld CreatePhysicsWorldSystem;
+        BuildPhysicsWorld _createPhysicsWorldSystem;
+        EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
 
         protected override void OnCreate()
         {
-            CreatePhysicsWorldSystem = World.GetOrCreateSystem<BuildPhysicsWorld>();
- 
+            _createPhysicsWorldSystem = World.GetOrCreateSystem<BuildPhysicsWorld>();
+            _endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
-            
+
             this.RegisterPhysicsRuntimeSystemReadWrite();
-        }
-
-        [BurstCompile]
-        public struct RaycastJob : IJobParallelFor
-        {
-            [ReadOnly] public CollisionWorld world;
-            [ReadOnly] public NativeArray<RaycastInput> inputs;
-            public NativeArray<RaycastHit> results;
-
-            public unsafe void Execute(int index)
-            {
-                RaycastHit hit;
-                world.CastRay(inputs[index], out hit);
-                results[index] = hit;
-            }
-        }
-
-        public static JobHandle ScheduleBatchRayCast(CollisionWorld world,
-            NativeArray<RaycastInput> inputs, NativeArray<RaycastHit> results)
-        {
-            JobHandle rcj = new RaycastJob
-            {
-                inputs = inputs,
-                results = results,
-                world = world
-
-            }.Schedule(inputs.Length, 5);
-            return rcj;
         }
 
 
         // Update is called once per frame
         protected override void OnUpdate()
         {
-            PhysicsWorld world = CreatePhysicsWorldSystem.PhysicsWorld;
+            var world = _createPhysicsWorldSystem.PhysicsWorld;
 
-            Entities.WithoutBurst()
-                .ForEach((Entity entity, in VehicleMechanics mechanics) =>
-            {
-                if (mechanics.wheels.Count == 0) return;
+            var localToWorldFilter = GetComponentDataFromEntity<LocalToWorld>(true);
+            var rotationFilter = GetComponentDataFromEntity<Rotation>(true);
+            var translationFilter = GetComponentDataFromEntity<Translation>(true);
+            var parentFilter = GetComponentDataFromEntity<Parent>(true);
+            var childFilter = GetBufferFromEntity<Child>(true);
+            
+            var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-
-                if (entity == Entity.Null)
+            Entities.ForEach((Entity entity, in Translation translation, in Rotation rotation, in VehicleMechanics mechanics, in DynamicBuffer<WheelsBuffer> wheelsBuffer, in LocalToWorld localToWorld) =>
                 {
-                    Debug.LogError("NULL");
-                    return;
-                }
+                    if (wheelsBuffer.Length == 0) return;
 
-                int ceIdx = world.GetRigidBodyIndex(entity);
-                if (-1 == ceIdx || ceIdx >= world.NumDynamicBodies)
-                {
-                    Debug.LogError("NULL");
-                    return;
-                }
-
-                //float ceMass = world.GetMass(ceIdx);
-                float3 cePosition = EntityManager.GetComponentData<Translation>(entity).Value;
-                quaternion ceRotation = EntityManager.GetComponentData<Rotation>(entity).Value;
-                float3 ceCenterOfMass = world.GetCenterOfMass(ceIdx);
-                float3 ceUp = math.mul(ceRotation, mechanics.chassisUp);
-                float3 ceForward = math.mul(ceRotation, mechanics.chassisForward);
-                float3 ceRight = math.mul(ceRotation, mechanics.chassisRight);
-
-                var rayResults = new NativeArray<RaycastHit>(mechanics.wheels.Count, Allocator.TempJob);
-                var rayVelocities = new NativeArray<float3>(mechanics.wheels.Count, Allocator.TempJob);
-
-                // Collect the RayCast results
-                var rayInputs = new NativeArray<RaycastInput>(mechanics.wheels.Count, Allocator.TempJob);
-                CollisionFilter filter = world.GetCollisionFilter(ceIdx);
-                for (int i = 0; i < mechanics.wheels.Count; i++)
-                {
-                    GameObject weGO = mechanics.wheels[i];
-
-                    float3 wheelCurrentPos = weGO.transform.position;
-
-                    float3 rayStart = weGO.transform.parent.position;
-                    float3 rayEnd = (-ceUp * (mechanics.suspensionLength + mechanics.wheelBase)) + rayStart;
-
-                    if (mechanics.drawDebugInformation)
-                        Debug.DrawRay(rayStart, rayEnd - rayStart);
-
-                    rayInputs[i] = new RaycastInput
+                    if (entity == Entity.Null)
                     {
-                        Start = rayStart,
-                        End = rayEnd,
-                        Filter = filter
-                    };
-                }
-                JobHandle rayJobHandle = ScheduleBatchRayCast(world.CollisionWorld, rayInputs, rayResults);
-                rayJobHandle.Complete();
-                for (int i = 0; i < mechanics.wheels.Count; i++)
-                {
-                    RaycastHit rayResult = rayResults[i];
+                        Debug.LogError("NULL");
+                        return;
+                    }
 
-                    rayVelocities[i] = float3.zero;
-                    if (rayResult.RigidBodyIndex != -1)
+                    var ceIdx = world.GetRigidBodyIndex(entity);
+                    if (-1 == ceIdx || ceIdx >= world.NumDynamicBodies)
                     {
-                        float3 wheelPos = rayResult.Position;
+                        Debug.LogError("NULL");
+                        return;
+                    }
+                    
+                    var cePosition = translation.Value;
+                    var ceRotation = rotation.Value;
+                    var ceCenterOfMass = world.GetCenterOfMass(ceIdx);
+
+                    var ceUp = localToWorld.Up;//math.mul(ceRotation, mechanics.chassisUp);
+                    var ceForward = localToWorld.Forward;// math.mul(ceRotation, mechanics.chassisForward);
+                    var ceRight = localToWorld.Right;// math.mul(ceRotation, mechanics.chassisRight);
+
+                    var rayResults = new NativeArray<RaycastHit>(wheelsBuffer.Length, Allocator.Temp);
+
+                    var filter = mechanics.collisionFilter;
+                    for (var i = 0; i < wheelsBuffer.Length; i++)
+                    {
+                        var weEn = wheelsBuffer[i].Wheel;
+                    
+                        if (!parentFilter.HasComponent(weEn)) continue;
+                    
+                        var rayStart = localToWorldFilter[parentFilter[weEn].Value].Position;
+                        var rayEnd = (-ceUp * (mechanics.suspensionLength + mechanics.wheelBase)) + rayStart;
+                    
+                        if (mechanics.drawDebugInformation)
+                            Debug.DrawRay(rayStart, rayEnd - rayStart);
+                    
+                        var (isHit, hitInfo) = PhysicsUtils.Raycast(rayStart,
+                            rayEnd,
+                            world.CollisionWorld, filter);
+
+                        rayResults[i] = hitInfo;
+                    }
+                    
+
+                    // Calculate a simple slip factor based on chassis tilt.
+                    var slopeSlipFactor = math.pow(math.abs(math.dot(ceUp, math.up())), 4.0f);
+
+                    // Proportional apply velocity changes to each wheel
+                    var invWheelCount = 1.0f / wheelsBuffer.Length;
+                    for (var i = 0; i < wheelsBuffer.Length; i++)
+                    {
+                        var weEn = wheelsBuffer[i].Wheel;
+
+                        if (!rotationFilter.HasComponent(weEn) || !translationFilter.HasComponent(weEn) ||
+                            !parentFilter.HasComponent(weEn)) continue;
+
+                        var weParent = parentFilter[weEn].Value;
+                        var weParentLocalToWorld = localToWorldFilter[weParent];
+                        var weRot = rotationFilter[weEn];
+                        var weTrans = translationFilter[weEn];
+                        var weLocToWorld = localToWorldFilter[weEn];
+
+                        var rayStart = weParentLocalToWorld.Position;
+                        var rayEnd = (-ceUp * (mechanics.suspensionLength + mechanics.wheelBase)) + rayStart;
+
+                        var rayResult = rayResults[i];
+
+                        var wheelPos = rayResult.Position;
                         wheelPos -= (cePosition - ceCenterOfMass);
 
-                        float3 velocityAtWheel = world.GetLinearVelocity(ceIdx, wheelPos);
-                        rayVelocities[i] = velocityAtWheel;
-                    }
-                }
-                rayInputs.Dispose();
+                        var velocityAtWheel = world.GetLinearVelocity(ceIdx, wheelPos);
 
+                        var weUp = ceUp;
+                        var weRight = ceRight;
+                        var weForward = ceForward;
 
-                // Calculate a simple slip factor based on chassis tilt.
-                float slopeSlipFactor = math.pow(math.abs(math.dot(ceUp, math.up())), 4.0f);
+                        #region handle wheel steering
 
-                // Proportional apply velocity changes to each wheel
-                float invWheelCount = 1.0f / mechanics.wheels.Count;
-                for (int i = 0; i < mechanics.wheels.Count; i++)
-                {
-                    GameObject weGO = mechanics.wheels[i];
-
-                    float3 rayStart = weGO.transform.parent.position;
-                    float3 rayEnd = (-ceUp * (mechanics.suspensionLength + mechanics.wheelBase)) + rayStart;
-
-                    float3 rayDir = rayEnd - rayStart;
-
-                    RaycastHit rayResult = rayResults[i];
-                    //float3 velocityAtWheel = rayVelocities[i];
-
-                    float3 wheelPos = rayResult.Position;
-                    wheelPos -= (cePosition - ceCenterOfMass);
-
-                    float3 velocityAtWheel = world.GetLinearVelocity(ceIdx, wheelPos);
-
-                    float3 weUp = ceUp;
-                    float3 weRight = ceRight;
-                    float3 weForward = ceForward;
-
-                    #region handle wheel steering
-                    {
-                        bool bIsSteeringWheel = mechanics.steeringWheels.Contains(weGO);
-                        if (bIsSteeringWheel)
                         {
-                            float steeringAngle = math.radians(mechanics.steeringAngle);
-                            //if((mechanics.steeringWheels.IndexOf(weGO)+1) > (0.5f * mechanics.steeringWheels.Count))
-                            //    steeringAngle = -steeringAngle;
-
-                            quaternion wRotation = quaternion.AxisAngle(ceUp, steeringAngle);
-                            weRight = math.rotate(wRotation, weRight);
-                            weForward = math.rotate(wRotation, weForward);
-
-                            weGO.transform.localRotation = quaternion.AxisAngle(mechanics.chassisUp, steeringAngle);
-                        }
-                    }
-                    #endregion
-
-                    float currentSpeedUp = math.dot(velocityAtWheel, weUp);
-                    float currentSpeedForward = math.dot(velocityAtWheel, weForward);
-                    float currentSpeedRight = math.dot(velocityAtWheel, weRight);
-
-                    #region handle wheel rotation
-                    {
-                        var rGO = weGO.transform.GetChild(0);
-                        if (rGO)
-                        {
-                            bool isDriven = (mechanics.driveEngaged && mechanics.driveWheels.Contains(weGO));
-                            float weRotation = isDriven
-                                ? (mechanics.driveDesiredSpeed / mechanics.wheelBase)
-                                : (currentSpeedForward / mechanics.wheelBase);
-
-                            weRotation = math.radians(weRotation);
-                            rGO.transform.localRotation *= quaternion.AxisAngle(mechanics.chassisRight, weRotation);
-                        }
-                    }
-                    #endregion
-
-
-                    float3 wheelCurrentPos = weGO.transform.position;
-                    bool hit = !math.all(rayResult.SurfaceNormal == float3.zero);
-                    if (!hit)
-                    {
-                        float3 wheelDesiredPos = (-ceUp * mechanics.suspensionLength) + rayStart;
-                        weGO.transform.position = math.lerp(wheelCurrentPos, wheelDesiredPos, mechanics.suspensionDamping / mechanics.suspensionStrength);
-                    }
-                    else
-                    {
-                        // remove the wheelbase to get wheel position.
-                        float fraction = rayResult.Fraction - (mechanics.wheelBase) / (mechanics.suspensionLength + mechanics.wheelBase);
-
-                        float3 wheelDesiredPos = math.lerp(rayStart, rayEnd, fraction);
-                        weGO.transform.position = math.lerp(wheelCurrentPos, wheelDesiredPos, mechanics.suspensionDamping / mechanics.suspensionStrength);
-
-                        #region Suspension
-                        {
-                            // Calculate and apply the impulses
-                            var posA = rayEnd;
-                            var posB = rayResult.Position;
-                            var lvA = currentSpeedUp * weUp;// world.GetLinearVelocity(ceIdx, posA);
-                            var lvB = world.GetLinearVelocity(rayResult.RigidBodyIndex, posB);
-
-                            var impulse = mechanics.suspensionStrength * (posB - posA) + mechanics.suspensionDamping * (lvB - lvA);
-                            impulse = impulse * invWheelCount;
-                            float impulseUp = math.dot(impulse, weUp);
-
-                            // Suspension shouldn't necessarily pull the vehicle down!
-                            float downForceLimit = -0.25f;
-                            if (downForceLimit < impulseUp)
+                            if (wheelsBuffer[i].isStearing)
                             {
-                                impulse = impulseUp * weUp;
+                                var steeringAngle = math.radians(mechanics.steeringAngle);
 
-                                world.ApplyImpulse(ceIdx, impulse, posA);
-                                //world.ApplyImpulse(rayResult.RigidBodyIndex, -impulse, posB);
+                                var wRotation = quaternion.AxisAngle(ceUp, steeringAngle);
+                                weRight = math.rotate(wRotation, weRight);
+                                weForward = math.rotate(wRotation, weForward);
 
-                                if (mechanics.drawDebugInformation)
-                                    Debug.DrawRay(wheelDesiredPos, impulse, Color.green);
+                                weRot.Value = quaternion.AxisAngle(mechanics.chassisUp, steeringAngle);
                             }
                         }
+
                         #endregion
 
-                        #region Sideways friction
-                        {
-                            float deltaSpeedRight = (0.0f - currentSpeedRight);
-                            deltaSpeedRight = math.clamp(deltaSpeedRight, -mechanics.wheelMaxImpulseRight, mechanics.wheelMaxImpulseRight);
-                            deltaSpeedRight *= mechanics.wheelFrictionRight;
-                            deltaSpeedRight *= slopeSlipFactor;
+                        var currentSpeedUp = math.dot(velocityAtWheel, weUp);
+                        var currentSpeedForward = math.dot(velocityAtWheel, weForward);
+                        var currentSpeedRight = math.dot(velocityAtWheel, weRight);
 
-                            float3 impulse = deltaSpeedRight * weRight;
-                            float effectiveMass = world.GetEffectiveMass(ceIdx, impulse, wheelPos);
-                            impulse = impulse * effectiveMass * invWheelCount;
+                        #region handle wheel rotation
+                        if (childFilter.HasComponent(weEn)){
+            
+                            var rEn = childFilter[weEn][0].Value;
 
-                            world.ApplyImpulse(ceIdx, impulse, wheelPos);
-                            world.ApplyImpulse(rayResult.RigidBodyIndex, -impulse, wheelPos);
-
-                            if (mechanics.drawDebugInformation)
-                                Debug.DrawRay(wheelDesiredPos, impulse, Color.red);
-                        }
-                        #endregion
-
-                        #region Drive
-                        {
-                            if (mechanics.driveEngaged && mechanics.driveWheels.Contains(weGO))
+                            if (rotationFilter.HasComponent(rEn))
                             {
-                                float deltaSpeedForward = (mechanics.driveDesiredSpeed - currentSpeedForward);
-                                deltaSpeedForward = math.clamp(deltaSpeedForward, -mechanics.wheelMaxImpulseForward, mechanics.wheelMaxImpulseForward);
-                                deltaSpeedForward *= mechanics.wheelFrictionForward;
-                                deltaSpeedForward *= slopeSlipFactor;
+                                if (rEn != Entity.Null)
+                                {
+                                    var isDriven = (mechanics.driveEngaged && wheelsBuffer[i].isDriven);
 
-                                float3 impulse = deltaSpeedForward * weForward;
+                                    var weRotation = isDriven
+                                        ? (mechanics.driveDesiredSpeed / mechanics.wheelBase)
+                                        : (currentSpeedForward / mechanics.wheelBase);
 
-                                float effectiveMass = world.GetEffectiveMass(ceIdx, impulse, wheelPos);
+                                    weRotation = math.radians(weRotation);
+
+                                    var rEnRot = rotationFilter[rEn];
+                                    
+                                    rEnRot.Value = math.mul(rEnRot.Value, quaternion.AxisAngle(mechanics.chassisRight, weRotation));
+                                    
+                                    ecb.SetComponent(rEn, rEnRot);
+                                }
+                            }
+                        }
+
+                        #endregion
+
+
+                        var wheelCurrentPos = weLocToWorld.Position;
+                        var hit = !math.all(rayResult.SurfaceNormal == float3.zero);
+                        if (!hit)
+                        {
+                            var wheelDesiredPos = (-ceUp * mechanics.suspensionLength) + rayStart;
+                            weTrans.Value =  math.lerp(wheelCurrentPos, wheelDesiredPos,
+                                mechanics.suspensionDamping / mechanics.suspensionStrength).ToLocal(weParentLocalToWorld);
+                        }
+                        else
+                        {
+                            // remove the wheelbase to get wheel position.
+                            var fraction = rayResult.Fraction - (mechanics.wheelBase) /
+                                (mechanics.suspensionLength + mechanics.wheelBase);
+
+                            var wheelDesiredPos = math.lerp(rayStart, rayEnd, fraction);
+                            weTrans.Value = math.lerp(wheelCurrentPos, wheelDesiredPos,
+                                mechanics.suspensionDamping / mechanics.suspensionStrength).ToLocal(weParentLocalToWorld);
+
+                            #region Suspension
+
+                            {
+                                // Calculate and apply the impulses
+                                var posA = rayEnd;
+                                var posB = rayResult.Position;
+                                var lvA = currentSpeedUp * weUp; 
+                                var lvB = world.GetLinearVelocity(rayResult.RigidBodyIndex, posB);
+
+                                var impulse = mechanics.suspensionStrength * (posB - posA) +
+                                              mechanics.suspensionDamping * (lvB - lvA);
+                                impulse = impulse * invWheelCount;
+                                var impulseUp = math.dot(impulse, weUp);
+
+                                // Suspension shouldn't necessarily pull the vehicle down!
+                                var downForceLimit = -0.25f;
+                                if (downForceLimit < impulseUp)
+                                {
+                                    impulse = impulseUp * weUp;
+
+                                    world.ApplyImpulse(ceIdx, impulse, posA);
+
+                                    if (mechanics.drawDebugInformation)
+                                        Debug.DrawRay(wheelDesiredPos, impulse, Color.green);
+                                }
+                            }
+
+                            #endregion
+
+                            #region Sideways friction
+
+                            {
+                                var deltaSpeedRight = (0.0f - currentSpeedRight);
+                                deltaSpeedRight = math.clamp(deltaSpeedRight, -mechanics.wheelMaxImpulseRight,
+                                    mechanics.wheelMaxImpulseRight);
+                                deltaSpeedRight *= mechanics.wheelFrictionRight;
+                                deltaSpeedRight *= slopeSlipFactor;
+
+                                var impulse = deltaSpeedRight * weRight;
+                                var effectiveMass = world.GetEffectiveMass(ceIdx, impulse, wheelPos);
                                 impulse = impulse * effectiveMass * invWheelCount;
 
                                 world.ApplyImpulse(ceIdx, impulse, wheelPos);
                                 world.ApplyImpulse(rayResult.RigidBodyIndex, -impulse, wheelPos);
 
                                 if (mechanics.drawDebugInformation)
-                                    Debug.DrawRay(wheelDesiredPos, impulse, Color.blue);
+                                    Debug.DrawRay(wheelDesiredPos, impulse, Color.red);
                             }
-                        }
-                        #endregion
-                    }
-                }
 
-                rayResults.Dispose();
-                rayVelocities.Dispose();
-            }).Run();
+                            #endregion
+
+                            #region Drive
+
+                            {
+                                if (mechanics.driveEngaged && wheelsBuffer[i].isDriven)
+                                {
+                                    var deltaSpeedForward = (mechanics.driveDesiredSpeed - currentSpeedForward);
+                                    deltaSpeedForward = math.clamp(deltaSpeedForward, -mechanics.wheelMaxImpulseForward,
+                                        mechanics.wheelMaxImpulseForward);
+                                    deltaSpeedForward *= mechanics.wheelFrictionForward;
+                                    deltaSpeedForward *= slopeSlipFactor;
+
+                                    var impulse = deltaSpeedForward * weForward;
+
+                                    var effectiveMass = world.GetEffectiveMass(ceIdx, impulse, wheelPos);
+                                    impulse = impulse * effectiveMass * invWheelCount;
+
+                                    world.ApplyImpulse(ceIdx, impulse, wheelPos);
+                                    world.ApplyImpulse(rayResult.RigidBodyIndex, -impulse, wheelPos);
+
+                                    if (mechanics.drawDebugInformation)
+                                        Debug.DrawRay(wheelDesiredPos, impulse, Color.blue);
+                                }
+                            }
+
+                            #endregion 
+                        } 
+
+                        ecb.SetComponent(weEn, weRot);
+                        ecb.SetComponent(weEn, weTrans);
+                    }
+
+                    rayResults.Dispose();
+                }).WithReadOnly(localToWorldFilter).WithReadOnly(translationFilter).WithReadOnly(rotationFilter)
+                .WithReadOnly(parentFilter).WithReadOnly(childFilter).Schedule();
         }
     }
 

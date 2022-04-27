@@ -14,8 +14,8 @@ partial class VehicleSteeringSystem : SystemBase
                 float z = 0;
 
                 mechanics.steeringAngle = 0;
-                mechanics.driveDesiredSpeed = 10;
-                mechanics.driveEngaged = false;
-            }).ScheduleParallel();
+                mechanics.driveDesiredSpeed = 45;
+                mechanics.driveEngaged = true;
+            }).Schedule();
     }
 }
