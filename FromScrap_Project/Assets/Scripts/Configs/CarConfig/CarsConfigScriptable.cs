@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cars.View.Authorings;
 using Packages.Common.Storage.Config.Upgrades;
 using UnityEngine;
+using Vehicles.Wheels.Authorings;
 
 namespace Packages.Common.Storage.Config.Cars
 {

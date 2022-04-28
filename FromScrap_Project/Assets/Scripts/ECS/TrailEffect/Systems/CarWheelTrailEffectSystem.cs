@@ -1,6 +1,7 @@
 using Cars.View.Components;
 using Unity.Entities;
 using Unity.Transforms;
+using Vehicles.Wheels.Components;
 
 [UpdateInGroup( typeof(PresentationSystemGroup) )]
 public partial class CarWheelTrailEffectSystem : SystemBase
@@ -10,7 +11,7 @@ public partial class CarWheelTrailEffectSystem : SystemBase
         Entities.ForEach((
             Entity entity,
             in GroundInfoData groundInfoData,
-            in WheelData wheelData,
+            in ViewData wheelData,
             in GameObjectTrackEntityComponent trailEffectTrackComponent 
         ) =>
         {
