@@ -1,3 +1,4 @@
+using System;
 using Reese.Math;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -34,6 +35,7 @@ namespace Vehicles.Wheels.Systems
             var groundInfoFilter = GetComponentDataFromEntity<GroundInfoData>(true);
             var inputInfo = GetComponentDataFromEntity<VehicleInputComponent>(true);
             var world = _createPhysicsWorldSystem.PhysicsWorld;
+            var deltaTime = Time.DeltaTime;
 
             Entities.WithAll<Parent>().ForEach((ref DriveData wheelData, ref Rotation rotation,
                 ref Translation translation,
@@ -51,27 +53,34 @@ namespace Vehicles.Wheels.Systems
                     return;
                 }
                 
+                if (!groundInfoData.isGrounded) return;
+
                 var cePosition = bodyTransform.Position;
                 var ceCenterOfMass = world.GetCenterOfMass(ceIdx);
                 var ceUp = bodyTransform.Up;
-                
+
                 var wheelPos = groundInfoData.Info.Position;
                 wheelPos -= (cePosition - ceCenterOfMass);
 
                 var velocityAtWheel = world.GetLinearVelocity(ceIdx, wheelPos);
                 var slopeSlipFactor = math.pow(math.abs(math.dot(ceUp, math.up())), 4.0f);
-                var movementInput = math.normalizesafe(inputInfo[wheelData.Body].MoveDir);
+                var movementInput = (float3)Vector3.ClampMagnitude(inputInfo[wheelData.Body].MoveDir, 1);
+                
                 var movementPower = math.clamp(math.length(movementInput),0,1);
 
                 if (movementPower <= 0.01f)
                     movementInput = bodyTransform.Forward;
 
                 var dir = wheelData.IsGuide
-                    ? movementInput
-                    : bodyTransform.Forward * math.sign(math.dot(movementInput, bodyTransform.Forward));
+                    ?  movementInput
+                    : (wheelData.IsSubGuide ? (float3)Vector3.Reflect( movementInput, bodyTransform.Right) : bodyTransform.Forward);
 
-                var weRight = math.cross(groundInfoData.Info.SurfaceNormal, dir);
+                dir = Vector3.RotateTowards(bodyTransform.Forward, dir, math.radians(wheelData.MaxSteerAngle), 100);
+                
+                
+                var weRight = math.cross(groundInfoData.Info.SurfaceNormal,  dir);
                 var groundedDir = math.cross(weRight, groundInfoData.Info.SurfaceNormal);
+                //Debug.DrawRay(groundInfoData.Info.Position, groundedDir *2, Color.blue);
                 
                 #region Sideways friction
                 {
@@ -187,7 +196,7 @@ namespace Vehicles.Wheels.Systems
                         // Calculate and apply the impulses
                         var posA = rayEnd;
                         var posB = groundInfoData.Info.Position;
-                        var lvA = currentSpeedUp * ceUp;
+                        var lvA = currentSpeedUp * groundInfoData.Info.SurfaceNormal;
                         var lvB = world.GetLinearVelocity(groundInfoData.Info.RigidBodyIndex, posB);
 
                         var impulse = wheelData.SuspensionStrength * (posB - posA) +

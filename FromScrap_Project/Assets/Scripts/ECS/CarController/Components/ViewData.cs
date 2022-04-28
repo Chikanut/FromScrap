@@ -36,12 +36,16 @@ namespace Vehicles.Wheels.Components
     {
         public Entity Body;
         public Entity Parent;
-        
+
         public bool IsDrive;
         public bool IsGuide;
+        public bool IsSubGuide;
         public float MaxSpeed;
         public float Acceleration;
         public float MaxAcceleration;
         public float MaxSidewaysImpulse;
+
+        public float MaxSteerAngle;
+        public float SteerSensivity;
     }
 }

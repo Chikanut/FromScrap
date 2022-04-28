@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -94,20 +95,9 @@ public partial class PlayerMovementInputSystem : SystemBase
             }
 
             var dir = new float3(targetSteer, 0, targetThrottle);
-            var forward = localToWorld.Forward;
-            // forward = ;
-            var angle = dir.AngleSigned(forward, math.up());
-            // Debug.LogError(math.dot(forward, dir));
-            if (angle > 180)
-                angle -= 360;
-
-            angle /= 180;
-
-            angle = Mathf.Clamp(angle, -1, 1);
-
-            vehicleComponent.Acceleration = math.length(dir);// * math.sign(math.dot(forward, dir));
             vehicleComponent.MoveDir = dir;
-            vehicleComponent.Steer = -angle * math.sign(math.dot(forward, dir));
+            // ECS_Math_Extensions.SmoothDamp(vehicleComponent.MoveDir, dir,
+            //     ref vehicleComponent.MoveDirVelocity, 1f, float.MaxValue, Time.DeltaTime);
         }
 
         protected override void OnUpdate()

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MyBox;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Authoring;
 using Unity.Transforms;
@@ -36,6 +37,9 @@ namespace Vehicles.Wheels.Authorings
             public float Acceleration = 4;
             public float MaxAcceleration = 50;
             public float MaxSidewaysImpulse = 15;
+            public float MaxSteerAngle = 35;
+            // [Range(0,1)]
+            public float SteerSensivity = 0.1f;
         }
 
         [System.Serializable]
@@ -73,8 +77,10 @@ namespace Vehicles.Wheels.Authorings
             [ConditionalField("OverrideSuspension")]
             public WheelSuspension OverridedSuspension;
 
-            [Header("Drive")] public bool isGuide;
+            [Header("Drive")] 
+            public bool isGuide;
             public bool isDrive;
+            public bool isSubDrive;
             public bool OverrideDrive;
             [ConditionalField("OverrideDrive")] public WheelDrive OverridedDrive;
 
@@ -112,34 +118,37 @@ namespace Vehicles.Wheels.Authorings
                 var parent = dstManager.GetComponentData<Parent>(wheelEntity).Value;
                 var body = conversionSystem.GetPrimaryEntity(gameObject);
 
+                var suspensionSettings = wheel.OverrideSuspension
+                    ? wheel.OverridedSuspension
+                    : _defaultWheelsSuspension;
+                var groundSettings = wheel.OverridePhysics ? wheel.OverridedPhysics : _defaultWheelsPhysics;
+                var driveSettings = wheel.OverrideDrive ? wheel.OverridedDrive : _defaultWheelsDrive;
+                var sizeSettings = wheel.OverrideSize ? wheel.OverridedSize : _defaultWheelSize;
+                var viewSettings = wheel.OverrideView ? wheel.OverridedView : _defaultView;
+                
                 var wheelData = new ViewData()
                 {
                     Body = body,
                     Parent = parent,
-                    Radius = wheel.OverrideSize ? wheel.OverridedSize.Radius : _defaultWheelSize.Radius,
+                    Radius = sizeSettings.Radius,
                     IsGuide = wheel.isGuide,
                     IsDrive = wheel.isDrive,
-                    TurnRange = wheel.OverrideView ? wheel.OverridedView.TurnRange : _defaultView.TurnRange,
-                    TurnDamping = wheel.OverrideView ? wheel.OverridedView.TurnDamping : _defaultView.TurnDamping,
+                    TurnRange = viewSettings.TurnRange,
+                    TurnDamping = viewSettings.TurnDamping,
                 };
+
 
                 var suspensionData = new SuspensionData()
                 {
                     Body = body,
                     Parent = parent,
                     SuspensionDistance =
-                        Vector3.Distance(wheel.WheelObject.transform.position,
-                            wheel.WheelObject.transform.parent.position) + (wheel.OverrideSuspension
-                            ? wheel.OverridedSuspension.SuspensionDistance
-                            : _defaultWheelsSuspension.SuspensionDistance),
-                    SuspensionStrength = wheel.OverrideSuspension
-                        ? wheel.OverridedSuspension.SuspensionStrength
-                        : _defaultWheelsSuspension.SuspensionStrength,
-                    SuspensionDamping = wheel.OverrideSuspension
-                        ? wheel.OverridedSuspension.SuspensionDamping
-                        : _defaultWheelsSuspension.SuspensionDamping,
-                    Radius = wheel.OverrideSize ? wheel.OverridedSize.Radius : _defaultWheelSize.Radius
+                        Vector3.Distance(wheel.WheelObject.transform.position, wheel.WheelObject.transform.parent.position) + suspensionSettings.SuspensionDistance,
+                    SuspensionStrength = suspensionSettings.SuspensionStrength,
+                    SuspensionDamping = suspensionSettings.SuspensionDamping,
+                    Radius = sizeSettings.Radius,
                 };
+
 
                 var driveData = new DriveData()
                 {
@@ -147,28 +156,21 @@ namespace Vehicles.Wheels.Authorings
                     Parent = parent,
                     IsDrive = wheel.isDrive,
                     IsGuide = wheel.isGuide,
-                    MaxSpeed = wheel.OverrideDrive
-                        ? wheel.OverridedDrive.MaxSpeed
-                        : _defaultWheelsDrive.MaxSpeed,
-                    Acceleration = wheel.OverrideDrive ? wheel.OverridedDrive.Acceleration : _defaultWheelsDrive.Acceleration,
-                    MaxAcceleration = wheel.OverrideDrive ? wheel.OverridedDrive.MaxAcceleration : _defaultWheelsDrive.MaxAcceleration,
-                    MaxSidewaysImpulse = wheel.OverrideDrive
-                        ? wheel.OverridedDrive.MaxSidewaysImpulse
-                        : _defaultWheelsDrive.MaxSidewaysImpulse,
+                    IsSubGuide = wheel.isSubDrive,
+                    MaxSpeed = driveSettings.MaxSpeed,
+                    Acceleration = driveSettings.Acceleration,
+                    MaxAcceleration = driveSettings.MaxAcceleration,
+                    MaxSidewaysImpulse = driveSettings.MaxSidewaysImpulse,
+                    MaxSteerAngle = driveSettings.MaxSteerAngle,
+                    // SteerSensivity = driveSettings.SteerSensivity
                 };
 
+
+             
                 var checkGround = new GroundInfoData()
                 {
-                    CheckDistance = (wheel.OverrideSize ? wheel.OverridedSize.Radius : _defaultWheelSize.Radius) +
-                                    (wheel.OverrideSize
-                                        ? wheel.OverridedSize.WheelSkinWidth
-                                        : _defaultWheelSize.WheelSkinWidth) +
-                                    Vector3.Distance(wheel.WheelObject.transform.position,
-                                        wheel.WheelObject.transform.parent.position) + (wheel.OverrideSuspension
-                                        ? wheel.OverridedSuspension.SuspensionDistance
-                                        : _defaultWheelsSuspension.SuspensionDistance),
-                    CollisionFilter = (wheel.OverridePhysics ? wheel.OverridedPhysics : _defaultWheelsPhysics)
-                        .GetCollisionFilter,
+                    CheckDistance = sizeSettings.Radius + sizeSettings.WheelSkinWidth + Vector3.Distance(wheel.WheelObject.transform.position, wheel.WheelObject.transform.parent.position) + suspensionSettings.SuspensionDistance,
+                    CollisionFilter = groundSettings.GetCollisionFilter,
                     isLocalDown = true
                 };
 
@@ -181,9 +183,7 @@ namespace Vehicles.Wheels.Authorings
                 if (wheel.WheelTrailObject != null)
                 {
                     var wheelTrailComponent =
-                        new GameObjectTrackEntityComponent().Init(wheel.OverrideTrail
-                            ? wheel.WheelTrailObject
-                            : _defaultView.TrailObject);
+                        new GameObjectTrackEntityComponent().Init(viewSettings.TrailObject);
 
                     dstManager.AddComponentData(wheelEntity, wheelTrailComponent);
                 }
