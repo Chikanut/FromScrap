@@ -8,8 +8,7 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Stateful;
 using Unity.Physics.Systems;
 using Unity.Transforms;
-using UnityEngine;
- using static CharacterControllerUtilities;
+using static CharacterControllerUtilities;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(ExportPhysicsWorld)), UpdateBefore(typeof(EndFramePhysicsSystem))]
 public partial class CharacterControllerSystem : SystemBase
@@ -148,7 +147,7 @@ public partial class CharacterControllerSystem : SystemBase
                 }
     
                 // World collision + integrate
-                CharacterControllerUtilities.CollideAndIntegrate(stepInput, ccComponentData.CharacterMass, ccComponentData.AffectsPhysicsBodies != 0,
+                CollideAndIntegrate(stepInput, ccComponentData.CharacterMass, ccComponentData.AffectsPhysicsBodies != 0,
                     collider.ColliderPtr, ref transform, ref ccInternalData.LinearVelocity, ref DeferredImpulseWriter,
                     currentFrameCollisionEvents, currentFrameTriggerEvents);
     
