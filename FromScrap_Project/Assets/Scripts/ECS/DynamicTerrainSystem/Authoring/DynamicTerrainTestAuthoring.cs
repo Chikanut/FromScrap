@@ -14,6 +14,7 @@ namespace ECS.DynamicTerrainSystem
         public float gradient = 2f;
         public float2 noiseOffset = new float2(10f, 10f);
         public bool isUpdated = false;
+        public float normalsSmoothPower = 1f;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -29,7 +30,8 @@ namespace ECS.DynamicTerrainSystem
                 NoiseScale = noiseScale,
                 Gradient = gradient,
                 NoiseOffset = noiseOffset,
-                IsUpdated = isUpdated
+                IsUpdated = isUpdated,
+                NormalsSmoothPower = normalsSmoothPower
             });
         }
     }

@@ -10,6 +10,7 @@ namespace ECS.DynamicTerrainSystem
         public float NoiseScale;
         public float Gradient;
         public float2 NoiseOffset;
+        public float NormalsSmoothPower;
         public bool IsUpdated;
     }
 }

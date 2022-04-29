@@ -58,11 +58,18 @@ namespace ECS.DynamicTerrainSystem
             var draft = TerrainDraft(TerrainSize, CellSize, NoiseOffset, NoiseScale, Gradient);
             
             draft.Move(Vector3.left * TerrainSize.x / 2 + Vector3.back * TerrainSize.z / 2);
-            renderMesh.mesh = draft.ToMesh();
-            renderMesh.mesh.RecalculateBounds();
+            //renderMesh.mesh = draft.ToMesh();
+            renderMesh.mesh.SetVertexBufferData(draft.ToMesh().vertices, 0, 0, draft.ToMesh().vertices.Length, 0, MeshUpdateFlags.Default);
+            renderMesh.mesh.RecalculateBounds(MeshUpdateFlags.Default);
+            renderMesh.mesh.RecalculateNormals(MeshUpdateFlags.Default);
             
-            
-            //renderMesh.mesh.SetVertexBufferData(draft.ToMesh().vertices, 0, 0, draft.ToMesh().vertices.Length, 0, MeshUpdateFlags.Default);
+            var vertices = renderMesh.mesh.vertices;
+            var normals = renderMesh.mesh.normals;
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                normals[i] = Vector3.Lerp(normals[i], vertices[i].normalized, tileComponent.NormalsSmoothPower);
+            }
+            renderMesh.mesh.normals = normals;
 
             //todo: generate mesh collider
             /*
