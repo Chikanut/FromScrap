@@ -1,6 +1,5 @@
-using Cars.View.Components;
 using Unity.Entities;
-using Unity.Transforms;
+using UnityEngine;
 using Vehicles.Wheels.Components;
 
 [UpdateInGroup( typeof(PresentationSystemGroup) )]
@@ -22,6 +21,7 @@ public partial class CarWheelTrailEffectSystem : SystemBase
 
             trailEffectTrackComponent.InitTrackingGO(isGrounded);
             trailEffectTrackComponent.UpdateTrackingGOPosition(trailPos);
+            
         }).WithReadOnly(groundInfoFilter).WithoutBurst().Run();
     } 
 }

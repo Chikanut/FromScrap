@@ -180,7 +180,7 @@ namespace Vehicles.Wheels.Authorings
                 dstManager.AddComponentData(parent, checkGround);
 
                 //init wheel trail effect
-                if (wheel.WheelTrailObject != null)
+                if (viewSettings.TrailObject != null)
                 {
                     var wheelTrailComponent =
                         new GameObjectTrackEntityComponent().Init(viewSettings.TrailObject);
