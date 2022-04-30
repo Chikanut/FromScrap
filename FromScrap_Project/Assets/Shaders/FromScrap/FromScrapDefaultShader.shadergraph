@@ -444,8 +444,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -166.00003051757813,
+            "x": -500.0000305175781,
+            "y": -147.0000457763672,
             "width": 138.0,
             "height": 34.0
         }
@@ -527,8 +527,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -106.00001525878906,
+            "x": -527.0000610351563,
+            "y": -48.00006103515625,
             "width": 165.0,
             "height": 34.0
         }
@@ -620,10 +620,10 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "31ebfab5ffe64425b4c83fd318c70d3f",
     "m_Id": 1,
-    "m_DisplayName": "Out_Vector1",
+    "m_DisplayName": "Alpha",
     "m_SlotType": 1,
     "m_Hidden": false,
-    "m_ShaderOutputName": "OutVector1",
+    "m_ShaderOutputName": "Alpha",
     "m_StageCapability": 2,
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
@@ -681,8 +681,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -226.00001525878907,
+            "x": -495.00006103515627,
+            "y": -211.0000457763672,
             "width": 133.0,
             "height": 34.0
         }
@@ -782,8 +782,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -135.99998474121095,
+            "x": -469.0000305175781,
+            "y": -117.00003051757813,
             "width": 107.0,
             "height": 34.0
         }
@@ -884,13 +884,13 @@
             "m_Id": "b4d72893266f4f868ddf5ce5fd224854"
         },
         {
+            "m_Id": "0e644068b1d848f3a5d7c93e59389a47"
+        },
+        {
             "m_Id": "1bcd9af672b84f9aa021ae7e23275019"
         },
         {
             "m_Id": "fedf29b5bcac489d90003797da71f65e"
-        },
-        {
-            "m_Id": "0e644068b1d848f3a5d7c93e59389a47"
         },
         {
             "m_Id": "31ebfab5ffe64425b4c83fd318c70d3f"
@@ -1004,8 +1004,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -76.00004577636719,
+            "x": -521.0000610351563,
+            "y": -14.000008583068848,
             "width": 161.0,
             "height": 34.0
         }
@@ -1120,8 +1120,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -45.99999237060547,
+            "x": -512.0000610351563,
+            "y": -82.00003051757813,
             "width": 150.0,
             "height": 34.0
         }
@@ -1148,10 +1148,10 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
     "m_ObjectId": "86426976e3ce41e4b5f438c7e164c4b6",
     "m_Id": 2,
-    "m_DisplayName": "Out_Vector3",
+    "m_DisplayName": "Emmision",
     "m_SlotType": 1,
     "m_Hidden": false,
-    "m_ShaderOutputName": "OutVector3",
+    "m_ShaderOutputName": "Emmision",
     "m_StageCapability": 2,
     "m_Value": {
         "x": 0.0,
@@ -1380,11 +1380,11 @@
     },
     "m_Name": "Color",
     "m_DefaultReferenceName": "Color_96bf5350d8e64937b57a78ea3602226c",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "_BaseColor",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "overrideHLSLDeclaration": true,
+    "hlslDeclarationOverride": 3,
     "m_Hidden": false,
     "m_Value": {
         "r": 1.0,
@@ -1423,10 +1423,10 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
     "m_ObjectId": "a1b859e0e1724e528d8ff0daf1654153",
     "m_Id": 3,
-    "m_DisplayName": "Out_Vector3 (1)",
+    "m_DisplayName": "Color",
     "m_SlotType": 1,
     "m_Hidden": false,
-    "m_ShaderOutputName": "OutVector31",
+    "m_ShaderOutputName": "Color",
     "m_StageCapability": 2,
     "m_Value": {
         "x": 0.0,
@@ -1529,7 +1529,7 @@
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": {
-        "r": 0.0,
+        "r": 1.0,
         "g": 0.0,
         "b": 0.0,
         "a": 0.0
@@ -1582,8 +1582,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -459.0000305175781,
-            "y": -196.0,
+            "x": -469.0000305175781,
+            "y": -177.00003051757813,
             "width": 107.0,
             "height": 34.0
         }

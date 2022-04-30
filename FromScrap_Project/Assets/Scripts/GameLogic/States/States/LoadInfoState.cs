@@ -26,6 +26,7 @@ namespace GameLogic.States.States
             
             if (Progress.Development.isTesting)
             {
+                SignalService.Publish(new LoadGameInfoSignal());
                 Progress.Development.isTesting = false;
                 return;
             }
