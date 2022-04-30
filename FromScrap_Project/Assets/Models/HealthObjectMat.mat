@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shader Graphs_MagicStone
+  m_Name: HealthObjectMat
   m_Shader: {fileID: -6465566751694194690, guid: 48451d8159815b243b6385fec574b82c, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -42,11 +42,11 @@ Material:
     m_Floats:
     - Vector1_02ffaeb682c64ad2be1004da071d5106: 0.28
     - Vector1_07db5d0a5e0a41aa809e2482994bcdd2: 0
-    - Vector1_1484dbbc296940bbbbae13501e8e4084: 1
-    - Vector1_2b77bb04427b4a40a42dd5902a86d7d0: 1.11
+    - Vector1_1484dbbc296940bbbbae13501e8e4084: 0
+    - Vector1_2b77bb04427b4a40a42dd5902a86d7d0: 1
     - Vector1_3fd641de151b44b8b6eeae7eefec91d9: 3
-    - Vector1_db9d3babb040490b96932d3ff12810fb: 637.3
+    - Vector1_db9d3babb040490b96932d3ff12810fb: 454.4
     m_Colors:
-    - Color_d211b5c07b084cdaa0c660069d373bf5: {r: 0, g: 0.43295884, b: 1, a: 0}
+    - Color_d211b5c07b084cdaa0c660069d373bf5: {r: 1, g: 0.2554821, b: 0, a: 0}
     - Vector3_89d1078dc6c1489baf19243b66685e2d: {r: 0, g: 0, b: 1, a: 0}
   m_BuildTextureStacks: []

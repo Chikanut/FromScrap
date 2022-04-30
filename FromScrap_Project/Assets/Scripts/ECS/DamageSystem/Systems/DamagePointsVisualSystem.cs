@@ -38,8 +38,6 @@ namespace DamageSystem.Systems
             var text = ObjectsPool.Instance.GetObjectOfType<DamageTextPoolObject>(_defaultDamageText.textPrefabName);
             text.transform.position = e.Position;
             text.SetText(e.Damage.ToString(CultureInfo.InvariantCulture));
-            
-            Debug.LogError(_defaultDamageText.textPrefabName);
         }
     }
 }
