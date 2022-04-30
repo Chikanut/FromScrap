@@ -7,5 +7,6 @@ namespace DamageSystem.Components
     public struct SpawnEntityOnDeathBuffer : IBufferElementData
     {
         public FixedString32Bytes SpawnEntity;
+        public float SpawnChance;
     }
 }

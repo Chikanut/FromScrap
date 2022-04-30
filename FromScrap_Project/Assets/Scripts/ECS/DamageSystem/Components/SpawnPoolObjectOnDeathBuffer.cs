@@ -8,5 +8,6 @@ namespace DamageSystem.Components
     public struct SpawnPoolObjectOnDeathBuffer : IBufferElementData
     {
         public FixedString32Bytes SpawnObjectName;
+        public float SpawnChance;
     }
 }

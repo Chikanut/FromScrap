@@ -23,7 +23,7 @@ namespace DamageSystem.Systems
             {
                 for (int i = 0; i < spawnEntityOnDeath.Length; i++)
                 {
-                    writerEntityPoolEvent.Write(new SpawnPoolObjectEvent(){Position = localToWorld.Position, SpawnObjectName = spawnEntityOnDeath[i].SpawnEntity});
+                    writerEntityPoolEvent.Write(new SpawnEntityPoolObjectEvent(){Position = localToWorld.Position, SpawnChance = spawnEntityOnDeath[i].SpawnChance, EntityName = spawnEntityOnDeath[i].SpawnEntity});
                 }
             }).ScheduleParallel();
             
@@ -33,7 +33,7 @@ namespace DamageSystem.Systems
             {
                 for (int i = 0; i < spawnPoolObjectOnDeath.Length; i++)
                 {
-                    writerPoolObjectPoolEvent.Write(new SpawnPoolObjectEvent(){Position = localToWorld.Position, SpawnObjectName = spawnPoolObjectOnDeath[i].SpawnObjectName});
+                    writerPoolObjectPoolEvent.Write(new SpawnPoolObjectEvent(){Position = localToWorld.Position, SpawnChance = spawnPoolObjectOnDeath[i].SpawnChance, SpawnObjectName = spawnPoolObjectOnDeath[i].SpawnObjectName});
                 }
             }).ScheduleParallel();
             

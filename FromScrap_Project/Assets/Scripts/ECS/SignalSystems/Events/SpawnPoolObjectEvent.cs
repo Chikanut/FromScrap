@@ -7,6 +7,7 @@ namespace SpawnGameObjects.Components
     public struct SpawnPoolObjectEvent
     {
         public FixedString32Bytes SpawnObjectName;
+        public float SpawnChance;
         public float3 Position;
     }
 }
