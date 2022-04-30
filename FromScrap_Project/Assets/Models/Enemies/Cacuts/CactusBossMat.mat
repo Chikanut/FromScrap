@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DamageMat
-  m_Shader: {fileID: -6465566751694194690, guid: 88370bba991ced14e8b4a2a8b668a751, type: 3}
+  m_Name: CactusBossMat
+  m_Shader: {fileID: -6465566751694194690, guid: 5bd8ea29e78ba474ba641dea4d617a17, type: 3}
   m_ShaderKeywords: _ALPHATEST_ON _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
@@ -32,7 +32,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - Texture2D_e955a50ce4d244028799ddd9fe9999a2:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 2d6fa1a35474cfd4d819de303e044286, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
@@ -94,12 +94,12 @@ Material:
     m_Floats:
     - BOOLEAN_2A40598DBD1C49B4A8A3A7ECB344EC55: 0
     - Vector1_2491a4d87dea466c92d8de18756491ca: 0
-    - Vector1_561ac53b2de84c45a821311efe2eb716: 0.53
-    - Vector1_82d771be10ee4ff1b65afabc96a0fa04: 5
-    - Vector1_a11c887e7a77442885bbc951cc2b079a: 1.54
-    - Vector1_b34184e6b347452387f7d3f8a3492b37: 2.11
-    - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.506
-    - Vector1_f0bf6c1661c94955b0ef8b1dad8c574b: 2.55
+    - Vector1_561ac53b2de84c45a821311efe2eb716: 0.5
+    - Vector1_82d771be10ee4ff1b65afabc96a0fa04: 1
+    - Vector1_a11c887e7a77442885bbc951cc2b079a: 2.5
+    - Vector1_b34184e6b347452387f7d3f8a3492b37: 1.5
+    - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.5
+    - Vector1_f0bf6c1661c94955b0ef8b1dad8c574b: 1
     - _AlphaClip: 1
     - _Blend: 0
     - _BumpScale: 1
@@ -128,10 +128,10 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Color_96bf5350d8e64937b57a78ea3602226c: {r: 1, g: 0.11792449, b: 0.11792449, a: 1}
-    - Color_ae7f9f3bc4aa4393aa4d20534850877a: {r: 1, g: 1, b: 1, a: 0}
+    - Color_96bf5350d8e64937b57a78ea3602226c: {r: 1, g: 1, b: 1, a: 1}
+    - Color_ae7f9f3bc4aa4393aa4d20534850877a: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 0.97936684, b: 0.97936684, a: 1}
     - _EmissionColor: {r: 766.9961, g: 0, b: 554.16473, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

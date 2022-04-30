@@ -22,6 +22,7 @@ public partial class EnemiesSpawnerSystem : SystemBase
         public float PrevSpawnedEnemyTime;
         public int NextSpawnRange;
         public float NextSpawnRangeTime;
+        public int NextSpecialEnemy = 0;
         public EnemySpawnerConfigData.SpawnRange CurrentSpawnRange;
     }
     
@@ -82,6 +83,7 @@ public partial class EnemiesSpawnerSystem : SystemBase
         if(!_isSpawning) return;
         
         UpdateRangeTime();
+        SpawnSpecialEnemy();
         SpawnEnemy();
     }
 
@@ -102,10 +104,32 @@ public partial class EnemiesSpawnerSystem : SystemBase
         
         _data.NextSpawnRangeTime = _data.CurrentSpawnRange.RangeSpawnDuration;
         _data.CurrentRunTime = 0;
+        _data.NextSpecialEnemy = 0;
         _data.PrevSpawnedEnemyTime = 0;
         
         _data.NextSpawnRange = math.clamp(_data.NextSpawnRange + 1, 0,
             _enemySpawnerConfigController.GetEnemySpawnerData.SpawnRanges.Count - 1);
+    }
+    
+    void SpawnSpecialEnemy()
+    {
+        if(_data.NextSpecialEnemy >= _data.CurrentSpawnRange.SpecialSpawnInfos.Count) return;
+        
+        if (_data.CurrentRunTime > _data.CurrentSpawnRange.SpecialSpawnInfos[_data.NextSpecialEnemy].SpawnOnSecond)
+        {
+            var enemyPrefab = _data.CurrentSpawnRange.SpecialSpawnInfos[_data.NextSpecialEnemy].SpecialEnemyPrefab;
+
+            EntityPoolManager.Instance.GetObject(enemyPrefab , (entity, manager) =>
+            {
+                manager.SetComponentData(entity,
+                    new Translation
+                    {
+                        Value = GetSpawnPoint(enemyPrefab.GetMaxBounds())
+                    });
+            });
+
+            _data.NextSpecialEnemy++;
+        }
     }
 
     void SpawnEnemy()
