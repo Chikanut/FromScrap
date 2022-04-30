@@ -13,12 +13,17 @@ namespace DamageSystem.Authoring
         [Header("Health Info")]
         [SerializeField] private int _health;
 
+        [Header("Damage blocking")]
         [SerializeField] private float _blockAllDamageOnStartSeconds;
+        [SerializeField] private float _blockAllDamageAfterHitInSeconds;
         
         [Header("Health Bar Info")]
         public bool addHealthBar;
         public float3 _healthBarOffset;
 
+        [Header("Hit points")]
+        public bool ShowHitDamagePoints;
+        
         [Header("High Light")]
         public bool highLightOnDamage = true;
         public List<MeshRenderer> _meshRenderers = new List<MeshRenderer>();
@@ -30,7 +35,9 @@ namespace DamageSystem.Authoring
             var health = new Health()
             {
                 InitialValue = _health,
-                Value = _health
+                Value = _health,
+                OnDamageBlockTime = _blockAllDamageAfterHitInSeconds,
+                ShowHitsNumbers = ShowHitDamagePoints
             };
 
             dstManager.AddComponentData(entity, health);

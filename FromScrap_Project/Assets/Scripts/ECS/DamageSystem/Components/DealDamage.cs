@@ -1,6 +1,5 @@
 using System;
 using Unity.Entities;
-using Unity.Physics;
 
 namespace DamageSystem.Components
 {

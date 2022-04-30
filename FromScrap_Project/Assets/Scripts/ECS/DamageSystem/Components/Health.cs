@@ -9,8 +9,15 @@ namespace DamageSystem.Components
     [Serializable]
     public struct Health : IComponentData
     {
+        public bool ShowHitsNumbers;
+        
         public int InitialValue;
         [HideInInspector] public int Value;
+
+        /// <summary>
+        /// Dont get any damage after hit in seconds
+        /// </summary>
+        public float OnDamageBlockTime;
 
         public void AddHealth(int value)
         {

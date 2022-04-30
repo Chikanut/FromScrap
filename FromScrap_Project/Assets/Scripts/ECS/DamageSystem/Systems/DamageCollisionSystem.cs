@@ -10,6 +10,7 @@ namespace DamageSystem.Systems
         protected override void OnUpdate()
         {                                                        
             var damageBuffers = GetBufferFromEntity<Damage>();
+            var damageBlockers = GetComponentDataFromEntity<DamageBlockTimer>(true);
             var time = Time.ElapsedTime;
             
             Entities.WithNone<Dead>().ForEach((Entity entity, ref DealDamage dealDamage, in DynamicBuffer<StatefulTriggerEvent> triggerEvents) =>
@@ -30,10 +31,12 @@ namespace DamageSystem.Systems
                         continue;
                     }
                     
-                    damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
+                    if(!damageBlockers.HasComponent(otherEntity))
+                        damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
+                    
                     dealDamage.PrevHitTime = time;
                 }
-            }).Schedule();
+            }).WithReadOnly(damageBlockers).Schedule();
             
             Entities.WithNone<Dead>().ForEach((Entity entity, ref DealDamage dealDamage, in DynamicBuffer<StatefulCollisionEvent> collisionEvents) =>
             {
@@ -53,10 +56,12 @@ namespace DamageSystem.Systems
                         continue;
                     }
                     
-                    damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
+                    if(!damageBlockers.HasComponent(otherEntity))
+                        damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
+                    
                     dealDamage.PrevHitTime = time;
                 }
-            }).Schedule();
+            }).WithReadOnly(damageBlockers).Schedule();
         }
     }
 }
