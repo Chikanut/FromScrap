@@ -52,7 +52,7 @@ public partial class CharacterControllerSystem : SystemBase
             var dir = input.Movement;
             var movementPower = math.clamp(math.length(dir),0,1);
             
-            var weRight = math.cross(groundInfoData.Info.SurfaceNormal,  dir);
+            var weRight = math.cross(groundInfoData.Info.SurfaceNormal, body.Forward);
             var groundedDir = math.cross(weRight, groundInfoData.Info.SurfaceNormal);
 
         /*    #region Leveling
