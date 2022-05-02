@@ -56,7 +56,7 @@ public partial class TriggerVolumeForceFieldSystem : SystemBase
     {
         m_TriggerSystem = World.GetOrCreateSystem<TriggerEventConversionSystem>();
         m_ExportPhysicsWorld = World.GetOrCreateSystem<ExportPhysicsWorld>();
-        m_ExportPhysicsWorld.RegisterPhysicsRuntimeSystemReadWrite();
+       // m_ExportPhysicsWorld.RegisterPhysicsRuntimeSystemReadWrite();
         m_NonTriggerDynamicBodyMask = EntityManager.GetEntityQueryMask(GetEntityQuery(new EntityQueryDesc
         {
             All = new ComponentType[]

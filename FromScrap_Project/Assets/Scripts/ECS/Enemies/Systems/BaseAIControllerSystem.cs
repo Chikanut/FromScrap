@@ -30,10 +30,10 @@ public partial class BaseAIControllerSystem : SystemBase
             dir.y = 0;
             var dirPower = math.clamp(math.length(dir), 0, 1);
             var forward = localToWorld.Forward;
-            var dirDot = math.clamp(math.dot(forward, dir), 0, 1);
+            var dirDot = math.clamp(math.dot(forward, dir)-0.5f, 0, 1);
             var angle = math.clamp(dir.AngleSigned(forward, math.up())/180, -1, 1);
 
-            var resultDir = forward * dirPower * dirDot;
+            var resultDir = forward * dirDot;
 
             controller.Movement = resultDir;
             controller.Rotation = -angle;

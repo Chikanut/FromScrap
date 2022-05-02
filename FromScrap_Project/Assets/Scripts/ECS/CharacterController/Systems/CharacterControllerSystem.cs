@@ -4,8 +4,7 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(BuildPhysicsWorld)),
- UpdateBefore(typeof(StepPhysicsWorld))]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(BuildPhysicsWorld)), UpdateBefore(typeof(StepPhysicsWorld))]
 public partial class CharacterControllerSystem : SystemBase
 {
 
@@ -43,10 +42,10 @@ public partial class CharacterControllerSystem : SystemBase
             var ceCenterOfMass = world.GetCenterOfMass(ceIdx);
             var ceUp = body.Up;
             
-            var wheelPos = groundInfoData.Info.Position;
-            wheelPos -= (cePosition - ceCenterOfMass);
+            var contactPos = groundInfoData.Info.Position;
+            contactPos -= (cePosition - ceCenterOfMass);
             
-            var velocityAtWheel = world.GetLinearVelocity(ceIdx, wheelPos);
+            var velocityAtContact = world.GetLinearVelocity(ceIdx, contactPos);
             var slopeSlipFactor = math.pow(math.abs(math.dot(ceUp, math.up())), 4.0f);
 
             var dir = input.Movement;
@@ -77,11 +76,11 @@ public partial class CharacterControllerSystem : SystemBase
             
             #region Sideways
             {
-                var deltaSpeedRight = (0.0f - (math.dot(velocityAtWheel, weRight)));
+                var deltaSpeedRight = (0.0f - (math.dot(velocityAtContact, weRight)));
                 deltaSpeedRight = math.clamp(deltaSpeedRight, -data.MaxSidewaysImpulse, data.MaxSidewaysImpulse);
                 deltaSpeedRight *= slopeSlipFactor;
                 var impulse = deltaSpeedRight * weRight;
-                var effectiveMass = world.GetEffectiveMass(ceIdx, impulse, wheelPos);
+                var effectiveMass = world.GetEffectiveMass(ceIdx, impulse, contactPos);
                 impulse *= effectiveMass;
                     
                 world.ApplyImpulse(ceIdx, impulse, groundInfoData.Info.Position);
@@ -91,12 +90,13 @@ public partial class CharacterControllerSystem : SystemBase
             
             #region Forward        
             {
-                var currentSpeedForward = math.dot(velocityAtWheel, groundedDir);
-                var deltaSpeedForward = (data.MaxSpeed * movementPower - currentSpeedForward);
+                var currentSpeedForward = math.dot(velocityAtContact, groundedDir);
+                var deltaSpeedForward =
+                    math.clamp(data.MaxSpeed * movementPower - currentSpeedForward, 0, data.MaxSpeed);
                 deltaSpeedForward *= data.Acceleration;
                 deltaSpeedForward = math.clamp(deltaSpeedForward, -data.MaxAcceleration, data.MaxAcceleration);
                 deltaSpeedForward *= slopeSlipFactor;
-                
+
                 var driveImpulse = deltaSpeedForward * groundedDir;
                 
                 world.ApplyImpulse(ceIdx, driveImpulse, groundInfoData.Info.Position);

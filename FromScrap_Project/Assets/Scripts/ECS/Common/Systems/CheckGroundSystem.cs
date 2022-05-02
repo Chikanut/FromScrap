@@ -6,7 +6,7 @@ using Unity.Transforms;
 
 using VertexFragment;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+// [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class CheckGroundSystem : SystemBase
 {
     private BuildPhysicsWorld _physicsWorldSystem;
