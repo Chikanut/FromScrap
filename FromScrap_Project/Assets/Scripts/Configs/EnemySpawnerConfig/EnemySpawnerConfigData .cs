@@ -22,7 +22,15 @@ namespace Packages.Common.Storage.Config.EnemySpawner
                 public float SpawnChance;
             }
 
+            [Serializable]
+            public class SpecialSpawnInfo
+            {
+                public GameObject SpecialEnemyPrefab;
+                public float SpawnOnSecond;
+            }
+
             public List<EnemySpawnInfo> EnemySpawnInfos = new List<EnemySpawnInfo>();
+            public List<SpecialSpawnInfo> SpecialSpawnInfos = new List<SpecialSpawnInfo>();
         }
 
         public float SpawnOffset = 4;

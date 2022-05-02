@@ -7,10 +7,10 @@ public class FindTargetAuthoring : QuadrantObjectAuthoring
     [SerializeField] private QuadrantEntityData.TypeNum TargetType;
     [SerializeField] private float Range;
     
-    protected override void ConvertFindTarget(Entity entity, EntityManager dstManager,
+    protected override void ConvertAncestors(Entity entity, EntityManager dstManager,
         GameObjectConversionSystem conversionSystem)
     {
-        base.ConvertFindTarget(entity, dstManager, conversionSystem);
+        base.ConvertAncestors(entity, dstManager, conversionSystem);
         
         var findClosestTarget = new FindTargetData()
         {

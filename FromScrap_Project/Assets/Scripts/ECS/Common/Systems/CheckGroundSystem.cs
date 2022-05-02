@@ -32,8 +32,8 @@ public partial class CheckGroundSystem : SystemBase
                 localToWorld.Position - downDir * groundInfoData.CheckDistance,
                 collisionWorld, groundInfoData.CollisionFilter);
             groundInfoData.isGrounded = isHit;
-            groundInfoData.GroundPosition = hitInfo.Position;
-            groundInfoData.GroundNormal = hitInfo.SurfaceNormal;
+            groundInfoData.Info = hitInfo;
+  
         }).WithReadOnly(collisionWorld).ScheduleParallel();
         
         Entities.ForEach((ref DynamicBuffer<MultyGroundInfoData> groundInfoData, in LocalToWorld localToWorld) =>

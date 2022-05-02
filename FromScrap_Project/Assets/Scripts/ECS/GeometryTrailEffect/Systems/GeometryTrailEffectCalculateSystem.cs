@@ -47,7 +47,7 @@ public partial class GeometryTrailEffectCalculateSystem : SystemBase
                 if(groundInfo.HasComponent(trailEffectData.TargetEntity))
                 {
                     var gInfo = groundInfo[trailEffectData.TargetEntity];
-                    var pos = gInfo.GroundPosition;
+                    var pos = gInfo.Info.Position;
                   
                     AddNewPosition(ref trailEffectViewComponent,
                         ref trailEffectBuffer,

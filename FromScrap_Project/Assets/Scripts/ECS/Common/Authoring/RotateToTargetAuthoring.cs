@@ -8,9 +8,9 @@ public class RotateToTargetAuthoring : FindTargetAuthoring
     [SerializeField] private float RotationSpeed;
     [SerializeField] private float IsRotatedRadius;
 
-    protected override void ConvertFindTarget(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    protected override void ConvertAncestors(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        base.ConvertFindTarget(entity, dstManager, conversionSystem);
+        base.ConvertAncestors(entity, dstManager, conversionSystem);
 
         var rotatingComponent = new RotateTowardsTarget()
         {

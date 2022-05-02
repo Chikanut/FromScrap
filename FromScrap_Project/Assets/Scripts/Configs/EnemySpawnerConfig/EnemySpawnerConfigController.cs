@@ -18,6 +18,9 @@ namespace Packages.Common.Storage.Config.EnemySpawner
             {
                 range.EnemySpawnInfos.Sort((e1, e2) =>
                     e1.SpawnChance > e2.SpawnChance ? 1 : Math.Abs(e1.SpawnChance - e2.SpawnChance) < 0.005f ? 0 : -1);
+                
+                range.SpecialSpawnInfos.Sort((e1, e2) =>
+                    e1.SpawnOnSecond > e2.SpawnOnSecond ? 1 : Math.Abs(e1.SpawnOnSecond - e2.SpawnOnSecond) < 0.005f ? 0 : -1);
             }
         }
     }

@@ -8,10 +8,10 @@ public class QuadrantObjectAuthoring : MonoBehaviour , IConvertGameObjectToEntit
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        ConvertFindTarget(entity, dstManager, conversionSystem);
+        ConvertAncestors(entity, dstManager, conversionSystem);
     }
     
-    protected virtual void ConvertFindTarget(Entity entity, EntityManager dstManager,
+    protected virtual void ConvertAncestors(Entity entity, EntityManager dstManager,
         GameObjectConversionSystem conversionSystem)
     {
         var quadrantEntityData = new QuadrantEntityData()

@@ -1,6 +1,5 @@
 using DamageSystem.Components;
 using Packages.Utils.SoundManager.Signals;
-using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -24,9 +23,17 @@ public class SpawnAfterDeathAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         public float PitchTime = 0;
     }
 
+    [System.Serializable]
+    public class SpawnObjectInfo
+    {
+        public string ObjectName;
+        [Range(0,100)]
+        public float SpawnChance;
+    }
+
     [Header("Death Info")]
-    [SerializeField] private string[] SpawnEntitiesOnDeath;
-    [SerializeField] private string[] SpawnPoolObjectsOnDeath;
+    [SerializeField] private SpawnObjectInfo[] SpawnEntitiesOnDeath;
+    [SerializeField] private SpawnObjectInfo[] SpawnPoolObjectsOnDeath;
     [SerializeField] private SoundSpawnInfo[] SpawnAudioObjectsOnDeath;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -39,7 +46,7 @@ public class SpawnAfterDeathAuthoring : MonoBehaviour, IConvertGameObjectToEntit
                 for (int i = 0; i < SpawnEntitiesOnDeath.Length; i++)
                 {
                     spawnAfterDeathBuffer.Add(new SpawnEntityOnDeathBuffer()
-                        {SpawnEntity = SpawnEntitiesOnDeath[i]});
+                        {SpawnEntity = SpawnEntitiesOnDeath[i].ObjectName, SpawnChance = SpawnEntitiesOnDeath[i].SpawnChance});
                 }
             }
         }
@@ -52,7 +59,7 @@ public class SpawnAfterDeathAuthoring : MonoBehaviour, IConvertGameObjectToEntit
                 for (int i = 0; i < SpawnPoolObjectsOnDeath.Length; i++)
                 {
                     spawnAfterDeathBuffer.Add(new SpawnPoolObjectOnDeathBuffer()
-                        {SpawnObjectName = SpawnPoolObjectsOnDeath[i]});
+                        {SpawnObjectName = SpawnPoolObjectsOnDeath[i].ObjectName, SpawnChance = SpawnPoolObjectsOnDeath[i].SpawnChance});
                 }
             }
         }
