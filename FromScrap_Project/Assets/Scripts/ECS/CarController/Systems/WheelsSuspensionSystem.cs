@@ -1,8 +1,6 @@
-using System;
 using Reese.Math;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
@@ -35,11 +33,8 @@ namespace Vehicles.Wheels.Systems
             var groundInfoFilter = GetComponentDataFromEntity<GroundInfoData>(true);
             var inputInfo = GetComponentDataFromEntity<VehicleInputComponent>(true);
             var world = _createPhysicsWorldSystem.PhysicsWorld;
-            var deltaTime = Time.DeltaTime;
 
-            Entities.WithAll<Parent>().ForEach((ref DriveData wheelData, ref Rotation rotation,
-                ref Translation translation,
-                in LocalToWorld localToWorld) =>
+            Entities.WithAll<Parent>().ForEach((ref DriveData wheelData) =>
             {
                 if (!inputInfo.HasComponent(wheelData.Body)) return;
                 

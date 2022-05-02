@@ -18,7 +18,7 @@ public partial class BaseAIControllerSystem : SystemBase
     protected override void OnUpdate()
     {
         Dependency = Entities.WithAll<BaseGroundAIControllerComponent>().ForEach((
-            ref CharacterControllerInternalData controller, in LocalToWorld localToWorld, in HasTarget target) =>
+            ref CharacterControllerInput controller, in LocalToWorld localToWorld, in HasTarget target) =>
         {
             if (target.TargetEntity == Entity.Null )
             {
@@ -35,8 +35,8 @@ public partial class BaseAIControllerSystem : SystemBase
 
             var resultDir = forward * dirPower * dirDot;
 
-            controller.Input.Movement = new float2(resultDir.x, resultDir.z);
-            controller.Input.Rotation = -angle;
+            controller.Movement = resultDir;
+            controller.Rotation = -angle;
         }).ScheduleParallel(_findClosestTargetSystem.FindTargetHandle);
     }
 }

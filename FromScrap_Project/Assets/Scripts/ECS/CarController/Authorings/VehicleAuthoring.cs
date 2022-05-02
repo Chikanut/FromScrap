@@ -171,7 +171,8 @@ namespace Vehicles.Wheels.Authorings
                 {
                     CheckDistance = sizeSettings.Radius + sizeSettings.WheelSkinWidth + Vector3.Distance(wheel.WheelObject.transform.position, wheel.WheelObject.transform.parent.position) + suspensionSettings.SuspensionDistance,
                     CollisionFilter = groundSettings.GetCollisionFilter,
-                    isLocalDown = true
+                    isLocalDown = true,
+                    CheckOffset = float3.zero
                 };
 
                 dstManager.AddComponentData(wheelEntity, wheelData);
