@@ -19,6 +19,5 @@ public class FindTargetAuthoring : QuadrantObjectAuthoring
         };
 
         dstManager.AddComponentData(entity, findClosestTarget);
-        dstManager.AddComponentData(entity, new HasTarget());
     }
 }

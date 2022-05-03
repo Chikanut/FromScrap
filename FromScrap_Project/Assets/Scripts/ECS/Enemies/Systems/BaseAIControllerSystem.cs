@@ -1,23 +1,12 @@
-﻿using Reese.Math;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
-[UpdateAfter(typeof(FindClosestTargetSystem))]
 public partial class BaseAIControllerSystem : SystemBase
 {
-    private FindClosestTargetSystem _findClosestTargetSystem;
-
-    protected override void OnCreate()
-    {
-        _findClosestTargetSystem = World.GetOrCreateSystem<FindClosestTargetSystem>();
-        base.OnCreate();
-    }
-
     protected override void OnUpdate()
     {
-        Dependency = Entities.WithAll<BaseGroundAIControllerComponent>().ForEach((
+        Entities.WithAll<BaseGroundAIControllerComponent>().ForEach((
             ref CharacterControllerInput controller, in LocalToWorld localToWorld, in HasTarget target) =>
         {
             if (target.TargetEntity == Entity.Null )
@@ -37,6 +26,6 @@ public partial class BaseAIControllerSystem : SystemBase
 
             controller.Movement = resultDir;
             controller.Rotation = -angle;
-        }).ScheduleParallel(_findClosestTargetSystem.FindTargetHandle);
+        }).ScheduleParallel();
     }
 }

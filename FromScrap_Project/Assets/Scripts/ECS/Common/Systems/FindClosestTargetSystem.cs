@@ -1,131 +1,85 @@
-﻿using Unity.Collections;
+﻿using IsVisible.Components;
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(QuadrantSystem))]
+
 public partial class FindClosestTargetSystem : SystemBase
 {
-    private QuadrantSystem _quadrantSystem;
-
-    public JobHandle FindTargetHandle;
+    private EntityQuery _targetsQuery;
+    private EndSimulationEntityCommandBufferSystem _ecbSystem;
 
     protected override void OnCreate()
     {
-        _quadrantSystem = World.GetOrCreateSystem<QuadrantSystem>();
-        
         base.OnCreate();
+        
+        _targetsQuery = GetEntityQuery(
+        ComponentType.ReadOnly<LocalToWorld>(),
+            ComponentType.ReadOnly<IsVisibleComponent>(),
+            ComponentType.ReadOnly<QuadrantEntityData>()
+        );
+        
+        _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
-
+    
     protected override void OnUpdate()
     {
-        var quadrantDataHashMap = _quadrantSystem.QuadrantDataHashMap;
+        if (_targetsQuery.CalculateEntityCount() == 0) return;
+        
+        var targets = _targetsQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
+        var quadrantEntities = _targetsQuery.ToComponentDataArray<QuadrantEntityData>(Allocator.TempJob);
+        var entities = _targetsQuery.ToEntityArray(Allocator.TempJob);
+        
+        var hasTargetFilter = GetComponentDataFromEntity<HasTarget>(true);
+        
+        var ecb = _ecbSystem.CreateCommandBuffer();
 
-        FindTargetHandle = Entities.WithAll<FindTargetData, QuadrantEntityData, HasTarget>().ForEach((Entity entity, 
-            ref HasTarget target,
-            in LocalToWorld translation,
-            in FindTargetData findTargetData,
-            in QuadrantEntityData quadrantEntity) =>
-        {
-
-            target.TargetEntity = Entity.Null;
-            
-            var unitHashMapKey = quadrantEntity.HashKey;
-            var unitPosition = translation.Position;
-            var targetEntity = Entity.Null;
-            var targetPosition = new float3(0, 0, 0);
-
-            TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey, unitPosition, findTargetData.TargetType,
-                ref targetEntity, ref targetPosition);
-
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - 1, unitPosition, findTargetData.TargetType,
-                    ref targetEntity, ref targetPosition); // Left
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + 1, unitPosition, findTargetData.TargetType,
-                    ref targetEntity, ref targetPosition); // Right
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier - 1,
-                    unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Left
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier,
-                    unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Center
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey + QuadrantSystem.quadrantYMultiplier + 1,
-                    unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Up Right
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier - 1,
-                    unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Left
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier,
-                    unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Center
-            // }
-            
-            // if (targetEntity == Entity.Null)
-            // {
-                TrySetClosestTarget(quadrantDataHashMap, unitHashMapKey - QuadrantSystem.quadrantYMultiplier + 1,
-                    unitPosition, findTargetData.TargetType, ref targetEntity, ref targetPosition); // Down Right
-            // }
-
-            if (math.distance(unitPosition, targetPosition) > findTargetData.Range)
+        Dependency = Entities.ForEach((Entity entity,
+                in LocalToWorld translation,
+                in FindTargetData findTargetData) =>
             {
-                targetEntity = Entity.Null;
-            }
+                var unitPosition = translation.Position;
+                var targetEntity = Entity.Null;
+                var targetPosition = new float3(0, 0, 0);
+                var targetDistance = float.MaxValue;
 
-            target.TargetEntity = targetEntity;
-            target.TargetPosition = targetPosition;
-
-        }).WithReadOnly(quadrantDataHashMap).ScheduleParallel(_quadrantSystem.CurrentHandle);
-
-        Dependency = JobHandle.CombineDependencies(Dependency, FindTargetHandle);
-    }
-
-    private static void TrySetClosestTarget(NativeMultiHashMap<int, QuadrantData> targetHashMap, int quadrantHashMapKey,
-        float3 unitPosition, QuadrantEntityData.TypeNum unitTypeEnum, ref Entity targetEntity, ref float3 targetPosition)
-    {
-        if (!targetHashMap.TryGetFirstValue(quadrantHashMapKey, out var targetQuadrantData,
-                out var nativeMultiHashMapIterator)) return;
-        do
-        {
-            if (targetQuadrantData.QuadrantEntityData.Type != unitTypeEnum) continue;
-
-            if (targetEntity == Entity.Null)
-            {
-                targetEntity = targetQuadrantData.entity;
-                targetPosition = targetQuadrantData.position;
-            }
-            else
-            {
-                // Has target, closest?
-                // ######## TODO: REPLACE WITH math.select();
-                if (math.distance(unitPosition, targetQuadrantData.position) <
-                    math.distance(unitPosition, targetPosition))
+                for (int i = 0; i < targets.Length; i++)
                 {
-                    // New Target closer
-                    targetEntity = targetQuadrantData.entity;
-                    targetPosition = targetQuadrantData.position;
+                    var dist = math.distance(unitPosition, targets[i].Position);
+
+                    if (quadrantEntities[i].Type != findTargetData.TargetType) continue;
+                    if (dist > findTargetData.Range) continue;
+                    if (dist > targetDistance) continue;
+
+                    targetDistance = dist;
+                    targetPosition = targets[i].Position;
+                    targetEntity = entities[i];
                 }
-            }
-        } while (targetHashMap.TryGetNextValue(out targetQuadrantData, ref nativeMultiHashMapIterator));
+
+                if (targetEntity == Entity.Null && hasTargetFilter.HasComponent(entity))
+                {
+                    ecb.RemoveComponent<HasTarget>(entity);
+                }
+                else if (targetEntity != Entity.Null && !hasTargetFilter.HasComponent(entity))
+                {
+                    ecb.AddComponent(entity,
+                        new HasTarget() {TargetEntity = targetEntity, TargetPosition = targetPosition});
+                }
+                else if (targetEntity != Entity.Null && hasTargetFilter.HasComponent(entity))
+                {
+                    ecb.SetComponent(entity,
+                        new HasTarget() {TargetEntity = targetEntity, TargetPosition = targetPosition});
+                }
+            }).WithReadOnly(hasTargetFilter)
+            .WithReadOnly(entities)
+            .WithReadOnly(targets)
+            .WithReadOnly(quadrantEntities)
+            .WithDisposeOnCompletion(entities)
+            .WithDisposeOnCompletion(targets)
+            .WithDisposeOnCompletion(quadrantEntities)
+            .Schedule(Dependency);
+        
+        _ecbSystem.AddJobHandleForProducer(Dependency);
     }
 }

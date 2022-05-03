@@ -29,7 +29,6 @@ public partial class EnemiesSpawnerSystem : SystemBase
     private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
     
     private IEnemySpawnerConfigController _enemySpawnerConfigController;
-    private EntityManager _entityManager;
     private BuildPhysicsWorld _physicsWorldSystem;
     
     private EnemiesSpawnerData _data;
@@ -44,7 +43,6 @@ public partial class EnemiesSpawnerSystem : SystemBase
         RequireSingletonForUpdate<PlayerMovementInputComponent>();
         
         _physicsWorldSystem = World.GetOrCreateSystem<BuildPhysicsWorld>();
-        _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         _groundPlane = new Plane(Vector3.up, Vector3.zero);
         _screenSize = new Vector2(Screen.width, Screen.height);
         
@@ -74,6 +72,7 @@ public partial class EnemiesSpawnerSystem : SystemBase
 
     void StartSpawning()
     {
+        _screenSize = new Vector2(Screen.width, Screen.height);
         _data = new EnemiesSpawnerData();
         _isSpawning = true;
     }
@@ -141,13 +140,23 @@ public partial class EnemiesSpawnerSystem : SystemBase
         if (!(_data.CurrentRunTime - _data.PrevSpawnedEnemyTime > 1f / spawnDelay)) return;
         
         var enemyPrefab = GetEnemyPrefab();
+        var midlPoint = GetCameraMidlePoint();
 
         EntityPoolManager.Instance.GetObject(enemyPrefab , (entity, manager) =>
         {
+            var spawnPoint = GetSpawnPoint(enemyPrefab.GetMaxBounds());
             manager.SetComponentData(entity,
                 new Translation
                 {
-                    Value = GetSpawnPoint(enemyPrefab.GetMaxBounds())
+                    Value = spawnPoint
+                });
+            
+            var dir = Vector3.Normalize(midlPoint - spawnPoint);
+            dir.y = 0;
+            manager.SetComponentData(entity,
+                new Rotation
+                {
+                    Value = Quaternion.LookRotation(dir)
                 });
         });
 
@@ -194,6 +203,18 @@ public partial class EnemiesSpawnerSystem : SystemBase
         spawnPoint += math.up() * enemySize.size.y;
         
         return spawnPoint;
+    }
+
+    float3 GetCameraMidlePoint()
+    {
+        var midlePoint = float3.zero;
+        
+        var ray = Camera.main.ScreenPointToRay(new Vector3(_screenSize.x/2, _screenSize.y/2, 0));
+
+        if (_groundPlane.Raycast(ray, out var enter))
+            midlePoint = ray.GetPoint(enter);
+        
+        return midlePoint;
     }
 
     float3 ClampDirInRect(float3 dir, float3 rectSize)
