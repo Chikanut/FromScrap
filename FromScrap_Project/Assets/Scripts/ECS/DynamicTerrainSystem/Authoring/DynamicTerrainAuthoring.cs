@@ -8,7 +8,7 @@ namespace ECS.DynamicTerrainSystem
     [Serializable]
     public class DynamicTerrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
-        [Header("Movement Settings")]
+        [Header("Terrain Settings")]
         [SerializeField]
         private float3 terrainTileSize = new float3(10f, 1f, 10f);
 
