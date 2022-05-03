@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ECS.DynamicTerrainSystem
+namespace ECS.DynamicTerrainSystem.Helpers
 {
 
     /// <summary>

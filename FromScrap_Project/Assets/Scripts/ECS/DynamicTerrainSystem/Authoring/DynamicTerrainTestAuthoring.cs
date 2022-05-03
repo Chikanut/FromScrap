@@ -13,8 +13,11 @@ namespace ECS.DynamicTerrainSystem
         public float noiseScale = 2f;
         public float gradient = 2f;
         public float2 noiseOffset = new float2(10f, 10f);
+        public float normalsSmoothAngle = 60f;
+        public float uVMapScale = 8f;
+        public int uVMapChannel = 0;
+        public bool isVertexColorsEnabled = false;
         public bool isUpdated = false;
-        public float normalsSmoothPower = 1f;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -31,7 +34,10 @@ namespace ECS.DynamicTerrainSystem
                 Gradient = gradient,
                 NoiseOffset = noiseOffset,
                 IsUpdated = isUpdated,
-                NormalsSmoothPower = normalsSmoothPower
+                NormalsSmoothAngle = normalsSmoothAngle,
+                UVMapScale = uVMapScale,
+                UVMapChannel = uVMapChannel,
+                IsVertexColorsEnabled = isVertexColorsEnabled
             });
         }
     }

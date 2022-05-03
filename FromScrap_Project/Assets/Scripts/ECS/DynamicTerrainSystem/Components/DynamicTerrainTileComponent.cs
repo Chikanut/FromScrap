@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
 {
@@ -10,7 +11,10 @@ namespace ECS.DynamicTerrainSystem
         public float NoiseScale;
         public float Gradient;
         public float2 NoiseOffset;
-        public float NormalsSmoothPower;
+        public float NormalsSmoothAngle;
+        public float UVMapScale;
+        public int UVMapChannel;
+        public bool IsVertexColorsEnabled;
         public bool IsUpdated;
     }
 }
