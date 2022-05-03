@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: CactusBossMat
-  m_Shader: {fileID: -6465566751694194690, guid: 5bd8ea29e78ba474ba641dea4d617a17, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: a3fcc47241c1ce648b8c7ef6d00e804e, type: 3}
   m_ShaderKeywords: _ALPHATEST_ON _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_5896e09e655f46c1adaf1667fbbf9423:
+        m_Texture: {fileID: 2800000, guid: 2d6fa1a35474cfd4d819de303e044286, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - Texture2D_b0845d80768b49678a2ce04a7f27c90a:
         m_Texture: {fileID: 2800000, guid: 574fe97d3fc427b4d96a1f88c7fa2810, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -94,11 +98,20 @@ Material:
     m_Floats:
     - BOOLEAN_2A40598DBD1C49B4A8A3A7ECB344EC55: 0
     - Vector1_2491a4d87dea466c92d8de18756491ca: 0
+    - Vector1_2fc1867a7e9046e991d7e465b54a8026: 3.42
+    - Vector1_3619093505c446e5be984f4103a1b102: 10
+    - Vector1_383d3d0a25484573a07237beee233ba2: 31.6
     - Vector1_561ac53b2de84c45a821311efe2eb716: 0.5
+    - Vector1_5a7c1e10321544f0b2ffa18b4419d731: 1
     - Vector1_82d771be10ee4ff1b65afabc96a0fa04: 1
-    - Vector1_a11c887e7a77442885bbc951cc2b079a: 2.5
-    - Vector1_b34184e6b347452387f7d3f8a3492b37: 1.5
+    - Vector1_83290980044c42259b2ce9695c4d1983: 0.05
+    - Vector1_8904e1f9726a4f89a996d8e776f7bcee: 0.06
+    - Vector1_a11c887e7a77442885bbc951cc2b079a: 2.96
+    - Vector1_af07e57ecd4d4dee9fe5a011c56fc661: 10
+    - Vector1_b34184e6b347452387f7d3f8a3492b37: 1.2
     - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.5
+    - Vector1_d995f48403cb461f96aedfc160aa238c: 6.54
+    - Vector1_e7f365881c794e5d8c07b59a612910d9: 1.3
     - Vector1_f0bf6c1661c94955b0ef8b1dad8c574b: 1
     - _AlphaClip: 1
     - _Blend: 0
@@ -128,7 +141,9 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - Color_65cedd04680d482b86cb6bf5bcb58375: {r: 0.9888284, g: 1, b: 0, a: 0}
     - Color_96bf5350d8e64937b57a78ea3602226c: {r: 1, g: 1, b: 1, a: 1}
+    - Color_9f24e846d6554184832775a50b615ef2: {r: 1, g: 1, b: 1, a: 0}
     - Color_ae7f9f3bc4aa4393aa4d20534850877a: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 0.97936684, b: 0.97936684, a: 1}

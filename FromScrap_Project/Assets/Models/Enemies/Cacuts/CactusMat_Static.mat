@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: CactusMat_Static
-  m_Shader: {fileID: -6465566751694194690, guid: 88370bba991ced14e8b4a2a8b668a751, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: a3fcc47241c1ce648b8c7ef6d00e804e, type: 3}
   m_ShaderKeywords: _ALPHATEST_ON _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_5896e09e655f46c1adaf1667fbbf9423:
+        m_Texture: {fileID: 2800000, guid: 2dfde47a25b96aa42a99826fbefeb3f5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - Texture2D_b0845d80768b49678a2ce04a7f27c90a:
         m_Texture: {fileID: 2800000, guid: 574fe97d3fc427b4d96a1f88c7fa2810, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -94,11 +98,16 @@ Material:
     m_Floats:
     - BOOLEAN_2A40598DBD1C49B4A8A3A7ECB344EC55: 0
     - Vector1_2491a4d87dea466c92d8de18756491ca: 0
+    - Vector1_3619093505c446e5be984f4103a1b102: 2
+    - Vector1_383d3d0a25484573a07237beee233ba2: 6.03
     - Vector1_561ac53b2de84c45a821311efe2eb716: 0.53
     - Vector1_82d771be10ee4ff1b65afabc96a0fa04: 5
+    - Vector1_83290980044c42259b2ce9695c4d1983: 0.2
     - Vector1_a11c887e7a77442885bbc951cc2b079a: 1.54
+    - Vector1_af07e57ecd4d4dee9fe5a011c56fc661: 5.52
     - Vector1_b34184e6b347452387f7d3f8a3492b37: 2.11
     - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.506
+    - Vector1_e7f365881c794e5d8c07b59a612910d9: 0.9
     - Vector1_f0bf6c1661c94955b0ef8b1dad8c574b: 2.55
     - _AlphaClip: 1
     - _Blend: 0
@@ -128,6 +137,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - Color_65cedd04680d482b86cb6bf5bcb58375: {r: 0.94143414, g: 1, b: 0.2028302, a: 0}
     - Color_96bf5350d8e64937b57a78ea3602226c: {r: 1, g: 1, b: 1, a: 1}
     - Color_ae7f9f3bc4aa4393aa4d20534850877a: {r: 1, g: 1, b: 1, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

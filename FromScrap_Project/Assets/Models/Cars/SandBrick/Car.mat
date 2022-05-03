@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Car
-  m_Shader: {fileID: -6465566751694194690, guid: 88370bba991ced14e8b4a2a8b668a751, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: a3fcc47241c1ce648b8c7ef6d00e804e, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -32,6 +32,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_5896e09e655f46c1adaf1667fbbf9423:
+        m_Texture: {fileID: 2800000, guid: 5556e309a4fb7874f80b8976bcbdd0b6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - Texture2D_b0845d80768b49678a2ce04a7f27c90a:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -98,11 +102,25 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - BOOLEAN_2A40598DBD1C49B4A8A3A7ECB344EC55: 0
-    - Vector1_2491a4d87dea466c92d8de18756491ca: 0.2
+    - Vector1_2491a4d87dea466c92d8de18756491ca: 0.594
+    - Vector1_3619093505c446e5be984f4103a1b102: 4
+    - Vector1_3633bd46049f496faa050205a22cb62f: 0.2
+    - Vector1_383d3d0a25484573a07237beee233ba2: 1
+    - Vector1_409d1bcee7544fb0a214975f568f85eb: 3.03
+    - Vector1_411977290e6e4cfa8ea921570930be0d: 1
     - Vector1_561ac53b2de84c45a821311efe2eb716: 0.5
-    - Vector1_a11c887e7a77442885bbc951cc2b079a: 1.5
-    - Vector1_b34184e6b347452387f7d3f8a3492b37: 2
-    - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.5
+    - Vector1_68913bba3724465eb13bb4c5e0e1d00d: 4.7
+    - Vector1_83290980044c42259b2ce9695c4d1983: 0.2
+    - Vector1_a11c887e7a77442885bbc951cc2b079a: 1.81
+    - Vector1_af07e57ecd4d4dee9fe5a011c56fc661: 10
+    - Vector1_b169fed283da49668ff642e3cac2e893: 10
+    - Vector1_b34184e6b347452387f7d3f8a3492b37: 1.6
+    - Vector1_c305254c24914441864d7e81956ea9fc: 4
+    - Vector1_c73139d26c8441178e588f3e457ce0ad: 0.04
+    - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.526
+    - Vector1_d7b34b3773844c1295b1fab0ff0f64de: 0.9
+    - Vector1_e66c04dde8d246bdb818b19552831a79: 5
+    - Vector1_e7f365881c794e5d8c07b59a612910d9: 0.9
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -135,6 +153,9 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - Color_24d20b67c7b14b22a386a5f9b67f4818: {r: 1, g: 0.72729594, b: 0.6745283, a: 0}
+    - Color_388bb9185a84489bba581e501ee17b49: {r: 1, g: 0.97914684, b: 0.8443396, a: 1}
+    - Color_65cedd04680d482b86cb6bf5bcb58375: {r: 1, g: 0.7686976, b: 0.36320752, a: 0}
     - Color_96bf5350d8e64937b57a78ea3602226c: {r: 1, g: 1, b: 1, a: 1}
     - Color_ae7f9f3bc4aa4393aa4d20534850877a: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
