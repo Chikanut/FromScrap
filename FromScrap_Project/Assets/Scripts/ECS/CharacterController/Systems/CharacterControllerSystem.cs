@@ -4,7 +4,8 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(BuildPhysicsWorld)), UpdateBefore(typeof(StepPhysicsWorld))]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(BuildPhysicsWorld)),
+ UpdateBefore(typeof(StepPhysicsWorld))]
 public partial class CharacterControllerSystem : SystemBase
 {
 
@@ -27,7 +28,7 @@ public partial class CharacterControllerSystem : SystemBase
 
         var world = _createPhysicsWorldSystem.PhysicsWorld;
         
-        Entities.ForEach((Entity entity, ref Rotation rotation, in CharacterControllerInput input, in CharacterControllerComponentData data, in GroundInfoData groundInfoData, in LocalToWorld body) =>
+        Entities.ForEach((Entity entity, in CharacterControllerInput input, in CharacterControllerComponentData data, in GroundInfoData groundInfoData, in LocalToWorld body) =>
         {
             var ceIdx = world.GetRigidBodyIndex(entity);
 

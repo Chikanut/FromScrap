@@ -7,12 +7,12 @@ public partial class QuadrantSystem : SystemBase
     private const int quadrantYMultiplier = 1000;
     private const int quadrantCellSize = 50;
 
-    private BeginSimulationEntityCommandBufferSystem _ecbSystem;
+    private EndSimulationEntityCommandBufferSystem _ecbSystem;
     
     protected override void OnCreate()
     {
         base.OnCreate();
-        _ecbSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
+        _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
