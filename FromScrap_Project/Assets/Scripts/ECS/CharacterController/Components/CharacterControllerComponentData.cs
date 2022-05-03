@@ -5,17 +5,10 @@ using Unity.Mathematics;
 [Serializable]
 public struct CharacterControllerComponentData : IComponentData
 {
-    public float3 Gravity;
-    public float MovementSpeed;
-    public float MaxMovementSpeed;
+    public float MaxSpeed;
+    public float Acceleration;
+    public float MaxAcceleration;
+    public float MaxSidewaysImpulse;
     public float RotationSpeed;
-    public float JumpUpwardsSpeed;
-    public float MaxSlope; // radians
-    public int MaxIterations;
-    public float CharacterMass;
-    public float SkinWidth;
-    public float ContactTolerance;
-    public byte AffectsPhysicsBodies;
-    public byte RaiseCollisionEvents;
-    public byte RaiseTriggerEvents;
+    public float LevelingPower;
 }

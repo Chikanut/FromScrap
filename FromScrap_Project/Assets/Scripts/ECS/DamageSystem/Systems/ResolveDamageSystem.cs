@@ -24,7 +24,7 @@ namespace DamageSystem.Systems
             var ecb = _ecbSystem.CreateCommandBuffer();
             var damageBlockers = GetComponentDataFromEntity<DamageBlockTimer>(true);
 
-            Dependency = Entities.WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref Health health, in LocalToWorld localToWorld) =>
+            Dependency = Entities.WithName("ProcessDamagePoints").WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref Health health, in LocalToWorld localToWorld) =>
             {
                 foreach (var damage in damages)
                 {
@@ -56,7 +56,7 @@ namespace DamageSystem.Systems
 
             float deltaTime = Time.DeltaTime;
             
-            Entities.WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref DamageBlockTimer blockTimer) =>
+            Entities.WithName("DamageBlockerUpdate").WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref DamageBlockTimer blockTimer) =>
             {
                 blockTimer.Value -= deltaTime;
             

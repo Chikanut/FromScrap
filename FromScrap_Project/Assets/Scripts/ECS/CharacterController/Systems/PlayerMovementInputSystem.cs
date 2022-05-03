@@ -36,7 +36,7 @@ public partial class PlayerMovementInputSystem : SystemBase
 
         private void UpdatePlayerControls(InputEventPtr inputEventPtr, InputDevice inputDevice)
         {
-            Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref CharacterControllerInternalData controller, in LocalToWorld localToWorld) =>
+            Entities.WithAll<PlayerMovementInputComponent>().ForEach((Entity entity, ref CharacterControllerInput controller, in LocalToWorld localToWorld) =>
             {
                 ProcessCharacterMovement(ref controller, inputEventPtr, inputDevice, localToWorld);
             }).WithoutBurst().Run();
@@ -48,7 +48,7 @@ public partial class PlayerMovementInputSystem : SystemBase
         }
 
         private void ProcessCharacterMovement(
-            ref CharacterControllerInternalData controller,
+            ref CharacterControllerInput controller,
             InputEventPtr inputEventPtr, 
             InputDevice inputDevice, LocalToWorld localToWorld)
         {
@@ -71,8 +71,8 @@ public partial class PlayerMovementInputSystem : SystemBase
             var forward = localToWorld.Forward;
             var angle = math.clamp(dir.AngleSigned(forward, math.up())/180, -1, 1);
 
-            controller.Input.Movement = new float2(dir.x, dir.z);
-            controller.Input.Rotation = -angle;
+            controller.Movement = dir;
+            controller.Rotation = -angle;
         }
 
         private void ProcessVehicleMovement(ref VehicleInputComponent vehicleComponent,

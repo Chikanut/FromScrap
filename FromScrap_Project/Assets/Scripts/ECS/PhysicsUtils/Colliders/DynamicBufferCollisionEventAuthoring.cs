@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Unity.Assertions;
 using Unity.Burst;
 using Unity.Collections;
@@ -160,6 +161,7 @@ namespace Unity.Physics.Stateful
     //    1) Tick Raises Collision Events on PhysicsShapeAuthoring on the entity that should raise collision events
     //    2) Add a DynamicBufferCollisionEventAuthoring component to that entity (and select if details should be calculated or not)
     //    3) If this is desired on a Character Controller, tick RaiseCollisionEvents flag on CharacterControllerAuthoring (skip 1) and 2)),
+    [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     [UpdateAfter(typeof(StepPhysicsWorld))]
     [UpdateBefore(typeof(EndFramePhysicsSystem))]
     public partial class CollisionEventConversionSystem : SystemBase
