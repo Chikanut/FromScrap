@@ -95,7 +95,8 @@ namespace Vehicles.Wheels.Systems
                 {
                     if (!wheelData.IsDrive) return;
                     var currentSpeedForward = math.dot(velocityAtWheel, groundedDir);
-                    var deltaSpeedForward = (wheelData.MaxSpeed * movementPower - currentSpeedForward);
+                    var deltaSpeedForward = math.clamp(wheelData.MaxSpeed * movementPower - currentSpeedForward, 0, wheelData.MaxSpeed);
+                    
                     deltaSpeedForward *= wheelData.Acceleration;
                     deltaSpeedForward = math.clamp(deltaSpeedForward, -wheelData.MaxAcceleration, wheelData.MaxAcceleration);
                     deltaSpeedForward *= slopeSlipFactor;

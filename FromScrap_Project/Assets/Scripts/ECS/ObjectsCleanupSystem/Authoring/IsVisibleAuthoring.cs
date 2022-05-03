@@ -10,7 +10,7 @@ namespace IsVisible.Authoring
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            var isVisibleData = new IsVisibleComponent()
+            var isVisibleData = new CheckVisibilityComponent()
             {
                 ObjectRadius = ObjectRadius
             };

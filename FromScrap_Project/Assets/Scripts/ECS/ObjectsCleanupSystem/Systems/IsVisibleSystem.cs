@@ -14,6 +14,8 @@ namespace IsVisible.Systems
         private Vector2 _screenSize;
 
         private static NativeArray<float3> _cameraPoints;
+        
+        private EndSimulationEntityCommandBufferSystem _ecbSystem;
 
         protected override void OnCreate()
         {
@@ -23,6 +25,8 @@ namespace IsVisible.Systems
             _groundPlane = new Plane(Vector3.up, Vector3.zero);
             _screenSize = new Vector2(Screen.width, Screen.height);
             _cameraPoints = new NativeArray<float3>(4, Allocator.Persistent);
+
+            _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnDestroy()
@@ -40,8 +44,10 @@ namespace IsVisible.Systems
             
             var groundViewArea = GetArea(_cameraPoints);
             var cameraPoints = _cameraPoints.AsReadOnly();
+            var isVisibleFilter = GetComponentDataFromEntity<IsVisibleComponent>(true);
+            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
             
-            Entities.ForEach((ref IsVisibleComponent isVisible, in LocalToWorld localToWorld) =>
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in CheckVisibilityComponent checkVisible, in LocalToWorld localToWorld) =>
             {
                 var objectPos = localToWorld.Position;
                 objectPos.y = 0;
@@ -54,9 +60,20 @@ namespace IsVisible.Systems
                 targetArea += CalculateArea(objectPos, cameraPoints[2], cameraPoints[3], ref closestDistance);
                 targetArea += CalculateArea(objectPos, cameraPoints[3], cameraPoints[0], ref closestDistance);
                 
-                isVisible.Value = !(targetArea - groundViewArea > 1 && closestDistance > isVisible.ObjectRadius);
-                
-            }).WithReadOnly(cameraPoints).ScheduleParallel();
+                var isVisible = !(targetArea - groundViewArea > 1 && closestDistance > checkVisible.ObjectRadius);
+                switch (isVisible)
+                {
+                    case true when !isVisibleFilter.HasComponent(entity):
+                        ecb.AddComponent<IsVisibleComponent>(entityInQueryIndex, entity);
+                        break;
+                    case false when isVisibleFilter.HasComponent(entity):
+                        ecb.RemoveComponent<IsVisibleComponent>(entityInQueryIndex, entity);
+                        break;
+                }
+
+            }).WithReadOnly(isVisibleFilter).WithReadOnly(cameraPoints).ScheduleParallel(Dependency);
+            
+            _ecbSystem.AddJobHandleForProducer(Dependency);
         }
 
         static float CalculateArea(float3 targetPoint, float3 pointA, float3 pointB, ref float closestDistance)

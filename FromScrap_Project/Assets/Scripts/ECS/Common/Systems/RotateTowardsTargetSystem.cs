@@ -19,8 +19,9 @@ public partial class RotateTowardsTargetSystem : SystemBase
                 return;
             }
 
-            var targetTransform = GetComponent<LocalToWorld>(target.TargetEntity);
-            var targetPosition = targetTransform.Position;
+            if(!ltw.HasComponent(target.TargetEntity)) return;
+            
+            var targetPosition = ltw[target.TargetEntity].Position;
             
             if(!rotateTowards.VerticalRotation)
                 targetPosition.y = localToWorld.Position.y;

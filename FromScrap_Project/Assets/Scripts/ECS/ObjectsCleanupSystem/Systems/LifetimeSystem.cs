@@ -15,10 +15,9 @@ namespace Lifetime.Systems
                 lifetime.CurrentLifetime += deltaTime;
             }).ScheduleParallel();
             
-            Entities.WithAll<ResetLifeTimeOnVisibleTag>().ForEach((ref LifetimeComponent lifetime, in IsVisibleComponent isVisible) =>
+            Entities.WithAll<ResetLifeTimeOnVisibleTag, IsVisibleComponent>().ForEach((ref LifetimeComponent lifetime) =>
             {
-                if (isVisible.Value)
-                    lifetime.CurrentLifetime = 0;
+                lifetime.CurrentLifetime = 0;
             }).ScheduleParallel();
         }
     }

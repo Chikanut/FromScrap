@@ -19,9 +19,9 @@ namespace ObjectsCleanup.Systems
         {
             var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
             
-            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in IsVisibleComponent isVisible, in LifetimeComponent lifetime) =>
+            Dependency = Entities.WithNone<IsVisibleComponent>().ForEach((Entity entity, int entityInQueryIndex, in LifetimeComponent lifetime) =>
             {
-                if(lifetime.CurrentLifetime > lifetime.MaxLifeTime && !isVisible.Value)
+                if(lifetime.CurrentLifetime > lifetime.MaxLifeTime)
                     ecb.DestroyEntity(entityInQueryIndex, entity);
             }).ScheduleParallel(Dependency);
             
