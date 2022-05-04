@@ -35,7 +35,8 @@ namespace ECS.DynamicTerrainSystem
             Entities.ForEach((
                 Entity entity,
                 ref DynamicTerrainTileComponent tileComponent,
-                ref RenderBounds renderBounds
+                ref RenderBounds renderBounds,
+                ref Volume volume
 
             ) =>
             {
