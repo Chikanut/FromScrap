@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
 using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
@@ -15,6 +16,7 @@ namespace ECS.DynamicTerrainSystem
         public float UVMapScale;
         public int UVMapChannel;
         public bool IsVertexColorsEnabled;
+        public CollisionFilter CollisionFilter;
         public bool IsUpdated;
     }
 }

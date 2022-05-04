@@ -1,6 +1,8 @@
 using System;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
+using Unity.Physics.Authoring;
 using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
@@ -17,6 +19,8 @@ namespace ECS.DynamicTerrainSystem
         public float uVMapScale = 8f;
         public int uVMapChannel = 0;
         public bool isVertexColorsEnabled = false;
+        public PhysicsCategoryTags belongsTo;
+        public PhysicsCategoryTags collideWith;
         public bool isUpdated = false;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -37,7 +41,12 @@ namespace ECS.DynamicTerrainSystem
                 NormalsSmoothAngle = normalsSmoothAngle,
                 UVMapScale = uVMapScale,
                 UVMapChannel = uVMapChannel,
-                IsVertexColorsEnabled = isVertexColorsEnabled
+                IsVertexColorsEnabled = isVertexColorsEnabled,
+                CollisionFilter = new CollisionFilter()
+                {
+                    CollidesWith = collideWith.Value,
+                    BelongsTo = belongsTo.Value
+                }
             });
         }
     }
