@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -20,9 +21,8 @@ public class OutlineFeature : ScriptableRendererFeature
         public OutlinePass(Material outlineMaterial)
         {
             this.outlineMaterial = outlineMaterial;
+            // temporaryColorTexture.Init("_TemporaryColorTexture");
         }
-
-
 
         // This method is called before executing the render pass.
         // It can be used to configure render targets and their clear state. Also to create temporary render target textures.
@@ -44,7 +44,7 @@ public class OutlineFeature : ScriptableRendererFeature
 
             RenderTextureDescriptor opaqueDescriptor = renderingData.cameraData.cameraTargetDescriptor;
             opaqueDescriptor.depthBufferBits = 0;
-
+            
             if (destination == RenderTargetHandle.CameraTarget)
             {
                 cmd.GetTemporaryRT(temporaryColorTexture.id, opaqueDescriptor, FilterMode.Point);
@@ -55,6 +55,7 @@ public class OutlineFeature : ScriptableRendererFeature
             else Blit(cmd, source, destination.Identifier(), outlineMaterial, 0);
 
             context.ExecuteCommandBuffer(cmd);
+            
             CommandBufferPool.Release(cmd);
         }
 
@@ -70,7 +71,8 @@ public class OutlineFeature : ScriptableRendererFeature
     [System.Serializable]
     public class OutlineSettings
     {
-        public Material outlineMaterial = null;
+        public Material outlineMaterial;
+        public RenderPassEvent Event = RenderPassEvent.BeforeRenderingTransparents;
     }
 
     public OutlineSettings settings = new OutlineSettings();
@@ -80,7 +82,7 @@ public class OutlineFeature : ScriptableRendererFeature
     public override void Create()
     {
         outlinePass = new OutlinePass(settings.outlineMaterial);
-        outlinePass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        outlinePass.renderPassEvent = settings.Event;
         outlineTexture.Init("_OutlineTexture");
     }
 

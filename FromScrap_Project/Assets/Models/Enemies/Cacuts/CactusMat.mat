@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: CactusMat
-  m_Shader: {fileID: -6465566751694194690, guid: a3fcc47241c1ce648b8c7ef6d00e804e, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 9ee8570dc2e6043418583b7fe2b6e81e, type: 3}
   m_ShaderKeywords: _ALPHATEST_ON _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
@@ -21,6 +21,14 @@ Material:
     m_TexEnvs:
     - Texture2D_5896e09e655f46c1adaf1667fbbf9423:
         m_Texture: {fileID: 2800000, guid: 2dfde47a25b96aa42a99826fbefeb3f5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_764b1eda76d4484a86fa088d996a67d3:
+        m_Texture: {fileID: 2800000, guid: 61b4eb755a5b07c408226912348aed7c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_91141da828344287be66b44ec78d8c2f:
+        m_Texture: {fileID: 2800000, guid: a6bbb5cc09b7b1c4d9709fed4935049f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - Texture2D_b0845d80768b49678a2ce04a7f27c90a:
@@ -112,11 +120,13 @@ Material:
     - Vector1_af07e57ecd4d4dee9fe5a011c56fc661: 2.64
     - Vector1_b169fed283da49668ff642e3cac2e893: 10
     - Vector1_b34184e6b347452387f7d3f8a3492b37: 3.45
+    - Vector1_b497e6d938e44f8d89b402705ad038a4: 5
     - Vector1_c305254c24914441864d7e81956ea9fc: 4
     - Vector1_ccf96ffa9d8c4543a956e66655492be9: 0.5
     - Vector1_d7b34b3773844c1295b1fab0ff0f64de: 0.9
     - Vector1_d995f48403cb461f96aedfc160aa238c: 5
     - Vector1_e7f365881c794e5d8c07b59a612910d9: 1.34
+    - Vector1_ec745b4860ae4c15bf1e078d29276d14: 3
     - Vector1_f0bf6c1661c94955b0ef8b1dad8c574b: 2.5
     - _AlphaClip: 1
     - _Blend: 0
@@ -132,12 +142,15 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Hue: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
+    - _Random: 0.5
     - _ReceiveShadows: 1
     - _SampleGI: 0
+    - _Saturation: 1
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

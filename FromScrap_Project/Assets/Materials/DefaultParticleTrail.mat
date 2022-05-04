@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DefaultParticleTrail
-  m_Shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: -6465566751694194690, guid: a3fcc47241c1ce648b8c7ef6d00e804e, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 6
   m_EnableInstancingVariants: 0
@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_5896e09e655f46c1adaf1667fbbf9423:
+        m_Texture: {fileID: 2800000, guid: af28470bd0e2e9543a6dfa9a1a4b348d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -76,6 +80,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - Vector1_3619093505c446e5be984f4103a1b102: 2
+    - Vector1_383d3d0a25484573a07237beee233ba2: 0.5
+    - Vector1_83290980044c42259b2ce9695c4d1983: 0.5
+    - Vector1_af07e57ecd4d4dee9fe5a011c56fc661: 0.48
+    - Vector1_e7f365881c794e5d8c07b59a612910d9: 0
     - _AlphaClip: 0
     - _Blend: 0
     - _BlendOp: 0
@@ -102,6 +111,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _Hue: 0
     - _InvFade: 1
     - _LightingEnabled: 1
     - _Metallic: 0
@@ -111,6 +121,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _SampleGI: 0
+    - _Saturation: 1
     - _Smoothness: 0.5
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
@@ -123,6 +134,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - Color_65cedd04680d482b86cb6bf5bcb58375: {r: 1, g: 1, b: 1, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
