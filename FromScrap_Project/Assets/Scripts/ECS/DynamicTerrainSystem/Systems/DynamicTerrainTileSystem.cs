@@ -35,9 +35,7 @@ namespace ECS.DynamicTerrainSystem
             Entities.ForEach((
                 Entity entity,
                 ref DynamicTerrainTileComponent tileComponent,
-                ref RenderBounds renderBounds,
-                ref Volume volume
-
+                ref RenderBounds renderBounds
             ) =>
             {
                 var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(entity);
