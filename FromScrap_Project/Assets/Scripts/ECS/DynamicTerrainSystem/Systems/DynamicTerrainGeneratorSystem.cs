@@ -32,13 +32,13 @@ namespace ECS.DynamicTerrainSystem
                 ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer
             ) =>
             {
-                var newTile = new DynamicTerrainTileInfoData()
-                {
-                    TileIndex = new float2(playerPosition.x, playerPosition.y),
-                    TileEntity = entity
-                };
+                //var newTile = new DynamicTerrainTileInfoData()
+                //{
+                //    TileIndex = new float2(playerPosition.x, playerPosition.y),
+                //    TileEntity = entity
+                //};
 
-                terrainTileBuffer.Add(newTile);
+                //terrainTileBuffer.Add(newTile);
 
                 if (terrainTileBuffer.Length > 5)
                     terrainTileBuffer.RemoveAt(0);
@@ -49,7 +49,7 @@ namespace ECS.DynamicTerrainSystem
 
 
 
-
+/*
         private GameObject terrainTilePrefab = null;
         private Vector3 terrainSize = new Vector3(20, 1, 20);
         private Gradient gradient;
@@ -73,29 +73,26 @@ namespace ECS.DynamicTerrainSystem
 
         private void Update()
         {
-            //save the tile the player is on
             Vector2 playerTile = TileFromPosition(playerTransform.position);
-            //save the tiles of all tracked objects in gameTransforms (including the player)
             List<Vector2> centerTiles = new List<Vector2>();
             centerTiles.Add(playerTile);
+            
             foreach (Transform t in gameTransforms)
                 centerTiles.Add(TileFromPosition(t.position));
 
-            //if no tiles exist yet or tiles should change
             if (previousCenterTiles == null || HaveTilesChanged(centerTiles))
             {
                 List<GameObject> tileObjects = new List<GameObject>();
-                //activate new tiles
+         
                 foreach (Vector2 tile in centerTiles)
                 {
                     bool isPlayerTile = tile == playerTile;
                     int radius = isPlayerTile ? radiusToRender : 1;
                     for (int i = -radius; i <= radius; i++)
                     for (int j = -radius; j <= radius; j++)
-                        ActivateOrCreateTile((int) tile.x + i, (int) tile.y + j, tileObjects);
+                        ActivateOrCreateTile((int) tile.X + i, (int) tile.Y + j, tileObjects);
                 }
-
-                //deactivate old tiles
+            
                 foreach (GameObject g in previousTileObjects)
                     if (!tileObjects.Contains(g))
                         g.SetActive(false);
@@ -105,9 +102,7 @@ namespace ECS.DynamicTerrainSystem
 
             previousCenterTiles = centerTiles.ToArray();
         }
-
-        //Helper methods below
-
+    
         private void ActivateOrCreateTile(int xIndex, int yIndex, List<GameObject> tileObjects)
         {
             if (!terrainTiles.ContainsKey(new Vector2(xIndex, yIndex)))
@@ -125,9 +120,10 @@ namespace ECS.DynamicTerrainSystem
 
         private GameObject CreateTile(int xIndex, int yIndex)
         {
+            var pos = new Vector3(terrainSize.x * xIndex, terrainSize.y, terrainSize.z * yIndex);
             GameObject terrain = Instantiate(
                 terrainTilePrefab,
-                new Vector3(terrainSize.x * xIndex, terrainSize.y, terrainSize.z * yIndex),
+                pos,
                 Quaternion.identity
             );
             terrain.name = TrimEnd(terrain.name, "(Clone)") + " [" + xIndex + " , " + yIndex + "]";
@@ -139,24 +135,10 @@ namespace ECS.DynamicTerrainSystem
             gm.Gradient = gradient;
             gm.NoiseScale = noiseScale;
             gm.CellSize = cellSize;
-            gm.NoiseOffset = NoiseOffset(xIndex, yIndex);
+            gm.NoiseOffset = pos;
             gm.Generate();
 
             return terrain;
-        }
-
-        private Vector2 NoiseOffset(int xIndex, int yIndex)
-        {
-            Vector2 noiseOffset = new Vector2(
-                (xIndex * noiseScale + startOffset.x) % 256,
-                (yIndex * noiseScale + startOffset.y) % 256
-            );
-            //account for negatives (ex. -1 % 256 = -1). needs to loop around to 255
-            if (noiseOffset.x < 0)
-                noiseOffset = new Vector2(noiseOffset.x + 256, noiseOffset.y);
-            if (noiseOffset.y < 0)
-                noiseOffset = new Vector2(noiseOffset.x, noiseOffset.y + 256);
-            return noiseOffset;
         }
 
         private Vector2 TileFromPosition(Vector3 position)
@@ -188,5 +170,6 @@ namespace ECS.DynamicTerrainSystem
                 return str.Substring(0, str.LastIndexOf(end));
             return str;
         }
+        */
     }
 }

@@ -57,10 +57,10 @@ namespace ECS.DynamicTerrainSystem
         {
             var terrainSize = tileComponent.TerrainSize;
             var cellSize = tileComponent.CellSize;
-            var tile = TileFromPosition(tileComponent.NoiseOffset, terrainSize);
+            var tile = TileFromPosition(tileComponent.TilePosition, terrainSize);
             var noiseScale = tileComponent.NoiseScale;
             var noiseOffset = NoiseOffset(tile.x, tile.y, noiseScale);
-            var gradient = tileComponent.Gradient;
+            var gradient = tileComponent.VertexColorPower;
             var enableVertexColors = tileComponent.IsVertexColorsEnabled;
             var uvMapCalculator = new UVMapCalculator();
             var normalsCalculator = new MeshNormalsCalculator();
@@ -86,7 +86,7 @@ namespace ECS.DynamicTerrainSystem
             var blobCollider = new NativeArray<BlobAssetReference<Unity.Physics.Collider>>(1, Allocator.TempJob);
             var nVerts = new NativeArray<Vector3>(renderMesh.mesh.vertices, Allocator.TempJob).Reinterpret<float3>();
             var nTris = new NativeArray<int>(renderMesh.mesh.triangles, Allocator.TempJob);
-            var cmcj = new MeshUtilitiesJobs.CreateMeshColliderJob
+            var cmcj = new CreateMeshColliderJob
             {
                 MeshVerts = nVerts, 
                 MeshTris = nTris, 

@@ -10,8 +10,8 @@ namespace ECS.DynamicTerrainSystem
         public float3 TerrainSize;
         public float CellSize;
         public float NoiseScale;
-        public float Gradient;
-        public float2 NoiseOffset;
+        public float VertexColorPower;
+        public float2 TilePosition;
         public float NormalsSmoothAngle;
         public float UVMapScale;
         public int UVMapChannel;
