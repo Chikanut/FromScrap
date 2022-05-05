@@ -58,7 +58,7 @@ namespace MyBox.Internal
 			Initialize(property);
 
 			var propertyToCheck = ConditionalFieldUtility.FindRelativeProperty(property, conditional.FieldToCheck);
-			_toShow = propertyToCheck.boolValue;
+			_toShow = propertyToCheck.boolValue != conditional.Inverse;
 			if (!_toShow) return 0;
 
 			if (_customAttributeDrawer != null) return _customAttributeDrawer.GetPropertyHeight(property, label);

@@ -19,5 +19,14 @@ public class MeshColorRangeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             new MaterialPropertySaturation(){Value = _saturationBaseValue + Random.Range(-_saturationRange, _saturationRange)});
         dstManager.AddComponentData(entity, 
             new MaterialPropertyRandom(){Value = Random.Range(_randomRange.x, _randomRange.y)});
+
+        dstManager.AddComponentData(entity, new MeshColorRangeComponent()
+        {
+            HueBaseValue = _hueBaseValue,
+            HueRange = _hueRange,
+            SaturationBaseValue = _saturationBaseValue,
+            SaturationRange = _saturationRange,
+            RandomRange = _randomRange
+        });
     }
 }

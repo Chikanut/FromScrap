@@ -56,5 +56,27 @@ namespace VertexFragment
 
             return vec;
         }
+
+        public enum LoopType
+        {
+            None,
+            Loop,
+            PingPong
+        }
+        
+        public static float LoopValue(LoopType type, float value, float period)
+        {
+            switch (type)
+            {
+                case LoopType.None:
+                    return value;
+                case LoopType.Loop:
+                    return value % period;
+                case LoopType.PingPong:
+                    return ((int) (value / period) % 2f > 0) ? value % period : period - value % period;
+                default:
+                    return value;
+            }
+        }
     }
 }

@@ -27,7 +27,8 @@ namespace WeaponsSystem.Base.Authoring
             var muzzleData = new MuzzleData()
             {
                 Offset = _shotOffset,
-                ShotFrequency = _shotFrequency
+                ShotFrequency = _shotFrequency,
+                
             };
             var spawnShotData = new SpawnShotData();
             var shotPrefab = new ShotPrefab()
