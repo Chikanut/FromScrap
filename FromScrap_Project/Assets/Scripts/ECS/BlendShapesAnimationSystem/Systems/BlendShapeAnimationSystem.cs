@@ -46,7 +46,6 @@ namespace ECS.BlendShapesAnimations.System
                         var animation = blendShapeAnimations[animationComponent.AnimationIndex];
                         if (animationComponent.OverrideTime)
                         {
-
                             animation.Duration = animationComponent.Time;
                         }
 
@@ -54,7 +53,7 @@ namespace ECS.BlendShapesAnimations.System
                         blendShapeAnimations[animationComponent.AnimationIndex] = animation;
                     }
 
-                        break;
+                    break;
                     case BlendShapeAnimationState.Play:
                     {
                         if (blendShapeAnimations.Length <= animationComponent.AnimationIndex)

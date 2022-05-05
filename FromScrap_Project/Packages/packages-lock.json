@@ -7,6 +7,13 @@
       "dependencies": {},
       "hash": "46ff35d22982657d55f7861ddc01b115a2db1554"
     },
+    "com.popcron.gizmos": {
+      "version": "https://github.com/popcron/gizmos.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ba90e76b4a42cca4eda2b6a372fa7108ebaf08cd"
+    },
     "com.reese.math": {
       "version": "https://github.com/reeseschultz/ReeseUnityDemos.git#math",
       "depth": 0,
