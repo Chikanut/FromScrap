@@ -16,6 +16,11 @@ namespace WeaponsSystem.Base.Components
         public float3 ShotsAngleAxis;
         public float ShootSpray;
 
+        
+        public Entity MuzzleView;
         public int ShotAnimationIndex;
+        public int ReloadAnimationIndex;
+        public int ChargeAnimationIndex;
+        public int IdleAnimationIndex;
     }
 }

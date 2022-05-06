@@ -29,36 +29,34 @@ namespace ECS.BlendShapesAnimations.System
                 ref DynamicBuffer<BlendShapeWeight> blendShapeWeightBuffer,
                 ref DynamicBuffer<BlendShapeInfoBuffer> blendShapeInfoBuffer) =>
             {
-                switch (animationComponent.State)
+                if (animationComponent.State == BlendShapeAnimationState.Start)
                 {
-                    case BlendShapeAnimationState.Start:
+                    for (int i = 0; i < blendShapeWeightBuffer.Length; i++)
                     {
-                        for (int i = 0; i < blendShapeWeightBuffer.Length; i++)
-                        {
-                            blendShapeWeightBuffer[i] = new BlendShapeWeight {Value = 0};
-                        }
-
-                        animationComponent.State = BlendShapeAnimationState.Play;
-
-                        if (blendShapeAnimations.Length <= animationComponent.AnimationIndex)
-                            return;
-
-                        var animation = blendShapeAnimations[animationComponent.AnimationIndex];
-                        if (animationComponent.OverrideTime)
-                        {
-                            animation.Duration = animationComponent.Time;
-                        }
-
-                        animation.Progress = 0;
-                        blendShapeAnimations[animationComponent.AnimationIndex] = animation;
+                        blendShapeWeightBuffer[i] = new BlendShapeWeight {Value = 0};
                     }
 
-                    break;
+                    animationComponent.State = BlendShapeAnimationState.Play;
+
+                    if (blendShapeAnimations.Length <= animationComponent.AnimationIndex)
+                        return;
+
+                    var animation = blendShapeAnimations[animationComponent.AnimationIndex];
+                    if (animationComponent.OverrideTime)
+                    {
+                        animation.Duration = animationComponent.Time;
+                    }
+
+                    animation.Progress = 0;
+                    blendShapeAnimations[animationComponent.AnimationIndex] = animation;
+                }
+
+                switch (animationComponent.State)
+                {
+                    case BlendShapeAnimationState.Play when blendShapeAnimations.Length <= animationComponent.AnimationIndex:
+                        return;
                     case BlendShapeAnimationState.Play:
                     {
-                        if (blendShapeAnimations.Length <= animationComponent.AnimationIndex)
-                            return;
-
                         var animation = blendShapeAnimations[animationComponent.AnimationIndex];
                         animation.Progress += deltaTime;
                         var clampedProgress = MathUtils.LoopValue(animation.LoopType, animation.Progress,
@@ -75,9 +73,9 @@ namespace ECS.BlendShapesAnimations.System
 
                                 var startTime = blendShape.StartTime * animation.Duration;
                                 var duration = blendShape.Duration * animation.Duration;
-                                
+
                                 if (clampedProgress < startTime || clampedProgress > duration + startTime) continue;
-                                
+
                                 var weigh = 0f;
 
                                 if (blendShape.LoopType == MathUtils.LoopType.None)
@@ -87,9 +85,9 @@ namespace ECS.BlendShapesAnimations.System
                                 else
                                 {
                                     weigh = MathUtils.LoopValue(blendShape.LoopType, clampedProgress - startTime,
-                                    blendShape.LoopTime);
+                                        blendShape.LoopTime);
                                 }
-                                
+
                                 weigh = math.lerp(blendShape.MinValue, blendShape.MaxValue, weigh);
 
                                 var blendShapeWeight = blendShapeWeightBuffer[blendShape.StateId];
@@ -104,13 +102,12 @@ namespace ECS.BlendShapesAnimations.System
                         }
 
                         blendShapeAnimations[animationComponent.AnimationIndex] = animation;
-                    }
                         break;
+                    }
                     case BlendShapeAnimationState.End:
                         ecb.RemoveComponent<BlendShapeAnimationComponent>(entityInQueryIndex, entity);
                         break;
                 }
-
             }).ScheduleParallel(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);

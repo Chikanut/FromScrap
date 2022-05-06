@@ -26,7 +26,7 @@ namespace DamageSystem.Authoring
         
         [Header("High Light")]
         public bool highLightOnDamage = true;
-        public List<MeshRenderer> _meshRenderers = new List<MeshRenderer>();
+        public List<Renderer> _meshRenderers = new List<Renderer>();
 
         public override void ConvertAncestors(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {

@@ -12,32 +12,42 @@ namespace WeaponsSystem.Base.Authoring
         enum ShootType
         {
             Input,
-            ShotIfRotated
+            ShotIfRotated,
+            ShotIfReady
         }
         
         [Serializable]
         public class MuzzlesInfo
         {
+            [Header("Projectile")]
             public string Projectile;
 
+            [Header("Transform")]
             public float3 Offset;
             public float3 Direction = new float3(0, 0, 1);
+            
+            [Header("Shoot info")]
             [Range(0,90)]
             public float ShootSpray;
-            
             public int ShotsCount = 1;
             [Range(0,360)]
             public float ShotsAngle = 0;
             public float3 ShotsAngleAxis = new float3(0, 1, 0);
 
+            [Header("Animation")]
+            public GameObject AnimationBody;
             public int ShotAnimationIndex = -1;
+            public int ChargeAnimationIndex = -1;
+            public int ReloadAnimationIndex = -1;
+            public int IdleAnimationIndex = -1;
         }
         
         [Header("Weapon Info")]
         [SerializeField] ShootType _shootEventType;
         [SerializeField] MuzzleType _shootType;
-        [SerializeField] GameObject _weaponView;
-        [SerializeField] float _shotFrequency;
+        [SerializeField] float _reloadTime;
+        [SerializeField] private float _chargeTime;
+        [SerializeField] private float _shootTime;
 
         [Header("Muzzle Info")] [SerializeField]
         private MuzzlesInfo[] _muzzlesInfo;
@@ -47,9 +57,10 @@ namespace WeaponsSystem.Base.Authoring
             
             dstManager.AddComponentData(entity, new WeaponData()
             {
-                WeaponView = conversionSystem.GetPrimaryEntity(_weaponView),
                 MuzzleType = _shootType,
-                ShotFrequency = _shotFrequency
+                ReloadTime = _reloadTime,
+                ChargeTime = _chargeTime,
+                ShootTime = _shootTime,
             });
             dstManager.AddComponentData(entity, new IsShotData());
             var muzzleBuffer = dstManager.AddBuffer<MuzzlesBuffer>(entity);
@@ -62,7 +73,11 @@ namespace WeaponsSystem.Base.Authoring
                     Direction = _muzzlesInfo[i].Direction,
                     Projectile = _muzzlesInfo[i].Projectile,
                     ShootSpray = _muzzlesInfo[i].ShootSpray,
+                    MuzzleView = conversionSystem.GetPrimaryEntity(_muzzlesInfo[i].AnimationBody),
                     ShotAnimationIndex = _muzzlesInfo[i].ShotAnimationIndex,
+                    ChargeAnimationIndex = _muzzlesInfo[i].ChargeAnimationIndex,
+                    ReloadAnimationIndex = _muzzlesInfo[i].ReloadAnimationIndex,
+                    IdleAnimationIndex = _muzzlesInfo[i].IdleAnimationIndex,
                     ShotsCount = _muzzlesInfo[i].ShotsCount,
                     ShotsAngle = _muzzlesInfo[i].ShotsAngle,
                     ShotsAngleAxis = _muzzlesInfo[i].ShotsAngleAxis
@@ -75,6 +90,9 @@ namespace WeaponsSystem.Base.Authoring
                     break;
                 case ShootType.ShotIfRotated:
                     dstManager.AddComponentData(entity, new ShotIfRotatedTag());
+                    break;
+                case ShootType.ShotIfReady:
+                    dstManager.AddComponentData(entity, new ShotIfReadyTag());
                     break;
             }
         }
