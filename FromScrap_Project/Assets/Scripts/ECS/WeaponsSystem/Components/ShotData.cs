@@ -6,6 +6,7 @@ namespace WeaponsSystem.Base.Components
     public struct ShotData : IComponentData
     {
         public float Velocity;
+        public float Gravity;
         public float Lifetime;
     }
 }

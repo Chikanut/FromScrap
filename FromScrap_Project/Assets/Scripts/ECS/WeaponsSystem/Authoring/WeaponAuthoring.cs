@@ -1,47 +1,67 @@
-using System.Collections.Generic;
+using System;
 using Unity.Entities;
-using Unity.Entities.Hybrid.Internal;
 using Unity.Mathematics;
 using UnityEngine;
 using WeaponsSystem.Base.Components;
+using Gizmos = Popcron.Gizmos;
 
 namespace WeaponsSystem.Base.Authoring
 {
-    public class WeaponAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+    public class WeaponAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         enum ShootType
         {
             Input,
             ShotIfRotated
         }
+        
+        [Serializable]
+        public class MuzzlesInfo
+        {
+            public string Projectile;
 
-        [Header("Muzzle Info")]
-        [SerializeField] private float3 _shotOffset;
+            public float3 Offset;
+            public float3 Direction = new float3(0, 0, 1);
+            [Range(0,90)]
+            public float ShootSpray;
 
-        [SerializeField] private float _shotFrequency;
-        [SerializeField] private GameObject _projectile;
-        [SerializeField] private ShootType _shootType;
+            public int ShotAnimationIndex = -1;
+        }
+        
+        [Header("Weapon Info")]
+        [SerializeField] ShootType _shootEventType;
+        [SerializeField] MuzzleType _shootType;
+        [SerializeField] GameObject _weaponView;
+        [SerializeField] float _shotFrequency;
 
+        [Header("Muzzle Info")] [SerializeField]
+        private MuzzlesInfo[] _muzzlesInfo;
+        
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            var muzzleData = new MuzzleData()
+            
+            dstManager.AddComponentData(entity, new WeaponData()
             {
-                Offset = _shotOffset,
-                ShotFrequency = _shotFrequency,
-                
-            };
-            var spawnShotData = new SpawnShotData();
-            var shotPrefab = new ShotPrefab()
-            {
-                Value = conversionSystem.GetPrimaryEntity(_projectile)
-            };
-
-            dstManager.AddComponentData(entity, muzzleData);
-            dstManager.AddComponentData(entity, spawnShotData);
-            dstManager.AddComponentData(entity, shotPrefab);
+                WeaponView = conversionSystem.GetPrimaryEntity(_weaponView),
+                MuzzleType = _shootType,
+                ShotFrequency = _shotFrequency
+            });
             dstManager.AddComponentData(entity, new IsShotData());
+            var muzzleBuffer = dstManager.AddBuffer<MuzzlesBuffer>(entity);
 
-            switch (_shootType)
+            for (int i = 0; i < _muzzlesInfo.Length; i++)
+            {
+                muzzleBuffer.Add(new MuzzlesBuffer()
+                {
+                    Offset = _muzzlesInfo[i].Offset,
+                    Direction = _muzzlesInfo[i].Direction,
+                    Projectile = _muzzlesInfo[i].Projectile,
+                    ShootSpray = _muzzlesInfo[i].ShootSpray,
+                    ShotAnimationIndex = _muzzlesInfo[i].ShotAnimationIndex
+                });
+            }
+
+            switch (_shootEventType)
             {
                 case ShootType.Input:
                     break;
@@ -51,10 +71,14 @@ namespace WeaponsSystem.Base.Authoring
             }
         }
 
-        public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+        private void OnDrawGizmosSelected()
         {
-            GeneratedAuthoringComponentImplementation
-                .AddReferencedPrefab(referencedPrefabs, _projectile);
+            for (int i = 0; i < _muzzlesInfo.Length; i++)
+            {
+                Gizmos.Cone(transform.TransformPoint(_muzzlesInfo[i].Offset),
+                    Quaternion.LookRotation(transform.TransformDirection(_muzzlesInfo[i].Direction)), 0.4f,
+                    _muzzlesInfo[i].ShootSpray, Color.green);
+            }
         }
     }
 }
