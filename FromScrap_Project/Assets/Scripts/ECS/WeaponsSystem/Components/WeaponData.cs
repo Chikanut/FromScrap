@@ -10,15 +10,27 @@ namespace WeaponsSystem.Base.Components
         Queue
     }
 
+    public enum WeaponState
+    {
+        None,
+        NoTarget,
+        Charge,
+        Shoot,
+        Reload,
+    }
+
     [Serializable]
     public struct WeaponData : IComponentData
     {
-        public Entity WeaponView;
-        
         public MuzzleType MuzzleType;
-        public float ShotFrequency;
         
+        public float ChargeTime;
+        public float ReloadTime;
+        public float ShootTime;
+
+        [HideInInspector] public WeaponState CurrentState;
+        [HideInInspector] public WeaponState NewState;
         [HideInInspector] public int CurrentMuzzle;
-        [HideInInspector] public double PrevShotTime;
+        [HideInInspector] public double PrevStateChangeTime;
     }
 }
