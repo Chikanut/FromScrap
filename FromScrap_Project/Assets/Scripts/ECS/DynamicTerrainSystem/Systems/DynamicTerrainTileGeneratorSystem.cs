@@ -1,14 +1,24 @@
 using System;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace ECS.DynamicTerrainSystem
 {
     public partial class DynamicTerrainTileGeneratorSystem : SystemBase
     {
+        private EntityCommandBufferSystem _entityCommandBufferSystem;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+
+            _entityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
+            var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            
             Entities.ForEach((
                 Entity entity,
                 ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
@@ -22,45 +32,75 @@ namespace ECS.DynamicTerrainSystem
                     switch (tileInfoData.TileState)
                     {
                         case DynamicTerrainTileState.IsReadyToGenerate:
-                            GenerateTerrainTile(ref dynamicTerrainBaseComponent, ref terrainTileBuffer, i);
+                            GenerateTerrainTile(ref entity, ref terrainTileBuffer, in dynamicTerrainBaseComponent, ecbs, i);
                             break;
                         case DynamicTerrainTileState.IsGenerated:
-
                             break;
                         case DynamicTerrainTileState.IsReadyToDestroy:
-
+                            RemoveTerrainTile(ref terrainTileBuffer, ecbs, i);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
             }).ScheduleParallel();
+            
+            _entityCommandBufferSystem.AddJobHandleForProducer(this.Dependency);
         }
-
+        
         private static void GenerateTerrainTile(
-            ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
+            ref Entity generatorEntity,
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
-            int index)
+            in DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
+            EntityCommandBuffer.ParallelWriter ecbs,
+            int index
+        )
         {
             var tileData = terrainTileBuffer[index];
             var tilePos = tileData.TilePosition;
-            
-            //TODO: Spawn system
-            EntityPoolManager.Instance.GetObject("DynamicTerrainTileTest", (entity, manager) =>
+            var tileEntity = ecbs.Instantiate(0, dynamicTerrainBaseComponent.TerrainTileEntity);
+            var tileComponent = new DynamicTerrainTileComponent()
             {
-                manager.SetComponentData(entity, new Translation()
-                {
-                    Value = new float3(tilePos.x, 10f, tilePos.y)
-                });
-            });
-            
+                TerrainTileSize = dynamicTerrainBaseComponent.TerrainTileSize,
+                CellSize = dynamicTerrainBaseComponent.CellSize,
+                NoiseScale = dynamicTerrainBaseComponent.NoiseScale,
+                VertexColorPower = dynamicTerrainBaseComponent.VertexColorPower,
+                TilePosition = tilePos,
+                NormalsSmoothAngle = dynamicTerrainBaseComponent.NormalsSmoothAngle,
+                UVMapScale = dynamicTerrainBaseComponent.UVMapScale,
+                UVMapChannel = dynamicTerrainBaseComponent.UVMapChannel,
+                IsVertexColorsEnabled = dynamicTerrainBaseComponent.IsVertexColorsEnabled,
+                CollisionFilter = dynamicTerrainBaseComponent.CollisionFilter,
+                IsUpdated = false
+            };
+            var translation = new Translation()
+            {
+                Value = tilePos
+            };
+           
             terrainTileBuffer.RemoveAt(index);
-            terrainTileBuffer.Add(new DynamicTerrainTileInfoData()
+            ecbs.AddComponent(0, tileEntity, translation);
+            ecbs.AddComponent(0, tileEntity, tileComponent);
+            ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainTileInfoData()
             {
-                TileEntity = tileData.TileEntity,
+                TileEntity = tileEntity,
                 TilePosition = tileData.TilePosition,
                 TileState = DynamicTerrainTileState.IsGenerated
             });
+        }
+        
+        private static void RemoveTerrainTile(
+            ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
+            EntityCommandBuffer.ParallelWriter ecbs,
+            int index
+        )
+        {
+            var tileData = terrainTileBuffer[index];
+            var tileEntity = tileData.TileEntity;
+            
+            ecbs.DestroyEntity(0, tileEntity);
+
+            terrainTileBuffer.RemoveAt(index);
         }
     }
 }

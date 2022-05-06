@@ -4,17 +4,23 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using Quaternion = System.Numerics.Quaternion;
-using Random = Unity.Mathematics.Random;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
 
 namespace ECS.DynamicTerrainSystem
 {
     public partial class DynamicTerrainGeneratorSystem : SystemBase
     {
+        private EntityCommandBufferSystem _entityCommandBufferSystem;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+
+            _entityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        }
+        
         protected override void OnUpdate()
         {
+            var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
             var playerPosition = float3.zero;
 
             Entities.ForEach((
@@ -32,56 +38,30 @@ namespace ECS.DynamicTerrainSystem
                 ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer
             ) =>
             {
-                //var newTile = new DynamicTerrainTileInfoData()
-                //{
-                //    TileIndex = new float2(playerPosition.x, playerPosition.y),
-                //    TileEntity = entity
-                //};
-
-                //terrainTileBuffer.Add(newTile);
-
+                
+                
+                
                 if (terrainTileBuffer.Length > 5)
                     terrainTileBuffer.RemoveAt(0);
             }).ScheduleParallel();
+            
+            _entityCommandBufferSystem.AddJobHandleForProducer(this.Dependency);
         }
-
-
-
-
-
 /*
-        private GameObject terrainTilePrefab = null;
-        private Vector3 terrainSize = new Vector3(20, 1, 20);
-        private Gradient gradient;
-        private float noiseScale = 3, cellSize = 1;
-        private int radiusToRender = 5;
-        private Transform[] gameTransforms;
-        private Transform playerTransform;
-        private Vector2 startOffset;
-        private Dictionary<Vector2, GameObject> terrainTiles = new Dictionary<Vector2, GameObject>();
-        private Vector2[] previousCenterTiles;
-        private List<GameObject> previousTileObjects = new List<GameObject>();
-
-
-        public void InitialLoad()
+        private static void SetupDynamicTerrainTiles(
+            ref Entity generatorEntity,
+            ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
+            in DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
+            EntityCommandBuffer.ParallelWriter ecbs,
+            float3 playerPos
+        )
         {
-            DestroyTerrain();
-
-            //choose a place on perlin noise (which loops after 256)
-            startOffset = new Vector2(Random.Range(0f, 256f), Random.Range(0f, 256f));
-        }
-
-        private void Update()
-        {
-            Vector2 playerTile = TileFromPosition(playerTransform.position);
-            List<Vector2> centerTiles = new List<Vector2>();
+            var playerTile = TileFromPosition(playerPos, dynamicTerrainBaseComponent.TerrainTileSize);
+            var centerTiles = new List<Vector2>();
+            
             centerTiles.Add(playerTile);
             
-            foreach (Transform t in gameTransforms)
-                centerTiles.Add(TileFromPosition(t.position));
-
-            if (previousCenterTiles == null || HaveTilesChanged(centerTiles))
-            {
+           
                 List<GameObject> tileObjects = new List<GameObject>();
          
                 foreach (Vector2 tile in centerTiles)
@@ -93,16 +73,23 @@ namespace ECS.DynamicTerrainSystem
                         ActivateOrCreateTile((int) tile.X + i, (int) tile.Y + j, tileObjects);
                 }
             
-                foreach (GameObject g in previousTileObjects)
-                    if (!tileObjects.Contains(g))
-                        g.SetActive(false);
-
-                previousTileObjects = new List<GameObject>(tileObjects);
-            }
-
-            previousCenterTiles = centerTiles.ToArray();
+          
         }
-    
+        
+        private static float2 TileFromPosition(float3 position, float3 terrainSize)
+        {
+            return new float2(Mathf.FloorToInt(position.x / terrainSize.x + .5f), Mathf.FloorToInt(position.z / terrainSize.z + .5f));
+        }
+
+
+
+      
+      
+       
+       
+        private int radiusToRender = 5;
+
+
         private void ActivateOrCreateTile(int xIndex, int yIndex, List<GameObject> tileObjects)
         {
             if (!terrainTiles.ContainsKey(new Vector2(xIndex, yIndex)))
@@ -141,28 +128,6 @@ namespace ECS.DynamicTerrainSystem
             return terrain;
         }
 
-        private Vector2 TileFromPosition(Vector3 position)
-        {
-            return new Vector2(Mathf.FloorToInt(position.x / terrainSize.x + .5f),
-                Mathf.FloorToInt(position.z / terrainSize.z + .5f));
-        }
-
-        private bool HaveTilesChanged(List<Vector2> centerTiles)
-        {
-            if (previousCenterTiles.Length != centerTiles.Count)
-                return true;
-            for (int i = 0; i < previousCenterTiles.Length; i++)
-                if (previousCenterTiles[i] != centerTiles[i])
-                    return true;
-            return false;
-        }
-
-        public void DestroyTerrain()
-        {
-            foreach (KeyValuePair<Vector2, GameObject> kv in terrainTiles)
-                Destroy(kv.Value);
-            terrainTiles.Clear();
-        }
 
         private static string TrimEnd(string str, string end)
         {
@@ -170,6 +135,7 @@ namespace ECS.DynamicTerrainSystem
                 return str.Substring(0, str.LastIndexOf(end));
             return str;
         }
-        */
+      */
     }
+    
 }

@@ -6,7 +6,7 @@ namespace ECS.DynamicTerrainSystem
 {
     public struct DynamicTerrainTileInfoData  : IBufferElementData
     {
-        public float2 TilePosition;
+        public float3 TilePosition;
         public Entity TileEntity;
         public DynamicTerrainTileState TileState;
     }
@@ -14,8 +14,8 @@ namespace ECS.DynamicTerrainSystem
     [Serializable]
     public enum DynamicTerrainTileState
     {
-        IsReadyToGenerate,
         IsGenerated,
+        IsReadyToGenerate,
         IsReadyToDestroy
     }
 }

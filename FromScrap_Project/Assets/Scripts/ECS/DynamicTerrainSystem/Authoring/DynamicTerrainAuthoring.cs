@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Entities.Hybrid.Internal;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Authoring;
@@ -7,15 +9,16 @@ using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
 {
-    [Serializable]
-    public class DynamicTerrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+    //[Serializable]
+    internal class DynamicTerrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
+        [Header("Terrain Objects")]
+        public GameObject terrainTilePrefab;
         [Header("Terrain Settings")]
-        [SerializeField]
-        private float3 terrainTileSize = new float3(10f, 1f, 10f);
+        public float3 terrainTileSize = new float3(10f, 1f, 10f);
         public float cellSize = 1f;
         public float noiseScale = 2f;
-        public float2 terrainStartPosition = new float2(0f, 0f);
+        public float3 terrainStartPosition = new float3(0f, 0f, 0f);
         public float normalsSmoothAngle = 60f;
         public float uVMapScale = 8f;
         public int uVMapChannel = 0;
@@ -33,6 +36,7 @@ namespace ECS.DynamicTerrainSystem
 
             dstManager.AddComponentData(entity, new DynamicTerrainBaseComponent()
             {
+                TerrainTileEntity = conversionSystem.GetPrimaryEntity(terrainTilePrefab),
                 TerrainTileSize = terrainTileSize,
                 CellSize = cellSize,
                 NoiseScale = noiseScale,
@@ -57,6 +61,12 @@ namespace ECS.DynamicTerrainSystem
                 TileEntity = entity,
                 TileState = DynamicTerrainTileState.IsReadyToGenerate
             });
+        }
+
+        public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+        {
+            GeneratedAuthoringComponentImplementation
+                .AddReferencedPrefab(referencedPrefabs, terrainTilePrefab);
         }
     }
 }

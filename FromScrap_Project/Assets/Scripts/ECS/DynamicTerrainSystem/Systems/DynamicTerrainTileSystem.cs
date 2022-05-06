@@ -55,7 +55,7 @@ namespace ECS.DynamicTerrainSystem
             ref RenderBounds renderBounds,
             ref EntityCommandBuffer.ParallelWriter ecbs)
         {
-            var terrainSize = tileComponent.TerrainSize;
+            var terrainSize = tileComponent.TerrainTileSize;
             var cellSize = tileComponent.CellSize;
             var tile = TileFromPosition(tileComponent.TilePosition, terrainSize);
             var noiseScale = tileComponent.NoiseScale;
@@ -107,8 +107,8 @@ namespace ECS.DynamicTerrainSystem
             ref DynamicTerrainTileComponent tileComponent,
             ref RenderBounds renderBounds)
         {
-            var x = tileComponent.TerrainSize.x / 2f;
-            var z = tileComponent.TerrainSize.z / 2f;
+            var x = tileComponent.TerrainTileSize.x / 2f;
+            var z = tileComponent.TerrainTileSize.z / 2f;
             var newValue = new AABB()
             {
                 Center = renderBounds.Value.Center,
@@ -237,8 +237,8 @@ namespace ECS.DynamicTerrainSystem
             return noiseOffset;
         }
         
-        private static Vector2 TileFromPosition(float2 position, float3 terrainSize) {
-            return new Vector2(Mathf.FloorToInt(position.x / terrainSize.x + .5f), Mathf.FloorToInt(position.y / terrainSize.z + .5f));
+        private static Vector2 TileFromPosition(float3 position, float3 terrainSize) {
+            return new Vector2(Mathf.FloorToInt(position.x / terrainSize.x + .5f), Mathf.FloorToInt(position.z / terrainSize.z + .5f));
         }
     }
 }

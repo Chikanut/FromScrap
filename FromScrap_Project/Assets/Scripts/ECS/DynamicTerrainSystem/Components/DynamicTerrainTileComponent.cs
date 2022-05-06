@@ -7,11 +7,11 @@ namespace ECS.DynamicTerrainSystem
 {
     public struct DynamicTerrainTileComponent: IComponentData
     {
-        public float3 TerrainSize;
+        public float3 TerrainTileSize;
         public float CellSize;
         public float NoiseScale;
         public float VertexColorPower;
-        public float2 TilePosition;
+        public float3 TilePosition;
         public float NormalsSmoothAngle;
         public float UVMapScale;
         public int UVMapChannel;
