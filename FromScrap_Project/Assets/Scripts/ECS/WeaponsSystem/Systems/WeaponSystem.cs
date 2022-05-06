@@ -54,32 +54,14 @@ namespace WeaponsSystem.Base.Systems
                         case MuzzleType.Queue:
                         {
                             var muzzleData = muzzlesBuffer[weaponData.CurrentMuzzle];
-
-                            ShotProjectile(muzzleData, writerProjectileEvent, localToWorld, randomIndex + weaponData.CurrentMuzzle);
                             
-                            if(muzzleData.ShotAnimationIndex >= 0 )
-                            {
-                                if (animationComponentFilter.HasComponent(weaponData.WeaponView))
-                                {
-                                    ecb.SetComponent(entityInQueryIndex, weaponData.WeaponView, new BlendShapeAnimationComponent()
-                                    {
-                                        AnimationIndex = muzzleData.ShotAnimationIndex,
-                                        OverrideTime = true,
-                                        Time = weaponData.ShotFrequency
-                                    });
-                                }
-                                else
-                                {
-                                    ecb.AddComponent(entityInQueryIndex, weaponData.WeaponView, new BlendShapeAnimationComponent()
-                                    {
-                                        AnimationIndex = muzzleData.ShotAnimationIndex,
-                                        OverrideTime = true,
-                                        Time = weaponData.ShotFrequency
-                                    });
-                                }
-                            }
+                            ShotProjectile(muzzleData, writerProjectileEvent, localToWorld,
+                                randomIndex + weaponData.CurrentMuzzle);
+                            MuzzleAnimation(muzzleData, weaponData, ecb, entityInQueryIndex,
+                                animationComponentFilter);
 
                             weaponData.CurrentMuzzle = (weaponData.CurrentMuzzle + 1) % muzzlesBuffer.Length;
+
                             break;
                         }
                         case MuzzleType.All:
@@ -88,25 +70,7 @@ namespace WeaponsSystem.Base.Systems
                             {
                                 var muzzleData = muzzlesBuffer[i];
                                 ShotProjectile(muzzleData, writerProjectileEvent, localToWorld, randomIndex + i);
-
-                                if(muzzleData.ShotAnimationIndex < 0) continue;
-                                if (animationComponentFilter.HasComponent(weaponData.WeaponView))
-                                {
-                                    ecb.SetComponent(entityInQueryIndex, weaponData.WeaponView, new BlendShapeAnimationComponent()
-                                    {
-                                        AnimationIndex = muzzleData.ShotAnimationIndex,
-                                        OverrideTime = true,
-                                        Time = weaponData.ShotFrequency
-                                    });
-                                }else
-                                {
-                                    ecb.AddComponent(entityInQueryIndex, weaponData.WeaponView, new BlendShapeAnimationComponent()
-                                    {
-                                        AnimationIndex = muzzleData.ShotAnimationIndex,
-                                        OverrideTime = true,
-                                        Time = weaponData.ShotFrequency
-                                    });
-                                }
+                                MuzzleAnimation(muzzleData, weaponData, ecb, entityInQueryIndex, animationComponentFilter);
                             }
 
                             break;
@@ -124,15 +88,25 @@ namespace WeaponsSystem.Base.Systems
         private static void ShotProjectile(MuzzlesBuffer muzzleData, NativeEventStream.ThreadWriter writerProjectileEvent, LocalToWorld localToWorld, int random)
         {
             var muzzlePos = muzzleData.Offset.ToWorld(localToWorld);
-            var dir = math.normalize(muzzleData.Direction.ToWorld(localToWorld) - localToWorld.Position);
-            var forward = AddSprayToDir(dir, muzzleData.ShootSpray, random);
-
-            writerProjectileEvent.Write(new SpawnProjectileEvent()
+            
+            var angleStep = muzzleData.ShotsAngle / (muzzleData.ShotsCount);
+            var startAngle = -(muzzleData.ShotsAngle / 2f) - (angleStep/2f);
+            
+            for (int j = 0; j < muzzleData.ShotsCount; j++)
             {
-                SpawnPos = muzzlePos,
-                SpawnDir = forward,
-                SpawnProjectileName = muzzleData.Projectile
-            });
+                var angle = math.radians(startAngle + angleStep * (j + 1));
+                var direction = math.mul(quaternion.AxisAngle( muzzleData.ShotsAngleAxis, angle),
+                                muzzleData.Direction);
+                var dir = math.normalize(direction.ToWorld(localToWorld) - localToWorld.Position);
+                var forward = AddSprayToDir(dir, muzzleData.ShootSpray, random);
+
+                writerProjectileEvent.Write(new SpawnProjectileEvent()
+                {
+                    SpawnPos = muzzlePos,
+                    SpawnDir = forward,
+                    SpawnProjectileName = muzzleData.Projectile
+                });
+            }
         }
 
         private static Vector3 AddSprayToDir(float3 dir, float spray, int r)
@@ -146,5 +120,31 @@ namespace WeaponsSystem.Base.Systems
             
             return math.normalize(dir + randomDir * (spray / 90));
         }
+
+        private static void MuzzleAnimation(MuzzlesBuffer muzzleData, WeaponData weaponData,
+            EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
+            ComponentDataFromEntity<BlendShapeAnimationComponent> animationComponentFilter)
+        {
+            if (muzzleData.ShotAnimationIndex < 0) return;
+            if (animationComponentFilter.HasComponent(weaponData.WeaponView))
+            {
+                ecb.SetComponent(entityInQueryIndex, weaponData.WeaponView, new BlendShapeAnimationComponent()
+                {
+                    AnimationIndex = muzzleData.ShotAnimationIndex,
+                    OverrideTime = true,
+                    Time = weaponData.ShotFrequency
+                });
+            }
+            else
+            {
+                ecb.AddComponent(entityInQueryIndex, weaponData.WeaponView, new BlendShapeAnimationComponent()
+                {
+                    AnimationIndex = muzzleData.ShotAnimationIndex,
+                    OverrideTime = true,
+                    Time = weaponData.ShotFrequency
+                });
+            }
+        }
+
     }
 }

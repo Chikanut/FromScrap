@@ -24,6 +24,11 @@ namespace WeaponsSystem.Base.Authoring
             public float3 Direction = new float3(0, 0, 1);
             [Range(0,90)]
             public float ShootSpray;
+            
+            public int ShotsCount = 1;
+            [Range(0,360)]
+            public float ShotsAngle = 0;
+            public float3 ShotsAngleAxis = new float3(0, 1, 0);
 
             public int ShotAnimationIndex = -1;
         }
@@ -57,7 +62,10 @@ namespace WeaponsSystem.Base.Authoring
                     Direction = _muzzlesInfo[i].Direction,
                     Projectile = _muzzlesInfo[i].Projectile,
                     ShootSpray = _muzzlesInfo[i].ShootSpray,
-                    ShotAnimationIndex = _muzzlesInfo[i].ShotAnimationIndex
+                    ShotAnimationIndex = _muzzlesInfo[i].ShotAnimationIndex,
+                    ShotsCount = _muzzlesInfo[i].ShotsCount,
+                    ShotsAngle = _muzzlesInfo[i].ShotsAngle,
+                    ShotsAngleAxis = _muzzlesInfo[i].ShotsAngleAxis
                 });
             }
 
@@ -75,9 +83,17 @@ namespace WeaponsSystem.Base.Authoring
         {
             for (int i = 0; i < _muzzlesInfo.Length; i++)
             {
-                Gizmos.Cone(transform.TransformPoint(_muzzlesInfo[i].Offset),
-                    Quaternion.LookRotation(transform.TransformDirection(_muzzlesInfo[i].Direction)), 0.4f,
-                    _muzzlesInfo[i].ShootSpray, Color.green);
+                var angleStep = _muzzlesInfo[i].ShotsAngle / (_muzzlesInfo[i].ShotsCount);
+                var startAngle = -(_muzzlesInfo[i].ShotsAngle / 2f) - (angleStep/2f);
+                for (int j = 0; j < _muzzlesInfo[i].ShotsCount; j++)
+                {
+                    var angle = startAngle + angleStep * (j+1);
+                    var direction = Quaternion.AngleAxis(angle, _muzzlesInfo[i].ShotsAngleAxis) * _muzzlesInfo[i].Direction;
+                    
+                    Gizmos.Cone(transform.TransformPoint(_muzzlesInfo[i].Offset),
+                        Quaternion.LookRotation(transform.TransformDirection(direction)), 0.4f,
+                        _muzzlesInfo[i].ShootSpray, Color.green);
+                }
             }
         }
     }
