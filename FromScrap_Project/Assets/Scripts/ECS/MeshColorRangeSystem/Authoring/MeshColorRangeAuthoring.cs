@@ -6,9 +6,9 @@ using Random = UnityEngine.Random;
 public class MeshColorRangeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [SerializeField] private float _hueBaseValue = 0;
-    [SerializeField] private float _hueRange = 0.1f;
+    [SerializeField] private float _hueRange = 0.05f;
     [SerializeField] private float _saturationBaseValue = 1;
-    [SerializeField] float _saturationRange = 0.1f;
+    [SerializeField] float _saturationRange = 0.05f;
     [SerializeField] private float2 _randomRange = new float2(0,1);
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Packages.Common.Storage.Config.EnemySpawner;
 using Packages.Utils.Extensions;
 using ShootCommon.GlobalStateMachine;
@@ -167,13 +168,19 @@ public partial class EnemiesSpawnerSystem : SystemBase
     {
         var spawnChance = Random.Range(0, 100);
         var enemiesArray = _data.CurrentSpawnRange.EnemySpawnInfos;
+        var enemiesToSpawn = new List<GameObject>();
         
         foreach (var enemyInfo in enemiesArray)
         {
             if (enemyInfo.SpawnChance >= spawnChance)
-                return enemyInfo.EnemyPrefab;
+                enemiesToSpawn.Add(enemyInfo.EnemyPrefab);
         }
-        return enemiesArray[enemiesArray.Count - 1].EnemyPrefab;
+        
+        if(enemiesToSpawn.Count == 0)
+            return enemiesArray[enemiesArray.Count - 1].EnemyPrefab;
+ 
+        var index = Random.Range(0, enemiesToSpawn.Count);
+        return enemiesToSpawn[index];
     }
     
     float3 GetSpawnPoint(Bounds enemySize)
