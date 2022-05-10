@@ -4,9 +4,9 @@ using Unity.Mathematics;
 
 namespace ECS.DynamicTerrainSystem
 {
-    public struct DynamicTerrainTileInfoData  : IBufferElementData
+    public struct DynamicTerrainTileInfoData : IBufferElementData
     {
-        public float3 TilePosition;
+        public int2 TileIndex;
         public Entity TileEntity;
         public DynamicTerrainTileState TileState;
     }

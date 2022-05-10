@@ -53,14 +53,8 @@ namespace ECS.DynamicTerrainSystem
                 }
             });
             
-            var dynamicTerrainTileInfoData = dstManager.AddBuffer<DynamicTerrainTileInfoData>(entity);
-
-            dynamicTerrainTileInfoData.Add(new DynamicTerrainTileInfoData()
-            {
-                TilePosition = terrainStartPosition,
-                TileEntity = entity,
-                TileState = DynamicTerrainTileState.IsReadyToGenerate
-            });
+            dstManager.AddBuffer<DynamicTerrainTileInfoData>(entity);
+            dstManager.AddBuffer<DynamicTerrainEnabledTileInfoData>(entity);
         }
 
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

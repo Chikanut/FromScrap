@@ -57,7 +57,7 @@ namespace ECS.DynamicTerrainSystem
         {
             var terrainSize = tileComponent.TerrainTileSize;
             var cellSize = tileComponent.CellSize;
-            var tile = TileFromPosition(tileComponent.TilePosition, terrainSize);
+            var tile = tileComponent.TileIndex;
             var noiseScale = tileComponent.NoiseScale;
             var noiseOffset = NoiseOffset(tile.x, tile.y, noiseScale);
             var gradient = tileComponent.VertexColorPower;
@@ -235,10 +235,6 @@ namespace ECS.DynamicTerrainSystem
             if (noiseOffset.y < 0)
                 noiseOffset = new Vector2(noiseOffset.x, noiseOffset.y + 256);
             return noiseOffset;
-        }
-        
-        private static Vector2 TileFromPosition(float3 position, float3 terrainSize) {
-            return new Vector2(Mathf.FloorToInt(position.x / terrainSize.x + .5f), Mathf.FloorToInt(position.z / terrainSize.z + .5f));
         }
     }
 }

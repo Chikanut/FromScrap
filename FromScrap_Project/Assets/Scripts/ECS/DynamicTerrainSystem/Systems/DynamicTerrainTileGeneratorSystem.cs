@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace ECS.DynamicTerrainSystem
@@ -51,31 +52,31 @@ namespace ECS.DynamicTerrainSystem
         private static void GenerateTerrainTile(
             ref Entity generatorEntity,
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
-            in DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
+            in DynamicTerrainBaseComponent terrainComponent,
             EntityCommandBuffer.ParallelWriter ecbs,
             int index
         )
         {
             var tileData = terrainTileBuffer[index];
-            var tilePos = tileData.TilePosition;
-            var tileEntity = ecbs.Instantiate(0, dynamicTerrainBaseComponent.TerrainTileEntity);
+            var tileIndex = tileData.TileIndex;
+            var tileEntity = ecbs.Instantiate(0, terrainComponent.TerrainTileEntity);
             var tileComponent = new DynamicTerrainTileComponent()
             {
-                TerrainTileSize = dynamicTerrainBaseComponent.TerrainTileSize,
-                CellSize = dynamicTerrainBaseComponent.CellSize,
-                NoiseScale = dynamicTerrainBaseComponent.NoiseScale,
-                VertexColorPower = dynamicTerrainBaseComponent.VertexColorPower,
-                TilePosition = tilePos,
-                NormalsSmoothAngle = dynamicTerrainBaseComponent.NormalsSmoothAngle,
-                UVMapScale = dynamicTerrainBaseComponent.UVMapScale,
-                UVMapChannel = dynamicTerrainBaseComponent.UVMapChannel,
-                IsVertexColorsEnabled = dynamicTerrainBaseComponent.IsVertexColorsEnabled,
-                CollisionFilter = dynamicTerrainBaseComponent.CollisionFilter,
+                TerrainTileSize = terrainComponent.TerrainTileSize,
+                CellSize = terrainComponent.CellSize,
+                NoiseScale = terrainComponent.NoiseScale,
+                VertexColorPower = terrainComponent.VertexColorPower,
+                TileIndex = tileIndex,
+                NormalsSmoothAngle = terrainComponent.NormalsSmoothAngle,
+                UVMapScale = terrainComponent.UVMapScale,
+                UVMapChannel = terrainComponent.UVMapChannel,
+                IsVertexColorsEnabled = terrainComponent.IsVertexColorsEnabled,
+                CollisionFilter = terrainComponent.CollisionFilter,
                 IsUpdated = false
             };
             var translation = new Translation()
             {
-                Value = tilePos
+                Value = PositionFromTile(tileIndex, terrainComponent.TerrainTileSize, terrainComponent.TerrainStartPosition)
             };
            
             terrainTileBuffer.RemoveAt(index);
@@ -84,7 +85,7 @@ namespace ECS.DynamicTerrainSystem
             ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainTileInfoData()
             {
                 TileEntity = tileEntity,
-                TilePosition = tileData.TilePosition,
+                TileIndex = tileData.TileIndex,
                 TileState = DynamicTerrainTileState.IsGenerated
             });
         }
@@ -101,6 +102,11 @@ namespace ECS.DynamicTerrainSystem
             ecbs.DestroyEntity(0, tileEntity);
 
             terrainTileBuffer.RemoveAt(index);
+        }
+        
+        private static float3 PositionFromTile(float2 tile, float3 tileSize, float3 terrainStartPos)
+        {
+            return new float3(tile.x * tileSize.x, terrainStartPos.y, tile.y * tileSize.z);
         }
     }
 }
