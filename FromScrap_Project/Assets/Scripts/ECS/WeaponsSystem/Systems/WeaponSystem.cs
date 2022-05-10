@@ -22,6 +22,7 @@ namespace WeaponsSystem.Base.Systems
             _eventSystem = World.GetOrCreateSystem<EventSystem>();
             _endSimulationEntityCommandBufferSystem =
                 World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+
             base.OnCreate();
         }
 
@@ -145,7 +146,7 @@ namespace WeaponsSystem.Base.Systems
                 var direction = math.mul(quaternion.AxisAngle(muzzleData.ShotsAngleAxis, angle),
                     muzzleData.Direction);
                 var dir = math.normalize(direction.ToWorld(localToWorld) - localToWorld.Position);
-                var forward = AddSprayToDir(dir, muzzleData.ShootSpray, random);
+                var forward = AddSprayToDir(dir, muzzleData.ShootSpray, random + j);
 
                 writerProjectileEvent.Write(new SpawnProjectileEvent()
                 {

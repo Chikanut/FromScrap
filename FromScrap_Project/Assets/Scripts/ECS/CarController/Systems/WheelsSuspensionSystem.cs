@@ -59,23 +59,34 @@ namespace Vehicles.Wheels.Systems
 
                 var velocityAtWheel = world.GetLinearVelocity(ceIdx, wheelPos);
                 var slopeSlipFactor = math.pow(math.abs(math.dot(ceUp, math.up())), 4.0f);
-                var movementInput = (float3)Vector3.ClampMagnitude(inputInfo[wheelData.Body].MoveDir, 1);
-                
+                var movementInput = inputInfo[wheelData.Body].MoveDir;
                 var movementPower = math.clamp(math.length(movementInput),0,1);
+                var directionMultiplier = math.sign(math.dot(movementInput, bodyTransform.Forward) + 0.7f);
+
+                if (math.length(velocityAtWheel) > 1 && math.dot(velocityAtWheel, bodyTransform.Forward) > 0)
+                {
+                    directionMultiplier = 1;
+                }
+
+                var forward = bodyTransform.Forward * directionMultiplier;
+                movementInput = math.normalizesafe(movementInput) * directionMultiplier;
 
                 if (movementPower <= 0.01f)
                     movementInput = bodyTransform.Forward;
 
-                var dir = wheelData.IsGuide
-                    ?  movementInput
-                    : (wheelData.IsSubGuide ? (float3)Vector3.Reflect( movementInput, bodyTransform.Right) : bodyTransform.Forward);
-
-                dir = Vector3.RotateTowards(bodyTransform.Forward, dir, math.radians(wheelData.MaxSteerAngle), 100);
+                var dir = wheelData.IsGuide ?  movementInput :  forward;
                 
+                if (wheelData.IsSubGuide)
+                {
+                    var subGuidePower = 1 - math.clamp(math.dot(dir, movementInput),0,1);
+                    dir = math.lerp(dir, (float3) math.reflect(movementInput, bodyTransform.Right), subGuidePower);
+                }
+
+                dir = Vector3.RotateTowards(forward, dir, math.radians(wheelData.MaxSteerAngle), 100);
                 
                 var weRight = math.cross(groundInfoData.Info.SurfaceNormal,  dir);
                 var groundedDir = math.cross(weRight, groundInfoData.Info.SurfaceNormal);
-                //Debug.DrawRay(groundInfoData.Info.Position, groundedDir *2, Color.blue);
+                // Debug.DrawRay(groundInfoData.Info.Position, groundedDir *2, Color.blue);
                 
                 #region Sideways friction
                 {
@@ -95,7 +106,7 @@ namespace Vehicles.Wheels.Systems
                 {
                     if (!wheelData.IsDrive) return;
                     var currentSpeedForward = math.dot(velocityAtWheel, groundedDir);
-                    var deltaSpeedForward = math.clamp(wheelData.MaxSpeed * movementPower - currentSpeedForward, 0, wheelData.MaxSpeed);
+                    var deltaSpeedForward = math.clamp(movementPower * wheelData.MaxSpeed - currentSpeedForward, -wheelData.MaxSpeed, wheelData.MaxSpeed);
                     
                     deltaSpeedForward *= wheelData.Acceleration;
                     deltaSpeedForward = math.clamp(deltaSpeedForward, -wheelData.MaxAcceleration, wheelData.MaxAcceleration);
@@ -226,19 +237,15 @@ namespace Vehicles.Wheels.Systems
             var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
             var groundInfoFilter = GetComponentDataFromEntity<GroundInfoData>(true);
             
-            Entities.WithAll<Parent>().ForEach((ref ViewData wheelData, ref Rotation rotation,
-                ref Translation translation,
-                in LocalToWorld localToWorld, in DriveData driveData) =>
+            Entities.WithAll<Parent>().ForEach((ref ViewData wheelData, ref Rotation rotation, in LocalToWorld localToWorld) =>
             {
                 if (!ltw.HasComponent(wheelData.Parent) || !groundInfoFilter.HasComponent(wheelData.Parent)) return;
                 if (!inputInfo.HasComponent(wheelData.Body)) return;
-
-
+                
                 var body = ltw[wheelData.Body];
                 var input = inputInfo[wheelData.Body];
                 var angle = body.Forward.AngleSigned(math.normalizesafe(input.MoveDir), math.up());
                 var groundInfo = groundInfoFilter[wheelData.Parent];
-
 
                 if (wheelData.IsGuide)
                 {
