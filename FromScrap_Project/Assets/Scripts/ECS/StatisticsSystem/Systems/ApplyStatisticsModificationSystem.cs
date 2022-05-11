@@ -28,7 +28,7 @@ namespace StatisticsSystem.Systems
                 ApplyModification(entity, entity, modificationComponent, parentFilter, modificationsBufferFilter, ecb);
 
                 ecb.RemoveComponent<StatisticsModificationComponent>(entity);
-            }).WithReadOnly(parentFilter).WithReadOnly(modificationsBufferFilter).ScheduleParallel(Dependency);
+            }).WithReadOnly(parentFilter).WithReadOnly(modificationsBufferFilter).Schedule(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }

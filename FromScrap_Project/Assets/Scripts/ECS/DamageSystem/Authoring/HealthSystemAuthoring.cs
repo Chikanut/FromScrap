@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using DamageSystem.Components;
-using MyBox;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;

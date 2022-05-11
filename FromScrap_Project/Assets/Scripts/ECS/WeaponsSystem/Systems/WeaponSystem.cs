@@ -2,6 +2,7 @@ using BovineLabs.Event.Containers;
 using BovineLabs.Event.Systems;
 using ECS.BlendShapesAnimations.Components;
 using Reese.Math;
+using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -44,16 +45,27 @@ namespace WeaponsSystem.Base.Systems
                 (ref IsShotData isShot) => { isShot.Value = false; }).ScheduleParallel();
 
             var time = Time.ElapsedTime;
+            
             var animationComponentFilter = GetComponentDataFromEntity<BlendShapeAnimationComponent>(true);
+            var statisticsFilter = GetComponentDataFromEntity<StatisticsComponent>(true);
+            
             var writerProjectileEvent = _eventSystem.CreateEventWriter<SpawnProjectileEvent>();
+            
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            
             var randomIndex = GetSingleton<RandomIndex>().Value;
+            
             SetSingleton(new RandomIndex() {Value = randomIndex + 1});
 
-            Dependency = Entities.ForEach((int entityInQueryIndex, ref WeaponData weaponData,
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref WeaponData weaponData,
                     in DynamicBuffer<MuzzlesBuffer> muzzlesBuffer,
                     in IsShotData isShot, in LocalToWorld localToWorld) =>
                 {
+                    var statistics = new Statistics(1);
+                    
+                    if(statisticsFilter.HasComponent(entity))
+                        statistics = statisticsFilter[entity].Statistics;
+
                     //Check weapon states
                     switch (weaponData.CurrentState)
                     {
@@ -65,7 +77,7 @@ namespace WeaponsSystem.Base.Systems
                                 weaponData.NewState = WeaponState.Charge;
                             break;
                         case WeaponState.Charge:
-                            if (time - weaponData.PrevStateChangeTime > weaponData.ChargeTime)
+                            if (time - weaponData.PrevStateChangeTime > weaponData.ChargeTime / statistics.ChargeSpeedMultiplier)
                                 weaponData.NewState = WeaponState.Shoot;
                             break;
                         case WeaponState.Shoot:
@@ -73,7 +85,7 @@ namespace WeaponsSystem.Base.Systems
                                 weaponData.NewState = WeaponState.Reload;
                             break;
                         case WeaponState.Reload:
-                            if (time - weaponData.PrevStateChangeTime > weaponData.ReloadTime)
+                            if (time - weaponData.PrevStateChangeTime > weaponData.ReloadTime / statistics.ReloadSpeedMultiplier)
                                 weaponData.NewState = WeaponState.NoTarget;
                             break;
                         default:
@@ -100,7 +112,7 @@ namespace WeaponsSystem.Base.Systems
                             {
                                 var muzzleData = muzzlesBuffer[weaponData.CurrentMuzzle];
 
-                                ShotProjectile(muzzleData, writerProjectileEvent, localToWorld,
+                                ShotProjectile(muzzleData, writerProjectileEvent, localToWorld,statistics,
                                     randomIndex + weaponData.CurrentMuzzle);
 
                                 weaponData.CurrentMuzzle =
@@ -113,7 +125,7 @@ namespace WeaponsSystem.Base.Systems
                                 for (var i = 0; i < muzzlesBuffer.Length; i++)
                                 {
                                     var muzzleData = muzzlesBuffer[i];
-                                    ShotProjectile(muzzleData, writerProjectileEvent, localToWorld,
+                                    ShotProjectile(muzzleData, writerProjectileEvent, localToWorld,statistics,
                                         randomIndex + i);
                                 }
 
@@ -125,7 +137,7 @@ namespace WeaponsSystem.Base.Systems
                     //Show animation of current state
                     MuzzlesAnimation(muzzlesBuffer, weaponData, ecb, entityInQueryIndex,
                         animationComponentFilter);
-                }).WithReadOnly(animationComponentFilter)
+                }).WithReadOnly(animationComponentFilter).WithReadOnly(statisticsFilter)
                 .ScheduleParallel(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -133,14 +145,16 @@ namespace WeaponsSystem.Base.Systems
         }
 
         private static void ShotProjectile(MuzzlesBuffer muzzleData,
-            NativeEventStream.ThreadWriter writerProjectileEvent, LocalToWorld localToWorld, int random)
+            NativeEventStream.ThreadWriter writerProjectileEvent, LocalToWorld localToWorld, Statistics statistics, int random)
         {
             var muzzlePos = muzzleData.Offset.ToWorld(localToWorld);
 
-            var angleStep = muzzleData.ShotsAngle / (muzzleData.ShotsCount);
+            var shotsCount = muzzleData.ShotsCount + statistics.AdditionalProjectiles;
+
+            var angleStep = muzzleData.ShotsAngle / (shotsCount);
             var startAngle = -(muzzleData.ShotsAngle / 2f) - (angleStep / 2f);
 
-            for (int j = 0; j < muzzleData.ShotsCount; j++)
+            for (int j = 0; j < shotsCount; j++)
             {
                 var angle = math.radians(startAngle + angleStep * (j + 1));
                 var direction = math.mul(quaternion.AxisAngle(muzzleData.ShotsAngleAxis, angle),
@@ -152,7 +166,10 @@ namespace WeaponsSystem.Base.Systems
                 {
                     SpawnPos = muzzlePos,
                     SpawnDir = forward,
-                    SpawnProjectileName = muzzleData.Projectile
+                    SpawnProjectileName = muzzleData.Projectile,
+                    SpeedMultiplier = statistics.ProjectileSpeedMultiplier,
+                    DamageMultiplier = statistics.DamageMultiplier,
+                    AreaMultiplier = statistics.AreaMultiplier
                 });
             }
         }
@@ -181,10 +198,6 @@ namespace WeaponsSystem.Base.Systems
                 case MuzzleType.Queue:
                 {
                     var muzzleData = muzzlesBuffer[weaponData.CurrentMuzzle];
-
-                    // Debug.LogError(weaponData.CurrentState + " " +
-                    //                GetAnimationIndex(muzzleData, weaponData.CurrentState) + "  " +
-                    //                GetAnimationTime(weaponData));
                     
                     MuzzleAnimation(GetAnimationIndex(muzzleData, weaponData.CurrentState),
                         GetAnimationTime(weaponData), muzzleData.MuzzleView, ecb, entityInQueryIndex,

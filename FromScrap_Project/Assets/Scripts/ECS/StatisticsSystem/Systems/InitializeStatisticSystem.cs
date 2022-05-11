@@ -24,32 +24,34 @@ namespace StatisticsSystem.Systems
             
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-            Dependency = Entities.WithAll<GetStatisticTag, StatisticsComponent, Parent>().ForEach(
-                (Entity entity) =>
+            Dependency = Entities.WithAll<StatisticsComponent, Parent>().ForEach(
+                (Entity entity, ref GetStatisticTag getStatisticTag) =>
                 {
-                    UpdateStatistics(entity, statisticsComponentFilter, parentFilter, ecb);
+                    var updated = UpdateStatistics(entity, entity, statisticsComponentFilter, parentFilter, ecb);
 
-                    ecb.RemoveComponent<GetStatisticTag>(entity);
+                   if(updated || getStatisticTag.TryUpdateTimes >= GetStatisticTag.MaxTryUpdateTimes)  
+                       ecb.RemoveComponent<GetStatisticTag>(entity);
+                   else
+                       getStatisticTag.TryUpdateTimes++;
+
                 }).WithReadOnly(parentFilter).WithReadOnly(statisticsComponentFilter).Schedule(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        static void UpdateStatistics(Entity entity, ComponentDataFromEntity<StatisticsComponent> statisticsComponentFilter, ComponentDataFromEntity<Parent> parentFilter, EntityCommandBuffer ecb)
+        static bool UpdateStatistics(Entity entity, Entity handler, ComponentDataFromEntity<StatisticsComponent> statisticsComponentFilter, ComponentDataFromEntity<Parent> parentFilter, EntityCommandBuffer ecb)
         {
             if (!parentFilter.HasComponent(entity))
-                return;
+                return false;
 
             var parent = parentFilter[entity].Value;
+
+            if (!statisticsComponentFilter.HasComponent(parent))
+                return parentFilter.HasComponent(parent) && UpdateStatistics(parent, handler, statisticsComponentFilter, parentFilter, ecb);
             
-            if (statisticsComponentFilter.HasComponent(parent))
-            {
-                ecb.SetComponent(entity, statisticsComponentFilter[parent]);
-            }
-            else if(parentFilter.HasComponent(parent))
-            {
-                UpdateStatistics(parent, statisticsComponentFilter, parentFilter, ecb);
-            }
+            ecb.SetComponent(handler, statisticsComponentFilter[parent]);
+            return true;
+
         }
     }
 }

@@ -17,9 +17,9 @@ namespace StatisticsSystem.Systems
         
         protected override void OnUpdate()
         {
-            var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
+            var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Dependency = Entities.ForEach((Entity entity, ref StatisticsComponent statistics, ref DynamicBuffer<StatisticModificationsBuffer> modifications) =>
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref StatisticsComponent statistics, ref DynamicBuffer<StatisticModificationsBuffer> modifications) =>
             {
                 var prevStats = statistics.Statistics;
             
@@ -51,7 +51,7 @@ namespace StatisticsSystem.Systems
 
                 if (statistics.Statistics.CompareTo(prevStats) != 0)
                 {
-                    ecb.AddComponent(entity, new StatisticsUpdatedTag());
+                    ecb.AddComponent(entityInQueryIndex, entity, new StatisticsUpdatedTag());
                 }
                 
             }).ScheduleParallel(Dependency);

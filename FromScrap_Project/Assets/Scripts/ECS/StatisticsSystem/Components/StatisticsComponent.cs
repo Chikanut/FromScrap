@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace StatisticsSystem.Components
 {
+    [System.Serializable]
     public struct Statistics : IComparable<Statistics>
     {
         [Header("Health")]
@@ -23,7 +24,21 @@ namespace StatisticsSystem.Components
 
         [Header("Physical")]
         public float MovementSpeedMultiplier;
-        
+
+        public Statistics(float defaultMultiplier = 1f, int defaultAdditionalCount = 0)
+        {
+            HealthMultiplier = defaultMultiplier;
+            HealthRestoreMultiplier = defaultMultiplier;
+            DamageResistMultiplier = defaultMultiplier;
+            AreaMultiplier = defaultMultiplier;
+            DamageMultiplier = defaultMultiplier;
+            ReloadSpeedMultiplier = defaultMultiplier;
+            ChargeSpeedMultiplier = defaultMultiplier;
+            AdditionalProjectiles = defaultAdditionalCount;
+            ProjectileSpeedMultiplier = defaultMultiplier;
+            MovementSpeedMultiplier = defaultMultiplier;
+        }
+
         public void Add(Statistics other)
         {
             HealthMultiplier += other.HealthMultiplier;
