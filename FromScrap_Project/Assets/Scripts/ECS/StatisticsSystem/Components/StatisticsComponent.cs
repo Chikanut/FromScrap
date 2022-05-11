@@ -19,8 +19,10 @@ namespace StatisticsSystem.Components
         public float DamageMultiplier;
         public float ReloadSpeedMultiplier;
         public float ChargeSpeedMultiplier;
-        public int AdditionalProjectiles;
         public float ProjectileSpeedMultiplier;
+        
+        public int AdditionalProjectiles;
+        public int AdditionalDamage;
 
         [Header("Physical")]
         public float MovementSpeedMultiplier;
@@ -37,6 +39,7 @@ namespace StatisticsSystem.Components
             AdditionalProjectiles = defaultAdditionalCount;
             ProjectileSpeedMultiplier = defaultMultiplier;
             MovementSpeedMultiplier = defaultMultiplier;
+            AdditionalDamage = defaultAdditionalCount;
         }
 
         public void Add(Statistics other)
@@ -48,9 +51,27 @@ namespace StatisticsSystem.Components
             DamageMultiplier += other.DamageMultiplier;
             ReloadSpeedMultiplier += other.ReloadSpeedMultiplier;
             ChargeSpeedMultiplier += other.ChargeSpeedMultiplier;
-            AdditionalProjectiles += other.AdditionalProjectiles;
             ProjectileSpeedMultiplier += other.ProjectileSpeedMultiplier;
             MovementSpeedMultiplier += other.MovementSpeedMultiplier;
+            
+            AdditionalProjectiles += other.AdditionalProjectiles;
+            AdditionalDamage += other.AdditionalDamage;
+        }
+
+        public void Multiply(Statistics other)
+        {
+            HealthMultiplier *= other.HealthMultiplier;
+            HealthRestoreMultiplier *= other.HealthRestoreMultiplier;
+            DamageResistMultiplier *= other.DamageResistMultiplier;
+            AreaMultiplier *= other.AreaMultiplier;
+            DamageMultiplier *= other.DamageMultiplier;
+            ReloadSpeedMultiplier *= other.ReloadSpeedMultiplier;
+            ChargeSpeedMultiplier *= other.ChargeSpeedMultiplier;
+            ProjectileSpeedMultiplier *= other.ProjectileSpeedMultiplier;
+            MovementSpeedMultiplier *= other.MovementSpeedMultiplier;
+            
+            AdditionalProjectiles += other.AdditionalProjectiles;
+            AdditionalDamage += other.AdditionalDamage;
         }
 
         public int CompareTo(Statistics other)
@@ -79,17 +100,17 @@ namespace StatisticsSystem.Components
 
     public struct StatisticsComponent : IComponentData, IComparable<Statistics>
     {
-        public Statistics Statistics;
+        public Statistics Value;
 
         public void Add(Statistics other)
         {
-            Statistics.Add(other);
+            Value.Add(other);
         }
 
 
         public int CompareTo(Statistics other)
         {
-            return Statistics.CompareTo(other);
+            return Value.CompareTo(other);
         }
     }
 }

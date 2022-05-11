@@ -21,9 +21,9 @@ namespace StatisticsSystem.Systems
 
             Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref StatisticsComponent statistics, ref DynamicBuffer<StatisticModificationsBuffer> modifications) =>
             {
-                var prevStats = statistics.Statistics;
+                var prevStats = statistics.Value;
             
-                statistics.Statistics = new Statistics();
+                statistics.Value = new Statistics();
                 
                 var modificationsToRemove = new NativeList<int>(modifications .Length, Allocator.Temp);
                 
@@ -37,7 +37,7 @@ namespace StatisticsSystem.Systems
                         continue;
                     }
 
-                    statistics.Add(modificator.Modificator);
+                    statistics.Add(modificator.Value);
                     modificationsToRemove.Add(-1);
                 }
 
@@ -49,7 +49,7 @@ namespace StatisticsSystem.Systems
                     modifications.RemoveAtSwapBack(modificationsToRemove[i]);
                 }
 
-                if (statistics.Statistics.CompareTo(prevStats) != 0)
+                if (statistics.Value.CompareTo(prevStats) != 0)
                 {
                     ecb.AddComponent(entityInQueryIndex, entity, new StatisticsUpdatedTag());
                 }

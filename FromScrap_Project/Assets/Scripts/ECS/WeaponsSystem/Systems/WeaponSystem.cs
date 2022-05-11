@@ -48,6 +48,7 @@ namespace WeaponsSystem.Base.Systems
             
             var animationComponentFilter = GetComponentDataFromEntity<BlendShapeAnimationComponent>(true);
             var statisticsFilter = GetComponentDataFromEntity<StatisticsComponent>(true);
+            var localStatisticsFilter = GetComponentDataFromEntity<LocalStatisticsComponent>(true);
             
             var writerProjectileEvent = _eventSystem.CreateEventWriter<SpawnProjectileEvent>();
             
@@ -64,7 +65,10 @@ namespace WeaponsSystem.Base.Systems
                     var statistics = new Statistics(1);
                     
                     if(statisticsFilter.HasComponent(entity))
-                        statistics = statisticsFilter[entity].Statistics;
+                        statistics = statisticsFilter[entity].Value;
+
+                    if (localStatisticsFilter.HasComponent(entity))
+                        statistics.Add(localStatisticsFilter[entity].Value);
 
                     //Check weapon states
                     switch (weaponData.CurrentState)
@@ -137,7 +141,7 @@ namespace WeaponsSystem.Base.Systems
                     //Show animation of current state
                     MuzzlesAnimation(muzzlesBuffer, weaponData, ecb, entityInQueryIndex,
                         animationComponentFilter);
-                }).WithReadOnly(animationComponentFilter).WithReadOnly(statisticsFilter)
+                }).WithReadOnly(animationComponentFilter).WithReadOnly(statisticsFilter).WithReadOnly(localStatisticsFilter)
                 .ScheduleParallel(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -169,7 +173,8 @@ namespace WeaponsSystem.Base.Systems
                     SpawnProjectileName = muzzleData.Projectile,
                     SpeedMultiplier = statistics.ProjectileSpeedMultiplier,
                     DamageMultiplier = statistics.DamageMultiplier,
-                    AreaMultiplier = statistics.AreaMultiplier
+                    AreaMultiplier = statistics.AreaMultiplier,
+                    AdditionalDamage = statistics.AdditionalDamage
                 });
             }
         }

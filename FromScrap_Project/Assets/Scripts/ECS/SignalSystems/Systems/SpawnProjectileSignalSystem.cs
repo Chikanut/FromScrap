@@ -12,6 +12,7 @@ public struct SpawnProjectileEvent
     public float3 SpawnPos;
     public float3 SpawnDir;
     public float DamageMultiplier;
+    public int AdditionalDamage;
     public float AreaMultiplier;
     public float SpeedMultiplier;
 }
@@ -35,6 +36,7 @@ public class SpawnProjectileSystem : ConsumeSingleEventSystemBase<SpawnProjectil
             {
                 var damageInfo = manager.GetComponentData<DealDamage>(entity);
                 damageInfo.Value = (int)(damageInfo.Value * signal.DamageMultiplier);
+                damageInfo.Value += signal.AdditionalDamage;
                 manager.SetComponentData(entity, damageInfo);
             }
 

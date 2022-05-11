@@ -46,7 +46,7 @@ namespace StatisticsSystem.Systems
             {
                 ecb.AppendToBuffer(parent,
                     new StatisticModificationsBuffer()
-                        {Modificator = modificationComponent.Modification, ModificatorHolder = holder});
+                        {Value = modificationComponent.Value, ModificatorHolder = holder});
                 ecb.AddComponent(parent, new StatisticsUpdatedTag());
             }
             else
