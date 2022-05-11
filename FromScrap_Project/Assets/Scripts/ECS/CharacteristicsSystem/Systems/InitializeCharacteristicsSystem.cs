@@ -5,8 +5,8 @@ using Unity.Transforms;
 
 namespace StatisticsSystem.Systems
 {
-    [UpdateAfter(typeof(RecalculateStatisticsSystem))]
-    public partial class InitializeStatisticSystem : SystemBase
+    [UpdateAfter(typeof(RecalculateCharacteristicsSystem))]
+    public partial class InitializeCharacteristicsSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
 
@@ -19,18 +19,18 @@ namespace StatisticsSystem.Systems
         protected override void OnUpdate()
         {
             var statisticsComponentFilter =
-                GetComponentDataFromEntity<StatisticsComponent>(true);
+                GetComponentDataFromEntity<CharacteristicsComponent>(true);
             var parentFilter = GetComponentDataFromEntity<Parent>(true);
             
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-            Dependency = Entities.WithAll<StatisticsComponent, Parent>().ForEach(
-                (Entity entity, ref GetStatisticTag getStatisticTag) =>
+            Dependency = Entities.WithAll<CharacteristicsComponent, Parent>().ForEach(
+                (Entity entity, ref GetCharacteristicsTag getStatisticTag) =>
                 {
                     var updated = UpdateStatistics(entity, entity, statisticsComponentFilter, parentFilter, ecb);
 
-                   if(updated || getStatisticTag.TryUpdateTimes >= GetStatisticTag.MaxTryUpdateTimes)  
-                       ecb.RemoveComponent<GetStatisticTag>(entity);
+                   if(updated || getStatisticTag.TryUpdateTimes >= GetCharacteristicsTag.MaxTryUpdateTimes)  
+                       ecb.RemoveComponent<GetCharacteristicsTag>(entity);
                    else
                        getStatisticTag.TryUpdateTimes++;
 
@@ -39,7 +39,7 @@ namespace StatisticsSystem.Systems
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        static bool UpdateStatistics(Entity entity, Entity handler, ComponentDataFromEntity<StatisticsComponent> statisticsComponentFilter, ComponentDataFromEntity<Parent> parentFilter, EntityCommandBuffer ecb)
+        static bool UpdateStatistics(Entity entity, Entity handler, ComponentDataFromEntity<CharacteristicsComponent> statisticsComponentFilter, ComponentDataFromEntity<Parent> parentFilter, EntityCommandBuffer ecb)
         {
             if (!parentFilter.HasComponent(entity))
                 return false;
@@ -50,6 +50,7 @@ namespace StatisticsSystem.Systems
                 return parentFilter.HasComponent(parent) && UpdateStatistics(parent, handler, statisticsComponentFilter, parentFilter, ecb);
             
             ecb.SetComponent(handler, statisticsComponentFilter[parent]);
+            ecb.AddComponent(handler, new CharacteristicsUpdatedTag());
             return true;
 
         }

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace StatisticsSystem.Components
 {
     [System.Serializable]
-    public struct Statistics : IComparable<Statistics>
+    public struct Characteristics : IComparable<Characteristics>
     {
         [Header("Health")]
         public float HealthMultiplier;
@@ -27,7 +27,7 @@ namespace StatisticsSystem.Components
         [Header("Physical")]
         public float MovementSpeedMultiplier;
 
-        public Statistics(float defaultMultiplier = 1f, int defaultAdditionalCount = 0)
+        public Characteristics(float defaultMultiplier = 1f, int defaultAdditionalCount = 0)
         {
             HealthMultiplier = defaultMultiplier;
             HealthRestoreMultiplier = defaultMultiplier;
@@ -42,7 +42,7 @@ namespace StatisticsSystem.Components
             AdditionalDamage = defaultAdditionalCount;
         }
 
-        public void Add(Statistics other)
+        public void Add(Characteristics other)
         {
             HealthMultiplier += other.HealthMultiplier;
             HealthRestoreMultiplier += other.HealthRestoreMultiplier;
@@ -58,7 +58,7 @@ namespace StatisticsSystem.Components
             AdditionalDamage += other.AdditionalDamage;
         }
 
-        public void Multiply(Statistics other)
+        public void Multiply(Characteristics other)
         {
             HealthMultiplier *= other.HealthMultiplier;
             HealthRestoreMultiplier *= other.HealthRestoreMultiplier;
@@ -74,7 +74,7 @@ namespace StatisticsSystem.Components
             AdditionalDamage += other.AdditionalDamage;
         }
 
-        public int CompareTo(Statistics other)
+        public int CompareTo(Characteristics other)
         {
             var healthMultiplierComparison = HealthMultiplier.CompareTo(other.HealthMultiplier);
             if (healthMultiplierComparison != 0) return healthMultiplierComparison;
@@ -98,17 +98,17 @@ namespace StatisticsSystem.Components
         }
     }
 
-    public struct StatisticsComponent : IComponentData, IComparable<Statistics>
+    public struct CharacteristicsComponent : IComponentData, IComparable<Characteristics>
     {
-        public Statistics Value;
+        public Characteristics Value;
 
-        public void Add(Statistics other)
+        public void Add(Characteristics other)
         {
             Value.Add(other);
         }
 
 
-        public int CompareTo(Statistics other)
+        public int CompareTo(Characteristics other)
         {
             return Value.CompareTo(other);
         }

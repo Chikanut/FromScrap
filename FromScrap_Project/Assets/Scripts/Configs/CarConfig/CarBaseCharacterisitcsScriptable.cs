@@ -7,5 +7,5 @@ using UnityEngine;
 public class CarBaseCharacterisitcsScriptable : ScriptableObject
 {
     public int Health;
-    public Statistics BaseStats;
+    public Characteristics BaseStats;
 }

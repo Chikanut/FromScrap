@@ -5,7 +5,7 @@ using Unity.Entities;
 
 namespace StatisticsSystem.Systems
 {
-    public partial class RecalculateStatisticsSystem : SystemBase
+    public partial class RecalculateCharacteristicsSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
         
@@ -19,11 +19,11 @@ namespace StatisticsSystem.Systems
         {
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref StatisticsComponent statistics, ref DynamicBuffer<StatisticModificationsBuffer> modifications) =>
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref CharacteristicsComponent statistics, ref DynamicBuffer<CharacteristicModificationsBuffer> modifications) =>
             {
                 var prevStats = statistics.Value;
             
-                statistics.Value = new Statistics();
+                statistics.Value = new Characteristics();
                 
                 var modificationsToRemove = new NativeList<int>(modifications .Length, Allocator.Temp);
                 
@@ -51,7 +51,7 @@ namespace StatisticsSystem.Systems
 
                 if (statistics.Value.CompareTo(prevStats) != 0)
                 {
-                    ecb.AddComponent(entityInQueryIndex, entity, new StatisticsUpdatedTag());
+                    ecb.AddComponent(entityInQueryIndex, entity, new NewCharacteristicsTag());
                 }
                 
             }).ScheduleParallel(Dependency);

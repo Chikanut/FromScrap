@@ -2,9 +2,9 @@
 
 namespace StatisticsSystem.Components
 {
-    public struct StatisticModificationsBuffer : IBufferElementData
+    public struct CharacteristicModificationsBuffer : IBufferElementData
     {
         public Entity ModificatorHolder;
-        public Statistics Value;
+        public Characteristics Value;
     }
 }

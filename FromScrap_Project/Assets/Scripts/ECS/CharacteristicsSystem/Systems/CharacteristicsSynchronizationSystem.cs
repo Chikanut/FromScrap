@@ -5,8 +5,8 @@ using Unity.Transforms;
 
 namespace StatisticsSystem.Systems
 {
-    [UpdateAfter(typeof(RecalculateStatisticsSystem))]
-    public partial class StatisticsSynchronizationSystem : SystemBase
+    [UpdateAfter(typeof(RecalculateCharacteristicsSystem))]
+    public partial class CharacteristicsSynchronizationSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
 
@@ -19,23 +19,23 @@ namespace StatisticsSystem.Systems
         protected override void OnUpdate()
         {
             var statisticsComponentFilter =
-                GetComponentDataFromEntity<StatisticsComponent>(true);
+                GetComponentDataFromEntity<CharacteristicsComponent>(true);
             var childFilter = GetBufferFromEntity<Child>(true);
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-            Dependency = Entities.WithAll<StatisticsUpdatedTag, Child>().ForEach(
-                (Entity entity, in StatisticsComponent statisticsComponent) =>
+            Dependency = Entities.WithAll<NewCharacteristicsTag, Child>().ForEach(
+                (Entity entity, in CharacteristicsComponent statisticsComponent) =>
                 {
                     UpdateStatistics(entity, statisticsComponent, statisticsComponentFilter, childFilter, ecb);
 
-                    ecb.RemoveComponent<StatisticsUpdatedTag>(entity);
+                    ecb.RemoveComponent<NewCharacteristicsTag>(entity);
                 }).WithReadOnly(childFilter).WithReadOnly(statisticsComponentFilter).Schedule(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        static void UpdateStatistics(Entity entity, in StatisticsComponent statisticsComponent,
-            ComponentDataFromEntity<StatisticsComponent> statisticsComponentFilter, BufferFromEntity<Child> childFilter,
+        static void UpdateStatistics(Entity entity, in CharacteristicsComponent characteristicsComponent,
+            ComponentDataFromEntity<CharacteristicsComponent> statisticsComponentFilter, BufferFromEntity<Child> childFilter,
             EntityCommandBuffer ecb)
         {
             if (!childFilter.HasComponent(entity))
@@ -49,12 +49,13 @@ namespace StatisticsSystem.Systems
 
                 if (statisticsComponentFilter.HasComponent(childEntity))
                 {
-                    ecb.SetComponent(childEntity, statisticsComponent);
+                    ecb.SetComponent(childEntity, characteristicsComponent);
+                    ecb.AddComponent(childEntity, new CharacteristicsUpdatedTag());
                 }
 
                 if (childFilter.HasComponent(childEntity))
                 {
-                    UpdateStatistics(childEntity, statisticsComponent, statisticsComponentFilter, childFilter, ecb);
+                    UpdateStatistics(childEntity, characteristicsComponent, statisticsComponentFilter, childFilter, ecb);
                 }
             }
         }

@@ -2,5 +2,5 @@
 
 namespace StatisticsSystem.Tags
 {
-    public struct StatisticsUpdatedTag : IComponentData { }
+    public struct NewCharacteristicsTag : IComponentData { }
 }

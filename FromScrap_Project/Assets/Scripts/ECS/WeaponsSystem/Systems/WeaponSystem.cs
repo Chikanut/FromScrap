@@ -47,9 +47,8 @@ namespace WeaponsSystem.Base.Systems
             var time = Time.ElapsedTime;
             
             var animationComponentFilter = GetComponentDataFromEntity<BlendShapeAnimationComponent>(true);
-            var statisticsFilter = GetComponentDataFromEntity<StatisticsComponent>(true);
-            var localStatisticsFilter = GetComponentDataFromEntity<LocalStatisticsComponent>(true);
-            
+            var statisticsFilter = GetComponentDataFromEntity<CharacteristicsComponent>(true);
+
             var writerProjectileEvent = _eventSystem.CreateEventWriter<SpawnProjectileEvent>();
             
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
@@ -62,14 +61,11 @@ namespace WeaponsSystem.Base.Systems
                     in DynamicBuffer<MuzzlesBuffer> muzzlesBuffer,
                     in IsShotData isShot, in LocalToWorld localToWorld) =>
                 {
-                    var statistics = new Statistics(1);
+                    var statistics = new Characteristics(1);
                     
                     if(statisticsFilter.HasComponent(entity))
                         statistics = statisticsFilter[entity].Value;
-
-                    if (localStatisticsFilter.HasComponent(entity))
-                        statistics.Add(localStatisticsFilter[entity].Value);
-
+                    
                     //Check weapon states
                     switch (weaponData.CurrentState)
                     {
@@ -110,6 +106,8 @@ namespace WeaponsSystem.Base.Systems
                         if (muzzlesBuffer.Length == 0)
                             return;
 
+                        Debug.LogError(statistics.AdditionalDamage);
+                        
                         switch (weaponData.MuzzleType)
                         {
                             case MuzzleType.Queue:
@@ -141,7 +139,7 @@ namespace WeaponsSystem.Base.Systems
                     //Show animation of current state
                     MuzzlesAnimation(muzzlesBuffer, weaponData, ecb, entityInQueryIndex,
                         animationComponentFilter);
-                }).WithReadOnly(animationComponentFilter).WithReadOnly(statisticsFilter).WithReadOnly(localStatisticsFilter)
+                }).WithReadOnly(animationComponentFilter).WithReadOnly(statisticsFilter)
                 .ScheduleParallel(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -149,11 +147,11 @@ namespace WeaponsSystem.Base.Systems
         }
 
         private static void ShotProjectile(MuzzlesBuffer muzzleData,
-            NativeEventStream.ThreadWriter writerProjectileEvent, LocalToWorld localToWorld, Statistics statistics, int random)
+            NativeEventStream.ThreadWriter writerProjectileEvent, LocalToWorld localToWorld, Characteristics characteristics, int random)
         {
             var muzzlePos = muzzleData.Offset.ToWorld(localToWorld);
 
-            var shotsCount = muzzleData.ShotsCount + statistics.AdditionalProjectiles;
+            var shotsCount = muzzleData.ShotsCount + characteristics.AdditionalProjectiles;
 
             var angleStep = muzzleData.ShotsAngle / (shotsCount);
             var startAngle = -(muzzleData.ShotsAngle / 2f) - (angleStep / 2f);
@@ -171,10 +169,10 @@ namespace WeaponsSystem.Base.Systems
                     SpawnPos = muzzlePos,
                     SpawnDir = forward,
                     SpawnProjectileName = muzzleData.Projectile,
-                    SpeedMultiplier = statistics.ProjectileSpeedMultiplier,
-                    DamageMultiplier = statistics.DamageMultiplier,
-                    AreaMultiplier = statistics.AreaMultiplier,
-                    AdditionalDamage = statistics.AdditionalDamage
+                    SpeedMultiplier = characteristics.ProjectileSpeedMultiplier,
+                    DamageMultiplier = characteristics.DamageMultiplier,
+                    AreaMultiplier = characteristics.AreaMultiplier,
+                    AdditionalDamage = characteristics.AdditionalDamage
                 });
             }
         }

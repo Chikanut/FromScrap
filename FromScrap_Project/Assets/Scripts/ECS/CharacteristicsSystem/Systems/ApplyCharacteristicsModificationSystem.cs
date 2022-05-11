@@ -5,8 +5,8 @@ using Unity.Transforms;
 
 namespace StatisticsSystem.Systems
 {
-    [UpdateBefore(typeof(RecalculateStatisticsSystem))]
-    public partial class ApplyStatisticsModificationSystem : SystemBase
+    [UpdateBefore(typeof(RecalculateCharacteristicsSystem))]
+    public partial class ApplyCharacteristicsModificationSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
 
@@ -19,23 +19,23 @@ namespace StatisticsSystem.Systems
         protected override void OnUpdate()
         {
             var parentFilter = GetComponentDataFromEntity<Parent>(true);
-            var modificationsBufferFilter = GetBufferFromEntity<StatisticModificationsBuffer>(true);
+            var modificationsBufferFilter = GetBufferFromEntity<CharacteristicModificationsBuffer>(true);
 
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-            Dependency = Entities.ForEach((Entity entity, in StatisticsModificationComponent modificationComponent) =>
+            Dependency = Entities.ForEach((Entity entity, in CharacteristicsModificationComponent modificationComponent) =>
             {
                 ApplyModification(entity, entity, modificationComponent, parentFilter, modificationsBufferFilter, ecb);
 
-                ecb.RemoveComponent<StatisticsModificationComponent>(entity);
+                ecb.RemoveComponent<CharacteristicsModificationComponent>(entity);
             }).WithReadOnly(parentFilter).WithReadOnly(modificationsBufferFilter).Schedule(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
         private static void ApplyModification(Entity entity, Entity holder,
-            in StatisticsModificationComponent modificationComponent, ComponentDataFromEntity<Parent> parentsFilter,
-            BufferFromEntity<StatisticModificationsBuffer> modificationsBufferFilter, EntityCommandBuffer ecb)
+            in CharacteristicsModificationComponent modificationComponent, ComponentDataFromEntity<Parent> parentsFilter,
+            BufferFromEntity<CharacteristicModificationsBuffer> modificationsBufferFilter, EntityCommandBuffer ecb)
         {
             if (!parentsFilter.HasComponent(entity))
                 return;
@@ -45,9 +45,9 @@ namespace StatisticsSystem.Systems
             if (modificationsBufferFilter.HasComponent(parent))
             {
                 ecb.AppendToBuffer(parent,
-                    new StatisticModificationsBuffer()
+                    new CharacteristicModificationsBuffer()
                         {Value = modificationComponent.Value, ModificatorHolder = holder});
-                ecb.AddComponent(parent, new StatisticsUpdatedTag());
+                ecb.AddComponent(parent, new NewCharacteristicsTag());
             }
             else
             {
