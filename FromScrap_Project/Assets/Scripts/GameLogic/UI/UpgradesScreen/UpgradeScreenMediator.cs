@@ -135,7 +135,7 @@ namespace UI.Screens.Upgrades
 				var cardInfo = new UpgradeCardData
 				{
 					NameKey = kitData.NameLocKey,
-					DescriptionKey = kitData.DescriptionLocKey,
+					Descriptions = kitData.KitObjects[kitInfo.Level].Descriptions,
 					Icon = kitData.Icon,
 					Type = kitInfo.Level == 0 ? UpgradeCardType._new : UpgradeCardType._upgrade,
 					UpgradeLevel = kitInfo.Level

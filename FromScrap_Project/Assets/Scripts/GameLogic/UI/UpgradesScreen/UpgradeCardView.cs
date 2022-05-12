@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using I2.Loc;
+using Packages.Common.Storage.Config.Upgrades;
 using RotaryHeart.Lib.SerializableDictionary;
 using TMPro;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace UI.Screens.Upgrades
     public class UpgradeCardData
     {
         public string NameKey;
-        public string DescriptionKey;
+        public List<KitComponentData.Description> Descriptions;
         public Sprite Icon;
         public UpgradeCardType Type;
         public int UpgradeLevel;
@@ -65,8 +66,20 @@ namespace UI.Screens.Upgrades
             
             _icon.sprite = data.Icon;
             _name.text = LocalizationManager.GetTranslation("Kits/"+data.NameKey);
-            _info.text = LocalizationManager.GetTranslation("Kits/"+data.DescriptionKey);
-            _lvl.text = string.Format(LocalizationManager.GetTranslation("UI/_lvl") + " {0}", data.UpgradeLevel);
+
+            var descriptionText ="";
+            
+            foreach (var description in data.Descriptions)
+            {
+                var descriptionTranslation = LocalizationManager.GetTranslation(description.DescriptionKey);
+                
+                for(var i = 0 ; i < description.Values.Length ; i ++)
+                    descriptionTranslation = descriptionTranslation.Replace("{" + i + "}", description.Values[i].ToString());
+                
+                descriptionText += descriptionTranslation + "\n";
+            }
+
+            _info.text = descriptionText;
             
             _onClick = onClick;
         }
