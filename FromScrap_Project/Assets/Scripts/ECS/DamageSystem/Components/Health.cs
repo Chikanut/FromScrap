@@ -26,13 +26,12 @@ namespace DamageSystem.Components
             ShowHitsNumbers = showHitsNumbers;
         }
 
-        public void SetMaxHealth(int maxHealth)
+        public void SetMaxHealth(int maxHealth, bool rewriteInitialMax = false)
         {
-           // var percent = (float) Value / CurrentMaxValue;
-            
+            if(rewriteInitialMax)
+                InitialMaxValue = Value = maxHealth;
+
             CurrentMaxValue = maxHealth;
-            
-           // Value = (int) (CurrentMaxValue * percent);
         }
 
         public void AddHealth(int value)
