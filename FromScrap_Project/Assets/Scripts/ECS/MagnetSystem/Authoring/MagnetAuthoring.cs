@@ -13,7 +13,8 @@ namespace Magnet.Authorings
         {
             dstManager.AddComponentData(entity, new MagnetComponent()
             {
-                Speed = MoveSpeed
+                Speed = MoveSpeed,
+                Radius = Radius
             });
             dstManager.AddBuffer<StatefulTriggerEvent>(entity);
         }

@@ -8,6 +8,7 @@ namespace StatisticsSystem.Components
     public struct Characteristics : IComparable<Characteristics>
     {
         [Header("Health")]
+        public int AdditionalHealth;
         public float HealthMultiplier;
         public float HealthRestoreMultiplier;
         public float DamageResistMultiplier;
@@ -29,6 +30,7 @@ namespace StatisticsSystem.Components
 
         public Characteristics(float defaultMultiplier = 1f, int defaultAdditionalCount = 0)
         {
+            AdditionalHealth = defaultAdditionalCount;
             HealthMultiplier = defaultMultiplier;
             HealthRestoreMultiplier = defaultMultiplier;
             DamageResistMultiplier = defaultMultiplier;
@@ -44,6 +46,7 @@ namespace StatisticsSystem.Components
 
         public void Add(Characteristics other)
         {
+            AdditionalHealth += other.AdditionalHealth;
             HealthMultiplier += other.HealthMultiplier;
             HealthRestoreMultiplier += other.HealthRestoreMultiplier;
             DamageResistMultiplier += other.DamageResistMultiplier;
@@ -60,6 +63,7 @@ namespace StatisticsSystem.Components
 
         public void Multiply(Characteristics other)
         {
+            AdditionalHealth *= other.AdditionalHealth;
             HealthMultiplier *= other.HealthMultiplier;
             HealthRestoreMultiplier *= other.HealthRestoreMultiplier;
             DamageResistMultiplier *= other.DamageResistMultiplier;

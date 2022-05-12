@@ -1,6 +1,7 @@
 using DamageSystem.Components;
 using DamageSystem.Systems;
 using Ram.Components;
+using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -14,6 +15,7 @@ namespace Ram.Systems
         protected override void OnUpdate()
         {
             var velocityFilter = GetComponentDataFromEntity<PhysicsVelocity>();
+            var characteristicsFilter = GetComponentDataFromEntity<CharacteristicsComponent>(true);
             
             Entities.WithAll<PhysicsVelocity>().ForEach((Entity entity, ref DealDamage dealDamage, in RamComponent ramComponent, in DynamicBuffer<StatefulCollisionEvent> collisionEvents) =>
             {
@@ -34,6 +36,13 @@ namespace Ram.Systems
                 var impulse = math.lerp(ramComponent.ImpulseRange.x, ramComponent.ImpulseRange.y, power);
                 var damage = math.lerp(ramComponent.DamageRange.x, ramComponent.DamageRange.y, power);
 
+                if (characteristicsFilter.HasComponent(entity))
+                {
+                    var characteristic = characteristicsFilter[entity].Value;
+                    damage *= characteristic.DamageMultiplier;
+                    damage += characteristic.AdditionalDamage;
+                }
+
                 dealDamage.Value = (int)damage;
 
                 for (int i = 0; i < collisionEvents.Length; i++)
@@ -48,7 +57,7 @@ namespace Ram.Systems
                     
                     velocityFilter[collidedBody] = collidedVelocity;
                 }
-            }).Schedule();
+            }).WithReadOnly(characteristicsFilter).Schedule();
         }
     }
 }

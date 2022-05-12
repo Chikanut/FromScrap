@@ -70,7 +70,7 @@ namespace GameLogic.States.States
                     Value = new float3(0,3,0)
                 });
                 var health = manager.GetComponentData<Health>(entity);
-                health.Value = health.InitialValue = carData.Health;
+                health.SetMaxHealth(carData.Health);
                 manager.SetComponentData(entity, health);
                 
                 var modifications = manager.GetBuffer<CharacteristicModificationsBuffer>(entity);

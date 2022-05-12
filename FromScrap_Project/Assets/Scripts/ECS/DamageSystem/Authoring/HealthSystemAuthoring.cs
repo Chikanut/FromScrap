@@ -30,14 +30,8 @@ namespace DamageSystem.Authoring
         public override void ConvertAncestors(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             base.ConvertAncestors(entity, dstManager, conversionSystem);
-            
-            var health = new Health()
-            {
-                InitialValue = _health,
-                Value = _health,
-                OnDamageBlockTime = _blockAllDamageAfterHitInSeconds,
-                ShowHitsNumbers = ShowHitDamagePoints
-            };
+
+            var health = new Health(_health, _blockAllDamageAfterHitInSeconds, ShowHitDamagePoints);
 
             dstManager.AddComponentData(entity, health);
             dstManager.AddBuffer<Damage>(entity);

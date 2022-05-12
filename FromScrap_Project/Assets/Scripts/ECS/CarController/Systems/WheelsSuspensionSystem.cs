@@ -1,4 +1,5 @@
 using Reese.Math;
+using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics.Extensions;
@@ -32,6 +33,8 @@ namespace Vehicles.Wheels.Systems
             var ltw = GetComponentDataFromEntity<LocalToWorld>(true);
             var groundInfoFilter = GetComponentDataFromEntity<GroundInfoData>(true);
             var inputInfo = GetComponentDataFromEntity<VehicleInputComponent>(true);
+            var characteristicsFilter = GetComponentDataFromEntity<CharacteristicsComponent>(true);
+            
             var world = _createPhysicsWorldSystem.PhysicsWorld;
 
             Entities.WithAll<Parent>().ForEach((ref DriveData wheelData) =>
@@ -105,8 +108,14 @@ namespace Vehicles.Wheels.Systems
                 #region Drive
                 {
                     if (!wheelData.IsDrive) return;
+
+                    var maxSpeed = wheelData.MaxSpeed;
+
+                    if (characteristicsFilter.HasComponent(wheelData.Body))
+                        maxSpeed *= characteristicsFilter[wheelData.Body].Value.MovementSpeedMultiplier;
+
                     var currentSpeedForward = math.dot(velocityAtWheel, groundedDir);
-                    var deltaSpeedForward = math.clamp(movementPower * wheelData.MaxSpeed - currentSpeedForward, -wheelData.MaxSpeed, wheelData.MaxSpeed);
+                    var deltaSpeedForward = math.clamp(movementPower * maxSpeed - currentSpeedForward, -maxSpeed, maxSpeed);
                     
                     deltaSpeedForward *= wheelData.Acceleration;
                     deltaSpeedForward = math.clamp(deltaSpeedForward, -wheelData.MaxAcceleration, wheelData.MaxAcceleration);
@@ -119,7 +128,7 @@ namespace Vehicles.Wheels.Systems
                 
                 #endregion
                 
-            }).WithReadOnly(inputInfo).WithReadOnly(ltw).WithReadOnly(groundInfoFilter).Schedule();;
+            }).WithReadOnly(characteristicsFilter).WithReadOnly(inputInfo).WithReadOnly(ltw).WithReadOnly(groundInfoFilter).Schedule();;
         }
     }
 

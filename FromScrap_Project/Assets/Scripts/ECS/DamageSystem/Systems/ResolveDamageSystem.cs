@@ -1,5 +1,6 @@
-﻿using BovineLabs.Event.Systems;
+using BovineLabs.Event.Systems;
 using DamageSystem.Components;
+using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -23,19 +24,28 @@ namespace DamageSystem.Systems
             var onDamageTextEvent = _eventSystem.CreateEventWriter<DamagePointsEvent>();
             var ecb = _ecbSystem.CreateCommandBuffer();
             var damageBlockers = GetComponentDataFromEntity<DamageBlockTimer>(true);
-
+            var characteristicsFilter = GetComponentDataFromEntity<CharacteristicsComponent>(true);
+            
+            
             Dependency = Entities.WithName("ProcessDamagePoints").WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref Health health, in LocalToWorld localToWorld) =>
             {
                 foreach (var damage in damages)
                 {
-                    health.Value -= damage.Value;
+                    var dmgValue = damage.Value;
+
+                    if (characteristicsFilter.HasComponent(entity))
+                    {
+                        dmgValue = (int)(dmgValue / characteristicsFilter[entity].Value.DamageResistMultiplier);
+                    }
+
+                    health.Value -= dmgValue;
 
                     if (health.OnDamageBlockTime > 0)
                     {
                         if(damageBlockers.HasComponent(entity))
                             ecb.SetComponent(entity, new DamageBlockTimer(){Value = health.OnDamageBlockTime});
                         else
-                            ecb.AddComponent<DamageBlockTimer>(entity, new DamageBlockTimer(){Value = health.OnDamageBlockTime});
+                            ecb.AddComponent(entity, new DamageBlockTimer(){Value = health.OnDamageBlockTime});
                     }
                     
                     if(health.ShowHitsNumbers)
@@ -50,11 +60,11 @@ namespace DamageSystem.Systems
                 }
 
                 damages.Clear();
-            }).WithReadOnly(damageBlockers).Schedule(Dependency);
+            }).WithReadOnly(characteristicsFilter).WithReadOnly(damageBlockers).Schedule(Dependency);
             
             _eventSystem.AddJobHandleForProducer<DamagePointsEvent>(Dependency);
 
-            float deltaTime = Time.DeltaTime;
+            var deltaTime = Time.DeltaTime;
             
             Entities.WithName("DamageBlockerUpdate").WithNone<Dead>().ForEach((Entity entity, ref DynamicBuffer<Damage> damages, ref DamageBlockTimer blockTimer) =>
             {
@@ -64,6 +74,21 @@ namespace DamageSystem.Systems
                     ecb.RemoveComponent<DamageBlockTimer>(entity);
             
                 damages.Clear();
+            }).Schedule();
+        }
+    }
+
+    [UpdateBefore(typeof(ResolveDamageSystem))]
+    public partial class RecalculateMaxHealthSystem : SystemBase
+    {
+        protected override void OnUpdate()
+        {
+            Entities.WithName("RecalculateMaxHealthSystem").ForEach((Entity entity, ref Health health, in CharacteristicsComponent characteristic) =>
+            {
+                var maxHealth = (int)(health.InitialMaxValue * characteristic.Value.HealthMultiplier + characteristic.Value.AdditionalHealth);
+                
+                if (health.CurrentMaxValue != maxHealth)
+                    health.SetMaxHealth(maxHealth);
             }).Schedule();
         }
     }

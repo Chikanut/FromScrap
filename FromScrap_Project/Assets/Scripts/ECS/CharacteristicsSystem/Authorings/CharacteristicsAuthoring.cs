@@ -15,10 +15,10 @@ namespace ECS.StatisticsSystem.Authorings
         }
         
         public Type StatisticsType;
-        [ConditionalField(nameof(StatisticsType), true, Type.Parent)]public bool AddDefaultCharacteristics;
-        [ConditionalField(nameof(StatisticsType), true, Type.Parent)]public Characteristics defaultCharacteristics;
-        public bool isLocalStatistics;
-        [ConditionalField(nameof(isLocalStatistics))] public Characteristics localCharacteristics;
+        [ConditionalField(nameof(StatisticsType), true, Type.Parent)] public bool AddDefaultCharacteristics;
+        [ConditionalField(nameof(StatisticsType), true, Type.Parent)] public Characteristics defaultCharacteristics;
+        [ConditionalField(nameof(StatisticsType), false, Type.Child)] public bool isLocalStatistics;
+        [ConditionalField(nameof(StatisticsType), false, Type.Child)] public Characteristics localCharacteristics;
         
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -36,11 +36,11 @@ namespace ECS.StatisticsSystem.Authorings
             else
             {
                 dstManager.AddComponentData(entity, new GetCharacteristicsTag());
-            }
-
-            if (isLocalStatistics)
-            {
-                dstManager.AddComponentData(entity, new LocalCharacteristicsComponent(){Value = localCharacteristics});
+                
+                if (isLocalStatistics)
+                {
+                    dstManager.AddComponentData(entity, new LocalCharacteristicsComponent(){Value = localCharacteristics});
+                }
             }
         }
     }

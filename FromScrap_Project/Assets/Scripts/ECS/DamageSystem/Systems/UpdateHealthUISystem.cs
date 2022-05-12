@@ -12,7 +12,7 @@ namespace DamageSystem.Systems
             Entities.ForEach((HealthBarUI healthUI, in Health health, in Translation translation) =>
             {
                 healthUI.SliderContainer.position = translation.Value + healthUI.Offset;
-                healthUI.Slider.value = (float)health.Value / health.InitialValue;
+                healthUI.Slider.value = (float)health.Value / health.CurrentMaxValue;
             }).WithoutBurst().Run();
         }
     }
