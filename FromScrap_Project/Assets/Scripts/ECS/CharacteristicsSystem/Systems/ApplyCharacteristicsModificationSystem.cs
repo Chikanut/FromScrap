@@ -2,6 +2,7 @@ using StatisticsSystem.Components;
 using StatisticsSystem.Tags;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace StatisticsSystem.Systems
 {
@@ -23,36 +24,44 @@ namespace StatisticsSystem.Systems
 
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-            Dependency = Entities.ForEach((Entity entity, in CharacteristicsModificationComponent modificationComponent) =>
+            Dependency = Entities.ForEach((Entity entity, ref CharacteristicsModificationComponent modificationComponent) =>
             {
-                ApplyModification(entity, entity, modificationComponent, parentFilter, modificationsBufferFilter, ecb);
-
-                ecb.RemoveComponent<CharacteristicsModificationComponent>(entity);
+                if (ApplyModification(entity, entity, modificationComponent, parentFilter, modificationsBufferFilter,
+                        ecb) || modificationComponent.CurrentTryUpdateTimes >= CharacteristicsModificationComponent.MaxTryUpdateTimes)
+                {
+                    ecb.RemoveComponent<CharacteristicsModificationComponent>(entity);
+                }
+                else
+                {
+                    modificationComponent.CurrentTryUpdateTimes++;
+                }
+                
             }).WithReadOnly(parentFilter).WithReadOnly(modificationsBufferFilter).Schedule(Dependency);
 
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        private static void ApplyModification(Entity entity, Entity holder,
+        private static bool ApplyModification(Entity entity, Entity holder,
             in CharacteristicsModificationComponent modificationComponent, ComponentDataFromEntity<Parent> parentsFilter,
             BufferFromEntity<CharacteristicModificationsBuffer> modificationsBufferFilter, EntityCommandBuffer ecb)
         {
             if (!parentsFilter.HasComponent(entity))
-                return;
+            {
+                return false;
+            }
 
             var parent = parentsFilter[entity].Value;
 
-            if (modificationsBufferFilter.HasComponent(parent))
-            {
-                ecb.AppendToBuffer(parent,
-                    new CharacteristicModificationsBuffer()
-                        {Value = modificationComponent.Value, ModificatorHolder = holder});
-                ecb.AddComponent(parent, new NewCharacteristicsTag());
-            }
-            else
-            {
-                ApplyModification(parent, holder, modificationComponent, parentsFilter, modificationsBufferFilter, ecb);
-            }
+            if (!modificationsBufferFilter.HasComponent(parent))
+                return ApplyModification(parent, holder, modificationComponent, parentsFilter,
+                    modificationsBufferFilter, ecb);
+            
+            ecb.AppendToBuffer(parent,
+                new CharacteristicModificationsBuffer()
+                    {Value = modificationComponent.Value, ModificatorHolder = holder, Multiply = modificationComponent.Multiply});
+            ecb.AddComponent(parent, new NewCharacteristicsTag());
+
+            return true;
         }
     }
 }

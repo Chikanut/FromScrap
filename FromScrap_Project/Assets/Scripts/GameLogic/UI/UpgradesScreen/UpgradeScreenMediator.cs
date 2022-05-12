@@ -18,6 +18,7 @@ namespace UI.Screens.Upgrades
 			public int ID;
 			public List<KitType> Connections = new List<KitType>();
 			public bool isFree;
+			public bool canOccupy;
 			public List<KitComponent> ConnectedKits = new List<KitComponent>();
 			public List<KitIDComponent> ConnectedKitsIDs = new List<KitIDComponent>();
 		}
@@ -83,7 +84,8 @@ namespace UI.Screens.Upgrades
 				var platformInfo = new PlatformInfo()
 				{
 					ID = i,
-					isFree = platformComponent.IsFree
+					isFree = platformComponent.IsFree,
+					canOccupy = platformComponent.CanOccupy,
 				};
 				
 				foreach (var connection in platformConnections)
@@ -179,19 +181,22 @@ namespace UI.Screens.Upgrades
 				if (!platform.isFree) continue;
 
 				var freeConnectors = platform.Connections;
-				for (var i = 0; i < platform.ConnectedKits.Count; i++)
+				if (platform.canOccupy)
 				{
-					if(freeConnectors.Contains(platform.ConnectedKits[i].Type))
-						freeConnectors.Remove(platform.ConnectedKits[i].Type);
+					for (var i = 0; i < platform.ConnectedKits.Count; i++)
+					{
+						if (freeConnectors.Contains(platform.ConnectedKits[i].Type))
+							freeConnectors.Remove(platform.ConnectedKits[i].Type);
+					}
 				}
-				
+
 				if(freeConnectors.Count == 0) continue;
 
 				for (var i = 0; i < _data.carData.UpgradesConfigs.Count; i++)
 				{
 					if(_data.carData.UpgradesConfigs[i].isDefault && !withDefault) continue;
 					
-					if (freeConnectors.Contains(_data.carData.UpgradesConfigs[i].Type))
+					if (freeConnectors.Contains(_data.carData.UpgradesConfigs[i].Type) && platform.ConnectedKitsIDs.All(k => k.ID != i))
 					{
 						suitableKits.Add(new InstallKitInfo()
 						{

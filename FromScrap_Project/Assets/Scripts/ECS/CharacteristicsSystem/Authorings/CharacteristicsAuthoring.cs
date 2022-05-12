@@ -15,6 +15,7 @@ namespace ECS.StatisticsSystem.Authorings
         }
         
         public Type StatisticsType;
+        [ConditionalField(nameof(StatisticsType), true, Type.Parent)]public bool AddDefaultCharacteristics;
         [ConditionalField(nameof(StatisticsType), true, Type.Parent)]public Characteristics defaultCharacteristics;
         public bool isLocalStatistics;
         [ConditionalField(nameof(isLocalStatistics))] public Characteristics localCharacteristics;
@@ -25,8 +26,11 @@ namespace ECS.StatisticsSystem.Authorings
             dstManager.AddComponentData(entity, new CharacteristicsComponent(){Value = defaultCharacteristics});
             if (StatisticsType == Type.Parent)
             {
-                dstManager.AddBuffer<CharacteristicModificationsBuffer>(entity).Add(new CharacteristicModificationsBuffer()
-                    {Value = defaultCharacteristics, ModificatorHolder = entity});
+                var modifications = dstManager.AddBuffer<CharacteristicModificationsBuffer>(entity);
+                
+                if(AddDefaultCharacteristics)
+                    modifications.Add(new CharacteristicModificationsBuffer {Value = defaultCharacteristics, ModificatorHolder = entity});
+                
                 dstManager.AddComponentData(entity, new NewCharacteristicsTag());
             }
             else

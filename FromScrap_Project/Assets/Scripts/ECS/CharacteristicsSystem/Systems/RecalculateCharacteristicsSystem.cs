@@ -37,7 +37,11 @@ namespace StatisticsSystem.Systems
                         continue;
                     }
 
-                    statistics.Add(modificator.Value);
+                    if(!modificator.Multiply)
+                        statistics.Add(modificator.Value);
+                    else
+                        statistics.Multiply(modificator.Value);
+                    
                     modificationsToRemove.Add(-1);
                 }
 

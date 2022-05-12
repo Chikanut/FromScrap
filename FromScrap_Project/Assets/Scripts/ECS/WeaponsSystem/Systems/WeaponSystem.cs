@@ -106,8 +106,6 @@ namespace WeaponsSystem.Base.Systems
                         if (muzzlesBuffer.Length == 0)
                             return;
 
-                        Debug.LogError(statistics.AdditionalDamage);
-                        
                         switch (weaponData.MuzzleType)
                         {
                             case MuzzleType.Queue:

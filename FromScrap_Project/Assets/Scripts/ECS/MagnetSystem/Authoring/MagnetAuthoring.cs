@@ -5,7 +5,7 @@ using Unity.Physics.Stateful;
 
 namespace Magnet.Authorings
 {
-    public class MagnetAuthoring : SphereTriggerAuthoring, IConvertGameObjectToEntity
+    public class MagnetAuthoring : SphereTriggerAuthoring
     {
         public float MoveSpeed = 1;
         

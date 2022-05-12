@@ -106,6 +106,11 @@ namespace StatisticsSystem.Components
         {
             Value.Add(other);
         }
+        
+        public void Multiply(Characteristics other)
+        {
+            Value.Multiply(other);
+        }
 
 
         public int CompareTo(Characteristics other)
