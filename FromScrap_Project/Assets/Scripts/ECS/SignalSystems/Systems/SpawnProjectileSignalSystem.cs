@@ -13,7 +13,7 @@ public struct SpawnProjectileEvent
     public float3 SpawnDir;
     public float DamageMultiplier;
     public int AdditionalDamage;
-    public float AreaMultiplier;
+    public float SizeMultiplier;
     public float SpeedMultiplier;
 }
 
@@ -43,13 +43,13 @@ public class SpawnProjectileSystem : ConsumeSingleEventSystemBase<SpawnProjectil
             if (manager.HasComponent<SphereTriggerComponent>(entity))
             {
                 var triggerInfo = manager.GetComponentData<SphereTriggerComponent>(entity);
-                triggerInfo.Radius *= signal.AreaMultiplier;
+                triggerInfo.Radius *= signal.SizeMultiplier;
                 manager.SetComponentData(entity, triggerInfo);
                 
                 if (manager.HasComponent<Scale>(entity))
                 {
                     var scale = manager.GetComponentData<Scale>(entity);
-                    scale.Value *= signal.AreaMultiplier;
+                    scale.Value *= signal.SizeMultiplier;
                 
                     manager.SetComponentData(entity, scale);
                 }
@@ -57,7 +57,7 @@ public class SpawnProjectileSystem : ConsumeSingleEventSystemBase<SpawnProjectil
                 {
                     manager.AddComponentData(entity, new Scale()
                     {
-                        Value = 1 * signal.AreaMultiplier
+                        Value = 1 * signal.SizeMultiplier
                     });
                 }
             }

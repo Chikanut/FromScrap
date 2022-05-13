@@ -169,7 +169,7 @@ namespace WeaponsSystem.Base.Systems
                     SpawnProjectileName = muzzleData.Projectile,
                     SpeedMultiplier = characteristics.ProjectileSpeedMultiplier,
                     DamageMultiplier = characteristics.DamageMultiplier,
-                    AreaMultiplier = characteristics.AreaMultiplier,
+                    SizeMultiplier = characteristics.ProjectileSizeMultiplier,
                     AdditionalDamage = characteristics.AdditionalDamage
                 });
             }

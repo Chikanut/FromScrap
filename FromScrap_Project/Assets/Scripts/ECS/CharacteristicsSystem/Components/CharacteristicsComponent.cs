@@ -10,7 +10,7 @@ namespace StatisticsSystem.Components
         [Header("Health")]
         public int AdditionalHealth;
         public float HealthMultiplier;
-        public float HealthRestoreMultiplier;
+        public float HealthRestoreMultiplier;//not ready yet
         public float DamageResistMultiplier;
 
         [Header("Areas")]
@@ -21,6 +21,7 @@ namespace StatisticsSystem.Components
         public float ReloadSpeedMultiplier;
         public float ChargeSpeedMultiplier;
         public float ProjectileSpeedMultiplier;
+        public float ProjectileSizeMultiplier;
         
         public int AdditionalProjectiles;
         public int AdditionalDamage;
@@ -42,6 +43,7 @@ namespace StatisticsSystem.Components
             ProjectileSpeedMultiplier = defaultMultiplier;
             MovementSpeedMultiplier = defaultMultiplier;
             AdditionalDamage = defaultAdditionalCount;
+            ProjectileSizeMultiplier = defaultMultiplier;
         }
 
         public void Add(Characteristics other)
@@ -56,6 +58,7 @@ namespace StatisticsSystem.Components
             ChargeSpeedMultiplier += other.ChargeSpeedMultiplier;
             ProjectileSpeedMultiplier += other.ProjectileSpeedMultiplier;
             MovementSpeedMultiplier += other.MovementSpeedMultiplier;
+            ProjectileSizeMultiplier += other.ProjectileSizeMultiplier;
             
             AdditionalProjectiles += other.AdditionalProjectiles;
             AdditionalDamage += other.AdditionalDamage;
@@ -73,6 +76,7 @@ namespace StatisticsSystem.Components
             ChargeSpeedMultiplier *= other.ChargeSpeedMultiplier;
             ProjectileSpeedMultiplier *= other.ProjectileSpeedMultiplier;
             MovementSpeedMultiplier *= other.MovementSpeedMultiplier;
+            ProjectileSizeMultiplier *= other.ProjectileSizeMultiplier;
             
             AdditionalProjectiles += other.AdditionalProjectiles;
             AdditionalDamage += other.AdditionalDamage;

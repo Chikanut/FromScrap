@@ -65,7 +65,7 @@ namespace UI.Screens.Upgrades
                 _frame.sprite = _frames[Mathf.Clamp(data.UpgradeLevel, 0, _frames.Count - 1)];
             
             _icon.sprite = data.Icon;
-            _name.text = LocalizationManager.GetTranslation("Kits/"+data.NameKey);
+            _name.text = LocalizationManager.GetTranslation(data.NameKey);
 
             var descriptionText ="";
             
@@ -80,6 +80,7 @@ namespace UI.Screens.Upgrades
             }
 
             _info.text = descriptionText;
+            _lvl.text = data.UpgradeLevel.ToString();
             
             _onClick = onClick;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EditorTools.Editor;
 using I2.Loc;
 using Packages.Common.Storage.Config.Upgrades;
 using UnityEditor;
@@ -41,8 +42,7 @@ public class KitConfigEditor : Editor
         
         DrawDescriptions(element, rect);
     }
-
-    string[] mTermsArray = null;
+    
     void DrawDescriptions(SerializedProperty element, Rect rect)
     {
         var descriptionsList = element.FindPropertyRelative("Descriptions");
@@ -55,22 +55,11 @@ public class KitConfigEditor : Editor
             
             var currentPos = rect.x;
             currentHeight += 3;
-            // EditorGUI.PropertyField(
-            //     new Rect(currentPos, currentHeight, 200, EditorGUIUtility.singleLineHeight), 
-            //     description.FindPropertyRelative("DescriptionKey"),
-            //     GUIContent.none
-            // );
-
-            var Term = description.FindPropertyRelative("DescriptionKey").stringValue;
             
-            // if (mTermsArray==null || (Term!="-" && System.Array.IndexOf(mTermsArray, Term)<0))
-                UpdateTermsList(Term);
-            
-            var index = (Term=="-" || Term=="") ? mTermsArray.Length-1 : System.Array.IndexOf( mTermsArray, Term );
             EditorGUI.LabelField(new Rect(rect.x-10, currentHeight, 70, EditorGUIUtility.singleLineHeight), "Description");
-            var newIndex = EditorGUI.Popup(new Rect(currentPos + 65, currentHeight, 140, EditorGUIUtility.singleLineHeight), index, mTermsArray);
+
+            description.FindPropertyRelative("DescriptionKey").stringValue = EditorExtensions.GetLocalizationTermField(new Rect(currentPos + 65, currentHeight, 140, EditorGUIUtility.singleLineHeight), description.FindPropertyRelative("DescriptionKey").stringValue);
             
-            description.FindPropertyRelative("DescriptionKey").stringValue = mTermsArray[newIndex];
             
             currentPos += 210;
             
@@ -101,7 +90,7 @@ public class KitConfigEditor : Editor
             currentPos += 60;
             
             var arguments = new object[description.FindPropertyRelative("Values").arraySize];
-            var descriptionText = LocalizationManager.GetTranslation(Term);
+            var descriptionText = LocalizationManager.GetTranslation(description.FindPropertyRelative("DescriptionKey").stringValue);
             
             for(var i = 0 ; i < arguments.Length ; i ++)
                 descriptionText = descriptionText.Replace("{" + i + "}", description.FindPropertyRelative("Values").GetArrayElementAtIndex(i).floatValue.ToString());
@@ -127,29 +116,16 @@ public class KitConfigEditor : Editor
             element.FindPropertyRelative("Descriptions").arraySize++;
         }
     }
-    
-    void UpdateTermsList( string currentTerm )
-    {
-        List<string> Terms = LocalizationManager.GetTermsList();
-        
-        if (!string.IsNullOrEmpty(currentTerm) && currentTerm!="-" && !Terms.Contains(currentTerm))
-            Terms.Add (currentTerm);
-
-        Terms.Sort(System.StringComparer.OrdinalIgnoreCase);
-        Terms.Add("");
-
-        Terms.Add("<inferred from text>");
-        Terms.Add("<none>");
-
-        mTermsArray = Terms.ToArray();
-    }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
         
-        _data.FindPropertyRelative("NameLocKey").stringValue = EditorGUILayout.TextField("Name Localization Key", _data.FindPropertyRelative("NameLocKey").stringValue);
-        _data.FindPropertyRelative("DescriptionLocKey").stringValue = EditorGUILayout.TextField("Description Localization Key", _data.FindPropertyRelative("DescriptionLocKey").stringValue);
+        _data.FindPropertyRelative("NameLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("NameLocKey").stringValue, "Name Localization Key");
+        _data.FindPropertyRelative("DescriptionLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("DescriptionLocKey").stringValue, "Description Localization Key");
+        
+        // _data.FindPropertyRelative("NameLocKey").stringValue = EditorGUILayout.TextField("Name Localization Key", _data.FindPropertyRelative("NameLocKey").stringValue);
+        // _data.FindPropertyRelative("DescriptionLocKey").stringValue = EditorGUILayout.TextField("Description Localization Key", _data.FindPropertyRelative("DescriptionLocKey").stringValue);
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("Icon"));
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("Type"));
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("IsStacked"));
