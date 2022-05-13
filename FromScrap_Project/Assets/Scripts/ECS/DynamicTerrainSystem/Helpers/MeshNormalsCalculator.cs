@@ -5,36 +5,29 @@ namespace ECS.DynamicTerrainSystem.Helpers
 {
     public partial class MeshNormalsCalculator
     {
-        public Vector3[] RecalculatedNormals(Mesh mesh, float angle)
+        public static Vector3[] RecalculatedNormals(Mesh mesh, float angle)
         {
             var cosineThreshold = Mathf.Cos(angle * Mathf.Deg2Rad);
-
             var vertices = mesh.vertices;
             var normals = new Vector3[vertices.Length];
-
-            // Holds the normal of each triangle in each sub mesh.
             var triNormals = new Vector3[mesh.subMeshCount][];
-
             var dictionary = new Dictionary<VertexKey, List<VertexEntry>>(vertices.Length);
 
             for (var subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; ++subMeshIndex)
             {
-
                 var triangles = mesh.GetTriangles(subMeshIndex);
 
                 triNormals[subMeshIndex] = new Vector3[triangles.Length / 3];
 
                 for (var i = 0; i < triangles.Length; i += 3)
                 {
-                    int i1 = triangles[i];
-                    int i2 = triangles[i + 1];
-                    int i3 = triangles[i + 2];
-
-                    // Calculate the normal of the triangle
-                    Vector3 p1 = vertices[i2] - vertices[i1];
-                    Vector3 p2 = vertices[i3] - vertices[i1];
-                    Vector3 normal = Vector3.Cross(p1, p2).normalized;
-                    int triIndex = i / 3;
+                    var i1 = triangles[i];
+                    var i2 = triangles[i + 1];
+                    var i3 = triangles[i + 2];
+                    var p1 = vertices[i2] - vertices[i1];
+                    var p2 = vertices[i3] - vertices[i1];
+                    var normal = Vector3.Cross(p1, p2).normalized;
+                    var triIndex = i / 3;
                     triNormals[subMeshIndex][triIndex] = normal;
 
                     List<VertexEntry> entry;
@@ -65,9 +58,7 @@ namespace ECS.DynamicTerrainSystem.Helpers
                     entry.Add(new VertexEntry(subMeshIndex, triIndex, i3));
                 }
             }
-
-            // Each entry in the dictionary represents a unique vertex position.
-
+            
             foreach (var vertList in dictionary.Values)
             {
                 for (var i = 0; i < vertList.Count; ++i)
@@ -86,8 +77,6 @@ namespace ECS.DynamicTerrainSystem.Helpers
                         }
                         else
                         {
-                            // The dot product is the cosine of the angle between the two triangles.
-                            // A larger cosine means a smaller angle.
                             var dot = Vector3.Dot(
                                 triNormals[lhsEntry.MeshIndex][lhsEntry.TriangleIndex],
                                 triNormals[rhsEntry.MeshIndex][rhsEntry.TriangleIndex]);
@@ -105,18 +94,14 @@ namespace ECS.DynamicTerrainSystem.Helpers
             return normals;
         }
 
-        private struct VertexKey
+        private readonly struct VertexKey
         {
             private readonly long _x;
             private readonly long _y;
             private readonly long _z;
-
-            // Change this if you require a different precision.
             private const int Tolerance = 100000;
-
-            // Magic FNV values. Do not change these.
-            private const long FNV32Init = 0x811c9dc5;
-            private const long FNV32Prime = 0x01000193;
+            private const long Fnv32Init = 0x811c9dc5;
+            private const long Fnv32Prime = 0x01000193;
 
             public VertexKey(Vector3 position)
             {
@@ -133,13 +118,13 @@ namespace ECS.DynamicTerrainSystem.Helpers
 
             public override int GetHashCode()
             {
-                long rv = FNV32Init;
+                var rv = Fnv32Init;
                 rv ^= _x;
-                rv *= FNV32Prime;
+                rv *= Fnv32Prime;
                 rv ^= _y;
-                rv *= FNV32Prime;
+                rv *= Fnv32Prime;
                 rv ^= _z;
-                rv *= FNV32Prime;
+                rv *= Fnv32Prime;
 
                 return rv.GetHashCode();
             }
@@ -147,9 +132,9 @@ namespace ECS.DynamicTerrainSystem.Helpers
 
         private struct VertexEntry
         {
-            public int MeshIndex;
-            public int TriangleIndex;
-            public int VertexIndex;
+            public readonly int MeshIndex;
+            public readonly int TriangleIndex;
+            public readonly int VertexIndex;
 
             public VertexEntry(int meshIndex, int triIndex, int vertIndex)
             {

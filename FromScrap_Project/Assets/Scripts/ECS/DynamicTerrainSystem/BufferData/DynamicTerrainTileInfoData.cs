@@ -1,11 +1,21 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 
 namespace ECS.DynamicTerrainSystem
 {
-    public struct DynamicTerrainTileInfoData  : IBufferElementData
+    public struct DynamicTerrainTileInfoData : IBufferElementData
     {
-        public float2 TileIndex;
+        public int2 TileIndex;
         public Entity TileEntity;
+        public DynamicTerrainTileState TileState;
+    }
+
+    [Serializable]
+    public enum DynamicTerrainTileState
+    {
+        IsGenerated,
+        IsReadyToGenerate,
+        IsReadyToDestroy
     }
 }

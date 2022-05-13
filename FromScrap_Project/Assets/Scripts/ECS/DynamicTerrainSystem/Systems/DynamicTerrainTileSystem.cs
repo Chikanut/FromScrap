@@ -1,37 +1,33 @@
 using System.Collections.Generic;
 using ECS.DynamicTerrainSystem.Helpers;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Rendering;
-using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
 
 namespace ECS.DynamicTerrainSystem
 {
     public partial class DynamicTerrainTileSystem : SystemBase
     {
-        private EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
-        private EntityCommandBufferSystem entityCommandBufferSystem;
+        private EndSimulationEntityCommandBufferSystem _mEndSimulationEcbSystem;
+        private EntityCommandBufferSystem _entityCommandBufferSystem;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            // Find the ECB system once and store it for later usage
-            m_EndSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            entityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+          
+            _mEndSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            _entityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
         {
-            var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer();
-            var ecbs = entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
+            var ecb = _mEndSimulationEcbSystem.CreateCommandBuffer();
+            var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            
             Entities.ForEach((
                 Entity entity,
                 ref DynamicTerrainTileComponent tileComponent,
@@ -43,68 +39,28 @@ namespace ECS.DynamicTerrainSystem
 
                 if (!isUpdated)
                 {
-                    Generate(ref renderMesh, ref tileComponent, ref renderBounds);
+                    Generate(entity, ref renderMesh, ref tileComponent, ref renderBounds, ref ecbs);
 
                     //ecb.SetSharedComponent(entity, renderMesh);
                     ecbs.SetSharedComponent(0, entity, renderMesh);
-                   
-                    var blobCollider =
-                        new NativeArray<BlobAssetReference<Unity.Physics.Collider>>(1, Allocator.TempJob);
-                    var nVerts = new NativeArray<Vector3>(renderMesh.mesh.vertices, Allocator.TempJob)
-                        .Reinterpret<float3>();
-                    var nTris = new NativeArray<int>(renderMesh.mesh.triangles, Allocator.TempJob);
-
-                    var cmcj = new CreateMeshColliderJob
-                        {MeshVerts = nVerts, MeshTris = nTris, BlobCollider = blobCollider};
-                    cmcj.Run();
-
-                    ecbs.AddComponent(0, entity, new PhysicsCollider {Value = blobCollider[0]});
-
-                    nVerts.Dispose();
-                    nTris.Dispose();
-                    blobCollider.Dispose();
                 }
 
             }).WithoutBurst().Run();
         }
         
-        [BurstCompile]
-        public struct CreateMeshColliderJob : IJob {
- 
-            [ReadOnly] public NativeArray<float3> MeshVerts;
-            [ReadOnly] public NativeArray<int> MeshTris;
-            public NativeArray<BlobAssetReference<Unity.Physics.Collider>> BlobCollider;
- 
-            public void Execute() {
- 
-                NativeArray<float3> CVerts = new NativeArray<float3>(MeshVerts.Length, Allocator.Temp);
-                NativeArray<int3> CTris = new NativeArray<int3>(MeshTris.Length / 3, Allocator.Temp);
- 
-                for (int i = 0; i < MeshVerts.Length; i++) { CVerts[i] = MeshVerts[i]; }
-                int ii = 0;
-                for (int j = 0; j < MeshTris.Length; j += 3) {
-                    CTris[ii++] = new int3(MeshTris[j], MeshTris[j + 1], MeshTris[j + 2]);
-                }
- 
-                CollisionFilter Filter = new CollisionFilter { BelongsTo = 1, CollidesWith = 1 << 1, GroupIndex = 0 };
- 
-                BlobCollider[0] = Unity.Physics.MeshCollider.Create(CVerts, CTris);
-                CVerts.Dispose();
-                CTris.Dispose();
-            }
-        }
-
         private static void Generate(
+            Entity entity,
             ref RenderMesh renderMesh, 
             ref DynamicTerrainTileComponent tileComponent,
-            ref RenderBounds renderBounds)
+            ref RenderBounds renderBounds,
+            ref EntityCommandBuffer.ParallelWriter ecbs)
         {
-            var terrainSize = tileComponent.TerrainSize;
+            var terrainSize = tileComponent.TerrainTileSize;
             var cellSize = tileComponent.CellSize;
-            var tile = TileFromPosition(tileComponent.NoiseOffset, terrainSize);
+            var tile = tileComponent.TileIndex;
             var noiseScale = tileComponent.NoiseScale;
             var noiseOffset = NoiseOffset(tile.x, tile.y, noiseScale);
-            var gradient = tileComponent.Gradient;
+            var gradient = tileComponent.VertexColorPower;
             var enableVertexColors = tileComponent.IsVertexColorsEnabled;
             var uvMapCalculator = new UVMapCalculator();
             var normalsCalculator = new MeshNormalsCalculator();
@@ -113,19 +69,46 @@ namespace ECS.DynamicTerrainSystem
             draft.Move(Vector3.left * terrainSize.x / 2 + Vector3.back * terrainSize.z / 2);
             renderMesh.mesh = draft.ToMesh();
             renderMesh.mesh.SetUVs(tileComponent.UVMapChannel, uvMapCalculator.CalculatedUVs(renderMesh.mesh.vertices, tileComponent.UVMapScale));
-            renderMesh.mesh.normals = normalsCalculator.RecalculatedNormals(renderMesh.mesh, tileComponent.NormalsSmoothAngle);
+            renderMesh.mesh.normals = MeshNormalsCalculator.RecalculatedNormals(renderMesh.mesh, tileComponent.NormalsSmoothAngle);
           
             CalculateRenderBounds(ref tileComponent, ref renderBounds);
+            CalculateCollider(entity, ref renderMesh, ref tileComponent, ref ecbs);
             
             tileComponent.IsUpdated = true;
+        }
+
+        private static void CalculateCollider(
+            Entity entity, 
+            ref RenderMesh renderMesh,
+            ref DynamicTerrainTileComponent tileComponent,
+            ref EntityCommandBuffer.ParallelWriter ecbs)
+        {
+            var blobCollider = new NativeArray<BlobAssetReference<Unity.Physics.Collider>>(1, Allocator.TempJob);
+            var nVerts = new NativeArray<Vector3>(renderMesh.mesh.vertices, Allocator.TempJob).Reinterpret<float3>();
+            var nTris = new NativeArray<int>(renderMesh.mesh.triangles, Allocator.TempJob);
+            var cmcj = new CreateMeshColliderJob
+            {
+                MeshVerts = nVerts, 
+                MeshTris = nTris, 
+                BlobCollider = blobCollider,
+                CollisionFilter = tileComponent.CollisionFilter
+            };
+            
+            cmcj.Run();
+
+            ecbs.AddComponent(0, entity, new PhysicsCollider {Value = blobCollider[0]});
+
+            nVerts.Dispose();
+            nTris.Dispose();
+            blobCollider.Dispose();
         }
         
         private static void CalculateRenderBounds(
             ref DynamicTerrainTileComponent tileComponent,
             ref RenderBounds renderBounds)
         {
-            var x = tileComponent.TerrainSize.x / 2f;
-            var z = tileComponent.TerrainSize.z / 2f;
+            var x = tileComponent.TerrainTileSize.x / 2f;
+            var z = tileComponent.TerrainTileSize.z / 2f;
             var newValue = new AABB()
             {
                 Center = renderBounds.Value.Center,
@@ -242,20 +225,16 @@ namespace ECS.DynamicTerrainSystem
         }
         
         private static Vector2 NoiseOffset(float xIndex, float yIndex, float noiseScale) {
-            Vector2 noiseOffset = new Vector2(
+            var noiseOffset = new Vector2(
                 (xIndex * noiseScale) % 256,
                 (yIndex * noiseScale) % 256
             );
-            //account for negatives (ex. -1 % 256 = -1). needs to loop around to 255
+          
             if (noiseOffset.x < 0)
                 noiseOffset = new Vector2(noiseOffset.x + 256, noiseOffset.y);
             if (noiseOffset.y < 0)
                 noiseOffset = new Vector2(noiseOffset.x, noiseOffset.y + 256);
             return noiseOffset;
-        }
-        
-        private static Vector2 TileFromPosition(float2 position, float3 terrainSize) {
-            return new Vector2(Mathf.FloorToInt(position.x / terrainSize.x + .5f), Mathf.FloorToInt(position.y / terrainSize.z + .5f));
         }
     }
 }

@@ -1,10 +1,21 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
 
 namespace ECS.DynamicTerrainSystem
 {
     public struct DynamicTerrainBaseComponent : IComponentData
     {
-        public float3 TerrainTileSize { get; set; }
+        public Entity TerrainTileEntity;
+        public float3 TerrainTileSize;
+        public float CellSize;
+        public float NoiseScale;
+        public float3 TerrainStartPosition;
+        public float NormalsSmoothAngle;
+        public float UVMapScale;
+        public int UVMapChannel;
+        public bool IsVertexColorsEnabled;
+        public float VertexColorPower;
+        public CollisionFilter CollisionFilter;
     }
 }
