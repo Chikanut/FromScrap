@@ -9,5 +9,6 @@ namespace WeaponsSystem.Base.Components
         public float CurrentLife;
         public float3 MoveDir;
         public float3 InitialPosition;
+        public float SpeedMultiplier;
     }
 }

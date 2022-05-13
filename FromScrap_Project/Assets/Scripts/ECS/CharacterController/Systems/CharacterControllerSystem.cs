@@ -50,7 +50,7 @@ public partial class CharacterControllerSystem : SystemBase
             var slopeSlipFactor = math.pow(math.abs(math.dot(ceUp, math.up())), 4.0f);
 
             var dir = input.Movement;
-            var movementPower = math.clamp(math.length(dir),0,1);
+            var movementPower = math.clamp(math.length(dir), 0, 1);
             
             var weRight = math.cross(groundInfoData.Info.SurfaceNormal, body.Forward);
             var groundedDir = math.cross(weRight, groundInfoData.Info.SurfaceNormal);
@@ -93,7 +93,7 @@ public partial class CharacterControllerSystem : SystemBase
             {
                 var currentSpeedForward = math.dot(velocityAtContact, groundedDir);
                 var deltaSpeedForward =
-                    math.clamp(data.MaxSpeed * movementPower - currentSpeedForward, 0, data.MaxSpeed);
+                    math.clamp(data.MaxSpeed * movementPower - currentSpeedForward, -data.MaxSpeed, data.MaxSpeed);
                 deltaSpeedForward *= data.Acceleration;
                 deltaSpeedForward = math.clamp(deltaSpeedForward, -data.MaxAcceleration, data.MaxAcceleration);
                 deltaSpeedForward *= slopeSlipFactor;

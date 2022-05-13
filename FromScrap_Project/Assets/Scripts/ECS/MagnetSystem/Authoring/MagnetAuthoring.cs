@@ -5,7 +5,7 @@ using Unity.Physics.Stateful;
 
 namespace Magnet.Authorings
 {
-    public class MagnetAuthoring : SphereTriggerAuthoring, IConvertGameObjectToEntity
+    public class MagnetAuthoring : SphereTriggerAuthoring
     {
         public float MoveSpeed = 1;
         
@@ -13,7 +13,8 @@ namespace Magnet.Authorings
         {
             dstManager.AddComponentData(entity, new MagnetComponent()
             {
-                Speed = MoveSpeed
+                Speed = MoveSpeed,
+                Radius = Radius
             });
             dstManager.AddBuffer<StatefulTriggerEvent>(entity);
         }

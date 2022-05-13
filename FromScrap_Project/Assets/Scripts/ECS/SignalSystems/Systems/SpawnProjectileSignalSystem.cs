@@ -1,6 +1,9 @@
 using BovineLabs.Event.Systems;
+using DamageSystem.Components;
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
 using WeaponsSystem.Base.Components;
 
 public struct SpawnProjectileEvent
@@ -8,6 +11,10 @@ public struct SpawnProjectileEvent
     public FixedString32Bytes SpawnProjectileName;
     public float3 SpawnPos;
     public float3 SpawnDir;
+    public float DamageMultiplier;
+    public int AdditionalDamage;
+    public float SizeMultiplier;
+    public float SpeedMultiplier;
 }
 
 public class SpawnProjectileSystem : ConsumeSingleEventSystemBase<SpawnProjectileEvent>
@@ -21,8 +28,39 @@ public class SpawnProjectileSystem : ConsumeSingleEventSystemBase<SpawnProjectil
                 MoveShot = true,
                 CurrentLife = 0,
                 InitialPosition = signal.SpawnPos,
-                MoveDir = signal.SpawnDir
+                MoveDir = signal.SpawnDir,
+                SpeedMultiplier = signal.SpeedMultiplier
             });
+
+            if (manager.HasComponent<DealDamage>(entity))
+            {
+                var damageInfo = manager.GetComponentData<DealDamage>(entity);
+                damageInfo.Value = (int)(damageInfo.Value * signal.DamageMultiplier);
+                damageInfo.Value += signal.AdditionalDamage;
+                manager.SetComponentData(entity, damageInfo);
+            }
+
+            if (manager.HasComponent<SphereTriggerComponent>(entity))
+            {
+                var triggerInfo = manager.GetComponentData<SphereTriggerComponent>(entity);
+                triggerInfo.Radius *= signal.SizeMultiplier;
+                manager.SetComponentData(entity, triggerInfo);
+                
+                if (manager.HasComponent<Scale>(entity))
+                {
+                    var scale = manager.GetComponentData<Scale>(entity);
+                    scale.Value *= signal.SizeMultiplier;
+                
+                    manager.SetComponentData(entity, scale);
+                }
+                else
+                {
+                    manager.AddComponentData(entity, new Scale()
+                    {
+                        Value = 1 * signal.SizeMultiplier
+                    });
+                }
+            }
         }));
     }
 }

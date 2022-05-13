@@ -1,13 +1,11 @@
+using System;
 using DamageSystem.Components;
-using DamageSystem.Systems;
 using Magnet.Components;
 using MoveTo.Components;
-using Unity.Collections;
+using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Physics;
 using Unity.Physics.Stateful;
-using Unity.Physics.Systems;
 
 namespace Magnet.Systems
 {
@@ -26,7 +24,6 @@ namespace Magnet.Systems
         
         protected override void OnUpdate()
         {
-
             var ecb = _ecbSystem.CreateCommandBuffer();
             var moveTo = GetComponentDataFromEntity<MoveToComponent>(true);
             var dead = GetComponentDataFromEntity<Dead>(true);
@@ -46,7 +43,19 @@ namespace Magnet.Systems
             }).WithReadOnly(dead).WithReadOnly(moveTo).Schedule(Dependency);
             
             _ecbSystem.AddJobHandleForProducer(Dependency);
+        }
+    }
 
+    public partial class MagnetRescaleSystem : SystemBase
+    {
+        protected override void OnUpdate()
+        {
+            Entities.ForEach((Entity entity, ref SphereTriggerComponent sphereTriggerComponent, in CharacteristicsComponent characteristic, in MagnetComponent magnetComponent) =>
+            {
+                if(Math.Abs(magnetComponent.Radius * characteristic.Value.AreaMultiplier - sphereTriggerComponent.Radius) > 0.05f)
+                    sphereTriggerComponent.Radius = magnetComponent.Radius * characteristic.Value.AreaMultiplier;
+                
+            }).ScheduleParallel();
         }
     }
 }

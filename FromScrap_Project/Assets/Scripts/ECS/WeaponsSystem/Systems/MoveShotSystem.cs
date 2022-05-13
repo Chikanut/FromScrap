@@ -26,7 +26,7 @@ namespace WeaponsSystem.Base.Systems
                 if (tempData.MoveShot)
                 {
                     var t = tempData.CurrentLife / shotData.Lifetime;
-                    var velocity = tempData.MoveDir * shotData.Velocity;
+                    var velocity = tempData.MoveDir * shotData.Velocity * tempData.SpeedMultiplier;
                     
                     var x = velocity.x * t;
                     var z = velocity.z * t;

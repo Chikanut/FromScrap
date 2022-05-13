@@ -4,6 +4,8 @@ using MenuNavigation;
 using Packages.Common.Storage.Config.Cars;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
+using StatisticsSystem.Components;
+using StatisticsSystem.Tags;
 using UI.Screens.Loading;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -68,8 +70,12 @@ namespace GameLogic.States.States
                     Value = new float3(0,3,0)
                 });
                 var health = manager.GetComponentData<Health>(entity);
-                health.Value = health.InitialValue = carData.Health;
+                health.SetMaxHealth(carData.Health, true);
                 manager.SetComponentData(entity, health);
+                
+                var modifications = manager.GetBuffer<CharacteristicModificationsBuffer>(entity);
+                modifications.Add(new CharacteristicModificationsBuffer {Value = carData.BaseCharacteristics, ModificatorHolder = entity});
+                manager.AddComponentData(entity, new NewCharacteristicsTag());
             });
         }
 

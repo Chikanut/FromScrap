@@ -47,7 +47,7 @@ namespace Kits.Systems
 
                     var platform = scheme[addKits[i].PlatformID].Platform;
                     
-                    _spawnKits.Add((platform, addKits[i].KitID, kitInfo.gameObject));
+                    _spawnKits.Add((platform, addKits[i].KitID, kitInfo.Authoring.gameObject));
                 }
                 
                 addKits.Clear();
