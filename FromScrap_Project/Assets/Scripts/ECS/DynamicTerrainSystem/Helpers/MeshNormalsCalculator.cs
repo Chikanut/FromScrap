@@ -5,7 +5,7 @@ namespace ECS.DynamicTerrainSystem.Helpers
 {
     public partial class MeshNormalsCalculator
     {
-        public static Vector3[] RecalculatedNormals(Mesh mesh, float angle)
+        public Vector3[] RecalculatedNormals(Mesh mesh, float angle)
         {
             var cosineThreshold = Mathf.Cos(angle * Mathf.Deg2Rad);
             var vertices = mesh.vertices;

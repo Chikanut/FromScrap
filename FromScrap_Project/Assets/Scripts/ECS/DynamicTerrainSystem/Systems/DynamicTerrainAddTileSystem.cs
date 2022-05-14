@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
 {
+    [UpdateInGroup(typeof(DynamicTerrainSimulationGroup), OrderFirst = true)]
+    [UpdateBefore(typeof(DynamicTerrainRemoveTileSystem))]
+    
     public partial class DynamicTerrainAddTileSystem : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
@@ -49,7 +52,7 @@ namespace ECS.DynamicTerrainSystem
                     );
             }).ScheduleParallel();
             
-            _entityCommandBufferSystem.AddJobHandleForProducer(this.Dependency);
+            _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
         private static void SetupDynamicTerrainTiles(
@@ -61,9 +64,8 @@ namespace ECS.DynamicTerrainSystem
             float3 playerPos
         )
         {
-            //TODO: par com
-            int radiusToRender = 3;
-            
+           
+            var radiusToRender = dynamicTerrainBaseComponent.TerrainTilesRadiusCount;
             var playerTile = TileFromPosition(playerPos, dynamicTerrainBaseComponent.TerrainTileSize);
             //var centerTiles = new NativeArray<int2>(10, Allocator.Temp);
             //centerTiles[0] = playerTile;
@@ -88,26 +90,6 @@ namespace ECS.DynamicTerrainSystem
                     AddTileData(ref generatorEntity, ref terrainTileBuffer, ecbs, tileIndex);
                 }
             //}
-        
-          /*
-            for (var i = 0; i < terrainTileBuffer.Length; i++)
-            {
-                var isExist = false;
-                var bufferTileData = terrainTileBuffer[i];
-                var bufferTileIndex = bufferTileData.TileIndex;
-                
-                for (var j = 0; j < terrainEnabledTileBuffer.Length; j++)
-                {
-                    var enabledTileIndex = terrainEnabledTileBuffer[j].TileIndex;
-
-                    if (enabledTileIndex.x == bufferTileIndex.x && enabledTileIndex.y == bufferTileIndex.y)
-                        isExist = true;
-                }
-                
-                if(!isExist)
-                    RemoveTileData(ref generatorEntity, ref terrainTileBuffer, ecbs, bufferTileData.TileIndex);
-            }
-           */
         }
 
         private static void AddTileData(
@@ -135,42 +117,6 @@ namespace ECS.DynamicTerrainSystem
                     TileIndex = tileIndex,
                     TileState = DynamicTerrainTileState.IsReadyToGenerate
                 });
-            }
-        }
-        
-        private static void RemoveTileData(
-            ref Entity generatorEntity,
-            ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
-            EntityCommandBuffer.ParallelWriter ecbs,
-            int2 tileIndex
-        )
-        {
-            for (var index = 0; index < terrainTileBuffer.Length; index++)
-            {
-                var tileData = terrainTileBuffer[index];
-                var currentTileIndex = tileData.TileIndex;
-
-                if (tileIndex.x == currentTileIndex.x && tileIndex.y == currentTileIndex.y)
-                {
-                    /*
-                   terrainTileBuffer[index] = new DynamicTerrainTileInfoData()
-                   {
-                       TileEntity = tileData.TileEntity,
-                       TileIndex = tileIndex,
-                       TileState = DynamicTerrainTileState.IsReadyToDestroy
-                   };
-                   */
-                   
-                    //terrainTileBuffer.RemoveAt(index);
-                    /*
-                    ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainTileInfoData()
-                    {
-                        TileEntity = tileData.TileEntity,
-                        TileIndex = tileIndex,
-                        TileState = DynamicTerrainTileState.IsReadyToDestroy
-                    });
-                    */
-                }
             }
         }
 

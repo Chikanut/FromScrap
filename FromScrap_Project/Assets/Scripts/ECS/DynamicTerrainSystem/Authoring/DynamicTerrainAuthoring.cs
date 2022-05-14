@@ -5,6 +5,7 @@ using Unity.Entities.Hybrid.Internal;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Authoring;
+using Unity.Rendering;
 using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
@@ -17,6 +18,7 @@ namespace ECS.DynamicTerrainSystem
         [Header("Terrain Settings")]
         public float3 terrainTileSize = new float3(10f, 1f, 10f);
         public float cellSize = 1f;
+        public int terrainTilesRadiusCount = 5;
         public float noiseScale = 2f;
         public float3 terrainStartPosition = new float3(0f, 0f, 0f);
         public float normalsSmoothAngle = 60f;
@@ -34,11 +36,18 @@ namespace ECS.DynamicTerrainSystem
                 return;
             }
 
+            var tileEntity = conversionSystem.GetPrimaryEntity(terrainTilePrefab);
+            var renderMesh = dstManager.GetSharedComponentData<RenderMesh>(tileEntity);
+
+            renderMesh.layerMask = 0;
+            dstManager.SetSharedComponentData(tileEntity, renderMesh);
+            
             dstManager.AddComponentData(entity, new DynamicTerrainBaseComponent()
             {
-                TerrainTileEntity = conversionSystem.GetPrimaryEntity(terrainTilePrefab),
+                TerrainTileEntity = tileEntity,
                 TerrainTileSize = terrainTileSize,
                 CellSize = cellSize,
+                TerrainTilesRadiusCount = terrainTilesRadiusCount,
                 NoiseScale = noiseScale,
                 TerrainStartPosition = terrainStartPosition,
                 NormalsSmoothAngle = normalsSmoothAngle,
