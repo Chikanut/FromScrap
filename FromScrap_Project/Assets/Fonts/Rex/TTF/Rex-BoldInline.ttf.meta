@@ -1,23 +1,23 @@
 fileFormatVersion: 2
-guid: 6b633e36fc3c3524cb198e448c29a8f3
-timeCreated: 1497275622
-licenseType: Pro
+guid: 7450d8f8473bb4e448a95f366fe7cf35
 TrueTypeFontImporter:
+  externalObjects: {}
   serializedVersion: 4
   fontSize: 16
   forceTextureCase: -2
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: Roboto Condensed
   fontNames:
-  - Roboto Condensed
+  - Rex
   fallbackFontReferences:
-  - {fileID: 12800000, guid: 1cc7e421c80ca684483d6a7e37e8e4b4, type: 3}
-  - {fileID: 12800000, guid: 3809f5ebad7d32f42a05be5ff4c6a63e, type: 3}
+  - {fileID: 12800000, guid: e07bd0b63bed2ff449231dbf7ac86aa2, type: 3}
+  - {fileID: 12800000, guid: b1dc1a2574cdef649918138ad7d362c9, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
   userData: 
   assetBundleName: 
   assetBundleVariant: 

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 51e3a7a03212c3a45a9365b9b0a93cf9
+guid: 004852d181f0f5048b5d5f2bca58ad2d
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
@@ -22,7 +22,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
-    importConstraints: 1
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -92,7 +92,7 @@ ModelImporter:
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
