@@ -1,10 +1,7 @@
 fileFormatVersion: 2
-guid: 291f88cfa4a3eda44bc6bf45a805439a
-labels:
-- Font
-timeCreated: 1470154866
-licenseType: Pro
+guid: b1dc1a2574cdef649918138ad7d362c9
 TrueTypeFontImporter:
+  externalObjects: {}
   serializedVersion: 4
   fontSize: 16
   forceTextureCase: -2
@@ -12,11 +9,14 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Roboto
-  fallbackFontReferences: []
+  - Rex
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: e07bd0b63bed2ff449231dbf7ac86aa2, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
   userData: 
   assetBundleName: 
   assetBundleVariant: 

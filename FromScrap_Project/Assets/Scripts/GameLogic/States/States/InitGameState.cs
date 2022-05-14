@@ -67,7 +67,7 @@ namespace GameLogic.States.States
                 manager.AddComponentData(entity, new PlayerTag());
                 manager.SetComponentData(entity, new Translation()
                 {
-                    Value = new float3(0,3,0)
+                    Value = new float3(0,45,0)
                 });
                 var health = manager.GetComponentData<Health>(entity);
                 health.SetMaxHealth(carData.Health, true);
