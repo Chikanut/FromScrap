@@ -5,6 +5,8 @@ using Unity.Transforms;
 
 namespace ECS.DynamicTerrainSystem
 {
+    [UpdateInGroup(typeof(DynamicTerrainSimulationGroup), OrderLast = true)]
+
     public partial class DynamicTerrainTileGeneratorSystem : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
@@ -46,7 +48,7 @@ namespace ECS.DynamicTerrainSystem
                 }
             }).ScheduleParallel();
             
-            _entityCommandBufferSystem.AddJobHandleForProducer(this.Dependency);
+            _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
         
         private static void GenerateTerrainTile(

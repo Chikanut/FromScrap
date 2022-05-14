@@ -7,26 +7,26 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Rendering;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace ECS.DynamicTerrainSystem
 {
-    public partial class DynamicTerrainTileSystem : SystemBase
+    [UpdateInGroup(typeof(DynamicTerrainVisualizationGroup), OrderFirst = true)]
+    
+    public partial class DynamicTerrainTileVisualizationSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _mEndSimulationEcbSystem;
-        private EntityCommandBufferSystem _entityCommandBufferSystem;
 
         protected override void OnCreate()
         {
             base.OnCreate();
           
             _mEndSimulationEcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            _entityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
         {
-            var ecb = _mEndSimulationEcbSystem.CreateCommandBuffer();
-            var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            var ecbs = _mEndSimulationEcbSystem.CreateCommandBuffer().AsParallelWriter();
             
             Entities.ForEach((
                 Entity entity,
@@ -39,21 +39,22 @@ namespace ECS.DynamicTerrainSystem
 
                 if (!isUpdated)
                 {
-                    Generate(entity, ref renderMesh, ref tileComponent, ref renderBounds, ref ecbs);
+                    Generate(entity, ref tileComponent, ref renderBounds, ref ecbs, ref renderMesh);
 
-                    //ecb.SetSharedComponent(entity, renderMesh);
                     ecbs.SetSharedComponent(0, entity, renderMesh);
                 }
 
             }).WithoutBurst().Run();
+            
+            _mEndSimulationEcbSystem.AddJobHandleForProducer(Dependency);
         }
         
         private static void Generate(
             Entity entity,
-            ref RenderMesh renderMesh, 
             ref DynamicTerrainTileComponent tileComponent,
             ref RenderBounds renderBounds,
-            ref EntityCommandBuffer.ParallelWriter ecbs)
+            ref EntityCommandBuffer.ParallelWriter ecbs,
+            ref RenderMesh renderMesh)
         {
             var terrainSize = tileComponent.TerrainTileSize;
             var cellSize = tileComponent.CellSize;
@@ -69,11 +70,12 @@ namespace ECS.DynamicTerrainSystem
             draft.Move(Vector3.left * terrainSize.x / 2 + Vector3.back * terrainSize.z / 2);
             renderMesh.mesh = draft.ToMesh();
             renderMesh.mesh.SetUVs(tileComponent.UVMapChannel, uvMapCalculator.CalculatedUVs(renderMesh.mesh.vertices, tileComponent.UVMapScale));
-            renderMesh.mesh.normals = MeshNormalsCalculator.RecalculatedNormals(renderMesh.mesh, tileComponent.NormalsSmoothAngle);
+            renderMesh.mesh.normals = normalsCalculator.RecalculatedNormals(renderMesh.mesh, tileComponent.NormalsSmoothAngle);
           
             CalculateRenderBounds(ref tileComponent, ref renderBounds);
             CalculateCollider(entity, ref renderMesh, ref tileComponent, ref ecbs);
-            
+
+            renderMesh.layerMask = 1;
             tileComponent.IsUpdated = true;
         }
 

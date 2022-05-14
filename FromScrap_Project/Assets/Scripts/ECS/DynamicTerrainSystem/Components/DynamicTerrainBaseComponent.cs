@@ -9,6 +9,7 @@ namespace ECS.DynamicTerrainSystem
         public Entity TerrainTileEntity;
         public float3 TerrainTileSize;
         public float CellSize;
+        public int TerrainTilesRadiusCount;
         public float NoiseScale;
         public float3 TerrainStartPosition;
         public float NormalsSmoothAngle;
