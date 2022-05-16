@@ -23,7 +23,7 @@ namespace Ram.Authorings
             });
             dstManager.AddComponentData(entity, new DealDamage()
             {
-                DamageDelay = 0.5f
+                DamageDelay = 0f
             });
 
             dstManager.AddComponentData(entity, new CollisionEventBuffer() {CalculateDetails = 0});
