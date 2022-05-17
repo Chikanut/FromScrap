@@ -33,9 +33,9 @@ public partial class FindClosestTargetSystem : SystemBase
         
         var hasTargetFilter = GetComponentDataFromEntity<HasTarget>(true);
         
-        var ecb = _ecbSystem.CreateCommandBuffer();
+        var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Dependency = Entities.ForEach((Entity entity,
+        Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex,
                 in LocalToWorld translation,
                 in FindTargetData findTargetData) =>
             {
@@ -59,16 +59,16 @@ public partial class FindClosestTargetSystem : SystemBase
 
                 if (targetEntity == Entity.Null && hasTargetFilter.HasComponent(entity))
                 {
-                    ecb.RemoveComponent<HasTarget>(entity);
+                    ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
                 }
                 else if (targetEntity != Entity.Null && !hasTargetFilter.HasComponent(entity))
                 {
-                    ecb.AddComponent(entity,
+                    ecb.AddComponent(entityInQueryIndex, entity,
                         new HasTarget() {TargetEntity = targetEntity, TargetPosition = targetPosition});
                 }
                 else if (targetEntity != Entity.Null && hasTargetFilter.HasComponent(entity))
                 {
-                    ecb.SetComponent(entity,
+                    ecb.SetComponent(entityInQueryIndex, entity,
                         new HasTarget() {TargetEntity = targetEntity, TargetPosition = targetPosition});
                 }
             }).WithReadOnly(hasTargetFilter)
@@ -78,7 +78,7 @@ public partial class FindClosestTargetSystem : SystemBase
             .WithDisposeOnCompletion(entities)
             .WithDisposeOnCompletion(targets)
             .WithDisposeOnCompletion(quadrantEntities)
-            .Schedule(Dependency);
+            .ScheduleParallel(Dependency);
         
         _ecbSystem.AddJobHandleForProducer(Dependency);
     }
