@@ -18,7 +18,9 @@ namespace ECS.DynamicTerrainSystem
         [Header("Terrain Settings")]
         public float3 terrainTileSize = new float3(10f, 1f, 10f);
         public float cellSize = 1f;
-        public int terrainTilesRadiusCount = 5;
+        public int playerTilesRadiusCount = 5;
+        public bool allowAdditionalElementsTracking = true;
+        public int trackingElementTilesRadiusCount = 1;
         public float noiseScale = 2f;
         public float3 terrainStartPosition = new float3(0f, 0f, 0f);
         public float normalsSmoothAngle = 60f;
@@ -28,6 +30,8 @@ namespace ECS.DynamicTerrainSystem
         public float vertexColorPower = 2f;
         public PhysicsCategoryTags belongsTo;
         public PhysicsCategoryTags collideWith;
+        public bool isActive = true;
+        public bool allowTrackingElementsAddTilesWithoutPlayer = true;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -47,7 +51,9 @@ namespace ECS.DynamicTerrainSystem
                 TerrainTileEntity = tileEntity,
                 TerrainTileSize = terrainTileSize,
                 CellSize = cellSize,
-                TerrainTilesRadiusCount = terrainTilesRadiusCount,
+                PlayerRadiusCount = playerTilesRadiusCount,
+                AllowAdditionalElementsTracking = allowAdditionalElementsTracking,
+                TrackingElementRadiusCount = trackingElementTilesRadiusCount,
                 NoiseScale = noiseScale,
                 TerrainStartPosition = terrainStartPosition,
                 NormalsSmoothAngle = normalsSmoothAngle,
@@ -59,11 +65,14 @@ namespace ECS.DynamicTerrainSystem
                 {
                     CollidesWith = collideWith.Value,
                     BelongsTo = belongsTo.Value
-                }
+                },
+                IsActive = isActive,
+                AllowTrackingElementsAddTilesWithoutPlayer = allowTrackingElementsAddTilesWithoutPlayer
             });
             
             dstManager.AddBuffer<DynamicTerrainTileInfoData>(entity);
             dstManager.AddBuffer<DynamicTerrainEnabledTileInfoData>(entity);
+            dstManager.AddBuffer<DynamicTerrainTrackInfoData>(entity);
         }
 
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

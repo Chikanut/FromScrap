@@ -1,4 +1,3 @@
-using Cars.View.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -23,34 +22,24 @@ namespace ECS.DynamicTerrainSystem
         protected override void OnUpdate()
         {
             var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-            var playerPosition = float3.zero;
-
-            Entities.ForEach((
-                Entity entity,
-                in CarIDComponent carIDComponent,
-                in Translation translation
-            ) =>
-            {
-                playerPosition = translation.Value;
-            }).Run();
+            var currentTranslation = GetComponentDataFromEntity<Translation>(true);
 
             Entities.ForEach((
                 Entity entity,
                 ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
                 ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
-                ref DynamicBuffer<DynamicTerrainEnabledTileInfoData> terrainEnabledTileBuffer
+                ref DynamicBuffer<DynamicTerrainTrackInfoData> dynamicTerrainTrackBuffer
             ) =>
             {
-                
                 SetupDynamicTerrainTiles(
                     ref entity,
                     ref terrainTileBuffer,
-                    ref terrainEnabledTileBuffer,
-                    in dynamicTerrainBaseComponent,
-                    ecbs,
-                    playerPosition
-                    );
-            }).ScheduleParallel();
+                    ref dynamicTerrainTrackBuffer,
+                    ref dynamicTerrainBaseComponent,
+                    currentTranslation,
+                    ecbs
+                );
+            }).WithReadOnly(currentTranslation).ScheduleParallel();
             
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
@@ -58,25 +47,44 @@ namespace ECS.DynamicTerrainSystem
         private static void SetupDynamicTerrainTiles(
             ref Entity generatorEntity,
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
-            ref DynamicBuffer<DynamicTerrainEnabledTileInfoData> terrainEnabledTileBuffer,
-            in DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
-            EntityCommandBuffer.ParallelWriter ecbs,
-            float3 playerPos
+            ref DynamicBuffer<DynamicTerrainTrackInfoData> dynamicTerrainTrackBuffer,
+            ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
+            ComponentDataFromEntity<Translation> currentTranslation,
+            EntityCommandBuffer.ParallelWriter ecbs
         )
         {
-           
-            var radiusToRender = dynamicTerrainBaseComponent.TerrainTilesRadiusCount;
-            var playerTile = TileFromPosition(playerPos, dynamicTerrainBaseComponent.TerrainTileSize);
-            //var centerTiles = new NativeArray<int2>(10, Allocator.Temp);
-            //centerTiles[0] = playerTile;
-            
-            //terrainEnabledTileBuffer.Clear();
+            var isActive = false;
 
-            //for (var t = 0; t < centerTiles.Length; t++)
-            //{
+            for (var t = 0; t < dynamicTerrainTrackBuffer.Length; t++)
+            {
+                var isPlayer = dynamicTerrainTrackBuffer[t].IsPlayer;
+                
+                if(!isPlayer && !dynamicTerrainBaseComponent.AllowAdditionalElementsTracking)
+                    continue;
+                
+                var curEntity = dynamicTerrainTrackBuffer[t].TrackEntity;
+                var radiusToRender = dynamicTerrainBaseComponent.TrackingElementRadiusCount;
+
+                if (isPlayer && currentTranslation.HasComponent(curEntity))
+                {
+                    radiusToRender = dynamicTerrainBaseComponent.PlayerRadiusCount;
+                    isActive = true;
+                }
+
+                dynamicTerrainBaseComponent.IsActive = isActive;
+
+                if (!isActive && !dynamicTerrainBaseComponent.AllowTrackingElementsAddTilesWithoutPlayer)
+                    continue;
+
+                if (!currentTranslation.HasComponent(curEntity))
+                    continue;
+
+                var playerPos = currentTranslation[curEntity].Value;
+                var playerTile = TileFromPosition(playerPos, dynamicTerrainBaseComponent.TerrainTileSize);
                 var tile = playerTile;
                 var isPlayerTile = tile.x == playerTile.x && tile.y == playerTile.y;
                 var radius = isPlayerTile ? radiusToRender : 1;
+                
                 for (var i = -radius; i <= radius; i++)
                 for (var j = -radius; j <= radius; j++)
                 {
@@ -84,12 +92,21 @@ namespace ECS.DynamicTerrainSystem
 
                     ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainEnabledTileInfoData()
                     {
-                       TileIndex = tileIndex
+                        TileIndex = tileIndex
                     });
-                    
+
                     AddTileData(ref generatorEntity, ref terrainTileBuffer, ecbs, tileIndex);
                 }
-            //}
+            }
+           
+            for (var k = 0; k < dynamicTerrainTrackBuffer.Length; k++)
+            {
+                var curEntity = dynamicTerrainTrackBuffer[k].TrackEntity;
+
+                if (!currentTranslation.HasComponent(curEntity))
+                    dynamicTerrainTrackBuffer.RemoveAtSwapBack(k);
+            }
+          
         }
 
         private static void AddTileData(

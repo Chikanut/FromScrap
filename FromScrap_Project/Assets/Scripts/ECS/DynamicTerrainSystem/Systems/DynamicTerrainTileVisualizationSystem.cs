@@ -109,8 +109,8 @@ namespace ECS.DynamicTerrainSystem
             ref DynamicTerrainTileComponent tileComponent,
             ref RenderBounds renderBounds)
         {
-            var x = tileComponent.TerrainTileSize.x / 2f;
-            var z = tileComponent.TerrainTileSize.z / 2f;
+            var x = tileComponent.TerrainTileSize.x / 2f + 0.2f * tileComponent.TerrainTileSize.x / 2f;
+            var z = tileComponent.TerrainTileSize.z / 2f + 0.2f * tileComponent.TerrainTileSize.z / 2f;
             var newValue = new AABB()
             {
                 Center = renderBounds.Value.Center,
