@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ExperienceMat
+  m_Name: HealthMat
   m_Shader: {fileID: -6465566751694194690, guid: 48451d8159815b243b6385fec574b82c, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -81,10 +81,10 @@ Material:
     m_Colors:
     - Color_444bfceef76243ee8e1faaa6920f1ee9: {r: 1, g: 1, b: 1, a: 1}
     - Color_474dd01e1ee34f749c8b40b7540da0f7: {r: 0, g: 0, b: 0, a: 0}
-    - Color_4ef22621bdd842e8b30573acf4da7f68: {r: 0, g: 0.872, b: 0.64347583, a: 0}
+    - Color_4ef22621bdd842e8b30573acf4da7f68: {r: 0.31675202, g: 0, b: 0.87058824, a: 0}
     - Color_6f65a81ea71b4898a6ad6d65cf35c338: {r: 1, g: 1, b: 1, a: 0}
     - Color_80924e4e67374db7940d0bdb720b92b8: {r: 0.6084906, g: 0.8480191, b: 1, a: 0}
-    - Color_b369c8f7cc1b4b0982be5a11ce8bb48d: {r: 0, g: 0.41222093, b: 0.90900004, a: 0}
+    - Color_b369c8f7cc1b4b0982be5a11ce8bb48d: {r: 0.9098039, g: 0, b: 0.29581538, a: 0}
     - Color_d211b5c07b084cdaa0c660069d373bf5: {r: 0, g: 0.43295884, b: 1, a: 0}
     - Color_f337b042de6b455ebb8aa92019322197: {r: 1, g: 1, b: 1, a: 0}
     - Vector3_89d1078dc6c1489baf19243b66685e2d: {r: 0, g: 0, b: 1, a: 0}
