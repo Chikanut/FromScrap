@@ -9,7 +9,9 @@ namespace ECS.DynamicTerrainSystem
         public Entity TerrainTileEntity;
         public float3 TerrainTileSize;
         public float CellSize;
-        public int TerrainTilesRadiusCount;
+        public int PlayerRadiusCount;
+        public bool AllowAdditionalElementsTracking;
+        public int TrackingElementRadiusCount;
         public float NoiseScale;
         public float3 TerrainStartPosition;
         public float NormalsSmoothAngle;
@@ -18,5 +20,7 @@ namespace ECS.DynamicTerrainSystem
         public bool IsVertexColorsEnabled;
         public float VertexColorPower;
         public CollisionFilter CollisionFilter;
+        public bool IsActive;
+        public bool AllowTrackingElementsAddTilesWithoutPlayer;
     }
 }

@@ -16,15 +16,19 @@ namespace ECS.DynamicTerrainSystem
                 ref DynamicBuffer<DynamicTerrainEnabledTileInfoData> terrainEnabledTileBuffer
             ) =>
             {
-                RemoveTerrainTiles(ref terrainTileBuffer, ref terrainEnabledTileBuffer);
+                RemoveTerrainTiles(ref dynamicTerrainBaseComponent, ref terrainTileBuffer, ref terrainEnabledTileBuffer);
             }).ScheduleParallel();
         }
 
         private static void RemoveTerrainTiles(
+            ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
             ref DynamicBuffer<DynamicTerrainEnabledTileInfoData> terrainEnabledTileBuffer 
         )
         {
+            if(!dynamicTerrainBaseComponent.IsActive)
+                return;
+            
             for (var i = 0; i < terrainTileBuffer.Length; i++)
             {
                 var isExist = false;

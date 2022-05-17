@@ -103,7 +103,7 @@ namespace ECS.DynamicTerrainSystem
             
             ecbs.DestroyEntity(0, tileEntity);
 
-            terrainTileBuffer.RemoveAt(index);
+            terrainTileBuffer.RemoveAtSwapBack(index);
         }
         
         private static float3 PositionFromTile(float2 tile, float3 tileSize, float3 terrainStartPos)
