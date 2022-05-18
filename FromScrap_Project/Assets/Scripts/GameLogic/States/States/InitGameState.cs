@@ -6,10 +6,12 @@ using ShootCommon.GlobalStateMachine;
 using Stateless;
 using StatisticsSystem.Components;
 using StatisticsSystem.Tags;
+using Steamworks;
 using UI.Screens.Loading;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 
@@ -48,6 +50,12 @@ namespace GameLogic.States.States
         void InitGame()
         {
             // World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<CharacterControllerSystem>();
+
+            if (SteamManager.Initialized)
+            {
+                Debug.Log(SteamFriends.GetPersonaName());
+            }
+
             SpawnPlayer();
  
             //TODO: Wait till all game parts is initialized
