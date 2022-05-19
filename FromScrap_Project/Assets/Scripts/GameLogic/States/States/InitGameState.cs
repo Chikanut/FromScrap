@@ -49,13 +49,6 @@ namespace GameLogic.States.States
 
         void InitGame()
         {
-            // World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<CharacterControllerSystem>();
-
-            if (SteamManager.Initialized)
-            {
-                Debug.Log(SteamFriends.GetPersonaName());
-            }
-
             SpawnPlayer();
  
             //TODO: Wait till all game parts is initialized

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Cars.View.Components;
 using Kits.Components;
-using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.Upgrades;
 using ShootCommon.Views.Mediation;
 using Unity.Entities;
@@ -13,35 +11,15 @@ namespace UI.Screens.Upgrades
 {
 	public class UpgradeScreenMediator : Mediator<UpgradeScreenView>
 	{
-		public class PlatformInfo
-		{
-			public int ID;
-			public List<KitType> Connections = new List<KitType>();
-			public bool isFree;
-			public bool canOccupy;
-			public List<KitComponent> ConnectedKits = new List<KitComponent>();
-			public List<KitIDComponent> ConnectedKitsIDs = new List<KitIDComponent>();
-		}
-
 		private EntityManager _entityManager;
-		private ICarsConfigController _carsConfigController;
+		private IGameDataController _gameDataController;
 
-		public class UpgradesInfoDataBuffer
-		{
-			public CarConfigData carData;
-			public Entity carEntity;
-			public int carID;
-			public int carLevel;
-			public List<PlatformInfo> platformInfos = new List<PlatformInfo>();
-		}
-
-		private UpgradesInfoDataBuffer _data;
-		
+		private CurrentCarInfoData _data;
 
 		[Inject]
-		public void Init( ICarsConfigController carsConfigController)
+		public void Init(IGameDataController gameDataController)
 		{
-			_carsConfigController = carsConfigController;
+			_gameDataController = gameDataController;
 		}
 		
 		protected override void OnMediatorEnable()
@@ -49,60 +27,9 @@ namespace UI.Screens.Upgrades
 			base.OnMediatorEnable();
 
 			_entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-			_data = new UpgradesInfoDataBuffer();
-
-			InitCarInfo();
-			InitKits();
+			_data = _gameDataController.Data.CarData;
+	
 			InitCards();
-		}
-
-		void InitCarInfo()
-		{
-			_data.carEntity = View.CurrentEntity;
-			_data.carLevel = View.CurrentLevel;
-
-			if (_data.carEntity == Entity.Null || !_entityManager.HasComponent<CarIDComponent>(_data.carEntity))
-			{
-				Debug.LogError("There is no car entity, or car ID component on target entity!");
-				return;
-			}
-
-			_data.carID = _entityManager.GetComponentData<CarIDComponent>(_data.carEntity).ID;
-
-			_data.carData = _carsConfigController.GetCarData(_data.carID);
-		}
-
-		void InitKits()
-		{
-			var kitsScheme = _entityManager.GetBuffer<KitSchemeBuffer>(_data.carEntity);
-			for (int i = 0; i < kitsScheme.Length; i++)
-			{
-				var platformComponent = _entityManager.GetComponentData<KitPlatformComponent>(kitsScheme[i].Platform);
-				var platformConnections = _entityManager.GetBuffer<KitPlatformConnectionBuffer>(kitsScheme[i].Platform);
-				var platformConnectedKits = _entityManager.GetBuffer<KitPlatformKitsBuffer>(kitsScheme[i].Platform);
-
-				var platformInfo = new PlatformInfo()
-				{
-					ID = i,
-					isFree = platformComponent.IsFree,
-					canOccupy = platformComponent.CanOccupy,
-				};
-				
-				foreach (var connection in platformConnections)
-				{
-					platformInfo.Connections.Add(connection.ConnectionType);
-				}
-
-				foreach (var kit in platformConnectedKits)
-				{
-					var kitComponent = _entityManager.GetComponentData<KitComponent>(kit.ConnectedKit);
-					var kitID = _entityManager.GetComponentData<KitIDComponent>(kit.ConnectedKit);
-					platformInfo.ConnectedKits.Add(kitComponent);
-					platformInfo.ConnectedKitsIDs.Add(kitID);
-				}
-				
-				_data.platformInfos.Add(platformInfo);
-			}
 		}
 
 		void InitCards()

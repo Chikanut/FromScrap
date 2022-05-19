@@ -1,7 +1,6 @@
 ﻿using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
-using UnityEngine;
 
 namespace GameLogic.States.States
 {

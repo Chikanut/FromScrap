@@ -1,6 +1,5 @@
 using System;
 using DG.Tweening;
-using I2.Loc;
 using MenuNavigation;
 using TMPro;
 using UnityEngine;
@@ -14,6 +13,9 @@ namespace UI.Screens.Loading
         [SerializeField] private Button _pause;
         [SerializeField] private Slider _experienceSlider;
         [SerializeField] private TextMeshProUGUI _levelLabel;
+        [SerializeField] private TextMeshProUGUI _nextLevelLabel;
+        [SerializeField] private TextMeshProUGUI _time;
+        [SerializeField] private UpgradesInfoPanel _upgradesPanel;
 
         [Header("Settings")]
         [SerializeField] private float _experienceFillSpeed;
@@ -33,6 +35,19 @@ namespace UI.Screens.Loading
         void OnPause()
         {
             PauseAction?.Invoke();
+        }
+
+        public void UpdateInfo(CurrentCarInfoData carInfo)
+        {
+            _upgradesPanel.UpdateInfo(carInfo);
+        }
+
+        public void SetTimer(float seconds)
+        {
+            var time = TimeSpan.FromSeconds(seconds);
+            var str = time.ToString(@"mm\:ss");
+            
+            _time.text = str;
         }
 
         public void SetExperience(float value)
@@ -57,7 +72,8 @@ namespace UI.Screens.Loading
 
         public void SetCurrentLevel(int level)
         {
-            _levelLabel.text = string.Format(LocalizationManager.GetTranslation("UI/_lvl") + "{0}", level + 1);
+            _levelLabel.text = (level + 1).ToString();
+            _nextLevelLabel.text = (level + 2).ToString();
         }
     }
 }

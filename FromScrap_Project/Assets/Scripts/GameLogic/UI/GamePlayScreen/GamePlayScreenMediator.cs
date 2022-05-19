@@ -17,14 +17,28 @@ namespace UI.Screens.Loading
         private ICarsConfigController _carsConfigController;
 
         [Inject]
-        public void Init(ICarsConfigController carsConfigController)
+        public void Init(ICarsConfigController carsConfigController, IGameDataController gameDataController)
         {
             _carsConfigController = carsConfigController;
-
+            
             SignalService.Receive<OnExperienceChangeSignal>().Subscribe(OnExperienceGathered).AddTo(DisposeOnDestroy);
             SignalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUp).AddTo(DisposeOnDestroy);
+            SignalService.Receive<GameTimeChanged>().Subscribe(OnTimeChanged).AddTo(DisposeOnDestroy);
+            SignalService.Receive<UpgradesChanged>().Subscribe(OnUpgradesChanged).AddTo(DisposeOnDestroy);
+            
+            View.UpdateInfo(gameDataController.Data.CarData);
         }
 
+        private void OnTimeChanged(GameTimeChanged obj)
+        {
+            View.SetTimer(obj.Time);
+        }
+        
+        private void OnUpgradesChanged(UpgradesChanged obj)
+        {
+            View.UpdateInfo(obj.CarData);
+        }
+        
         protected override void OnMediatorInitialize()
         {
             base.OnMediatorInitialize();
@@ -50,9 +64,6 @@ namespace UI.Screens.Loading
         private void OnExperienceGathered(OnExperienceChangeSignal signal)
         {
             View.SetExperience(signal.Experience / (float) _levelsInfo[_currentLevel]);
-
-            //   Debug.Log("Current level :" + _currentLevel + " Current experience : " + signal.Experience +
-            // " Target experience : " + _levelsInfo[_currentLevel]);
         }
     }
 }

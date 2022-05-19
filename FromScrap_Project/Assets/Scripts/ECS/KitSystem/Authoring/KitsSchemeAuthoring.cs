@@ -41,7 +41,7 @@ namespace Kits.Authoring
                 var data = _kitPlatforms[j];
                 var platform = conversionSystem.GetPrimaryEntity(data.KitPlatform);
 
-                var componentData = new KitPlatformComponent() {CanOccupy = data.CanOccupy, IsFree = true};
+                var componentData = new KitPlatformComponent() {CanOccupy = data.CanOccupy, IsFree = true, Scheme = entity};
 
                 dstManager.AddComponentData(platform, componentData);
 

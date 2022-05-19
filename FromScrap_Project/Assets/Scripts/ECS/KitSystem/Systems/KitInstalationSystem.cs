@@ -1,3 +1,5 @@
+using BovineLabs.Event.Systems;
+using ECS.SignalSystems.Systems;
 using Kits.Components;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,11 +11,13 @@ namespace Kits.Systems
     public partial class KitInstalationSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
-
+        private EventSystem _eventSystem;
+        
         protected override void OnCreate()
         {
             _ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-
+            _eventSystem = this.World.GetOrCreateSystem<EventSystem>();
+            
             base.OnCreate();
         }
 
@@ -25,6 +29,8 @@ namespace Kits.Systems
             var kpcb = GetBufferFromEntity<KitPlatformConnectionBuffer>(true);
             var kpkb = GetBufferFromEntity<KitPlatformKitsBuffer>();
 
+            var installEvent = _eventSystem.CreateEventWriter<KitInstalledSignal>();
+            
             Entities.WithNone<Parent>().ForEach(
                 (Entity entity, ref KitComponent kitComponent, in KitIDComponent kitID, in LocalToWorld localToWorld, in KitInstalatorComponent instalationData,
                     in KitInstalatorTargetComponent intalationTarget) =>
@@ -93,6 +99,7 @@ namespace Kits.Systems
                     ecb.AddComponent(entity, new Parent() {Value = intalationTarget.TargetEntity});
                     ecb.AddComponent(entity, new LocalToParent());
                     ecb.SetComponent(entity, new Translation() {Value = instalationData.Offset});
+                    installEvent.Write(new KitInstalledSignal(){Car = platformInfo.Scheme});
                     
                     if (platformInfo.CanOccupy)
                     {
@@ -112,6 +119,8 @@ namespace Kits.Systems
                     
                     ecb.RemoveComponent<KitInstalatorComponent>(entity);
                 }).WithReadOnly(kpc).WithReadOnly(kpcb).Run();
+            
+            _eventSystem.AddJobHandleForProducer<KitInstalledSignal>(Dependency);
         }
     }
 }

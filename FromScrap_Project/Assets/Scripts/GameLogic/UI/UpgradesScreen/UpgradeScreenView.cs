@@ -14,15 +14,9 @@ namespace UI.Screens.Upgrades
         private Action _onComplete;
 
         private List<UpgradeCardView> _cards = new List<UpgradeCardView>();
-
-        public Entity CurrentEntity;
-        [HideInInspector] public int CurrentLevel;
         
-        public void Init(Entity target, int level, Action onComplete)
+        public void Init(Action onComplete)
         {
-            CurrentEntity = target;
-            CurrentLevel = level;
-            
             _onComplete = onComplete;
         }
 

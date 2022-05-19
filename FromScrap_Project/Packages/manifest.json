@@ -2,6 +2,7 @@
   "dependencies": {
     "com.popcron.gizmos": "https://github.com/popcron/gizmos.git",
     "com.reese.math": "https://github.com/reeseschultz/ReeseUnityDemos.git#math",
+    "com.unity.2d.sprite": "1.0.0",
     "com.unity.addressables": "1.18.19",
     "com.unity.burst": "1.6.5",
     "com.unity.cinemachine": "2.6.11",

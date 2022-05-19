@@ -45,18 +45,17 @@ namespace Upgrades.Systems
 
             if (_isUpgrading || _upgradesQueue.Count <= 0) return;
             
-            Upgrade(_upgradesQueue[0].upgradeObject, _upgradesQueue[0].upgradeLevel);
+            Upgrade();
             _upgradesQueue.RemoveAt(0);
-
         }
 
-        async Task Upgrade(Entity upgradeEntity, int level)
+        async Task Upgrade()
         {
             UnityEngine.Time.timeScale = 0;
             _isUpgrading = true;
             
            var menuScreen = await _menuNavigationController.ShowMenuScreen<UpgradeScreenView>(null,"UpgradesScreen");
-           menuScreen.Init(upgradeEntity, level, CompleteUpgrade);
+           menuScreen.Init(CompleteUpgrade);
         }
 
         void CompleteUpgrade()

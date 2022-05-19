@@ -7,8 +7,8 @@ namespace Packages.Common.StateMachineGlobal
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<EnemiesSpawnerSystem>().AsSingle();
+            Container.BindInterfacesTo<GameDataController>().AsSingle();
             Container.BindInterfacesTo<GameManagerSystem>().AsSingle();
-            // Container.BindInterfacesTo<SignalSystem>().AsSingle();
         }
     }
 }
