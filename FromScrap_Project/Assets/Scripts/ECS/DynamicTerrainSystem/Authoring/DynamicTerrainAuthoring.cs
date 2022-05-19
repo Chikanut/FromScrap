@@ -10,7 +10,6 @@ using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
 {
-    //[Serializable]
     internal class DynamicTerrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         [Header("Terrain Objects")]

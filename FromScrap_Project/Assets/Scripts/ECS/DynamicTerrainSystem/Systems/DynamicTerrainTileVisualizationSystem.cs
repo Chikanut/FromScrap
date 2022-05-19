@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
 
 namespace ECS.DynamicTerrainSystem
 {
-    [UpdateInGroup(typeof(DynamicTerrainVisualizationGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(DynamicTerrainVisualizationGroup))]
     
     public partial class DynamicTerrainTileVisualizationSystem : SystemBase
     {
@@ -27,21 +27,20 @@ namespace ECS.DynamicTerrainSystem
         protected override void OnUpdate()
         {
             var ecbs = _mEndSimulationEcbSystem.CreateCommandBuffer().AsParallelWriter();
-            
+          
             Entities.ForEach((
                 Entity entity,
+                int entityInQueryIndex,
                 ref DynamicTerrainTileComponent tileComponent,
-                ref RenderBounds renderBounds
+                ref RenderBounds renderBounds,
+                in RenderMesh renderMesh
             ) =>
             {
-                var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(entity);
                 var isUpdated = tileComponent.IsUpdated;
 
                 if (!isUpdated)
                 {
-                    Generate(entity, ref tileComponent, ref renderBounds, ref ecbs, ref renderMesh);
-
-                    ecbs.SetSharedComponent(0, entity, renderMesh);
+                    Generate(entity, ref tileComponent, ref renderBounds, ref ecbs, entityInQueryIndex, renderMesh);
                 }
 
             }).WithoutBurst().Run();
@@ -54,7 +53,8 @@ namespace ECS.DynamicTerrainSystem
             ref DynamicTerrainTileComponent tileComponent,
             ref RenderBounds renderBounds,
             ref EntityCommandBuffer.ParallelWriter ecbs,
-            ref RenderMesh renderMesh)
+            int entityInQueryIndex,
+            RenderMesh renderMesh)
         {
             var terrainSize = tileComponent.TerrainTileSize;
             var cellSize = tileComponent.CellSize;
@@ -73,17 +73,19 @@ namespace ECS.DynamicTerrainSystem
             renderMesh.mesh.normals = normalsCalculator.RecalculatedNormals(renderMesh.mesh, tileComponent.NormalsSmoothAngle);
           
             CalculateRenderBounds(ref tileComponent, ref renderBounds);
-            CalculateCollider(entity, ref renderMesh, ref tileComponent, ref ecbs);
+            CalculateCollider(entity, ref renderMesh, ref tileComponent, ref ecbs, entityInQueryIndex);
 
             renderMesh.layerMask = 1;
             tileComponent.IsUpdated = true;
+            ecbs.SetSharedComponent(entityInQueryIndex, entity, renderMesh);
         }
 
         private static void CalculateCollider(
             Entity entity, 
             ref RenderMesh renderMesh,
             ref DynamicTerrainTileComponent tileComponent,
-            ref EntityCommandBuffer.ParallelWriter ecbs)
+            ref EntityCommandBuffer.ParallelWriter ecbs,
+            int entityInQueryIndex)
         {
             var blobCollider = new NativeArray<BlobAssetReference<Unity.Physics.Collider>>(1, Allocator.TempJob);
             var nVerts = new NativeArray<Vector3>(renderMesh.mesh.vertices, Allocator.TempJob).Reinterpret<float3>();
@@ -98,7 +100,7 @@ namespace ECS.DynamicTerrainSystem
             
             cmcj.Run();
 
-            ecbs.AddComponent(0, entity, new PhysicsCollider {Value = blobCollider[0]});
+            ecbs.AddComponent(entityInQueryIndex, entity, new PhysicsCollider {Value = blobCollider[0]});
 
             nVerts.Dispose();
             nTris.Dispose();
