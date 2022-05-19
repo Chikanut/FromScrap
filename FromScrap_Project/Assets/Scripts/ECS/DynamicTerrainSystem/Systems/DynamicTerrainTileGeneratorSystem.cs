@@ -5,6 +5,14 @@ using Unity.Transforms;
 
 namespace ECS.DynamicTerrainSystem
 {
+    [Serializable]
+    public enum DynamicTerrainTileState
+    {
+        IsGenerated,
+        IsReadyToGenerate,
+        IsReadyToDestroy
+    }
+    
     [UpdateInGroup(typeof(DynamicTerrainSimulationGroup), OrderLast = true)]
 
     public partial class DynamicTerrainTileGeneratorSystem : SystemBase
@@ -22,8 +30,9 @@ namespace ECS.DynamicTerrainSystem
         {
             var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
             
-            Entities.ForEach((
+            Dependency = Entities.ForEach((
                 Entity entity,
+                int entityInQueryIndex,
                 ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
                 ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer
             ) =>
@@ -35,18 +44,18 @@ namespace ECS.DynamicTerrainSystem
                     switch (tileInfoData.TileState)
                     {
                         case DynamicTerrainTileState.IsReadyToGenerate:
-                            GenerateTerrainTile(ref entity, ref terrainTileBuffer, in dynamicTerrainBaseComponent, ecbs, i);
+                            GenerateTerrainTile(ref entity, ref terrainTileBuffer, in dynamicTerrainBaseComponent, ecbs,entityInQueryIndex, i);
                             break;
                         case DynamicTerrainTileState.IsGenerated:
                             break;
                         case DynamicTerrainTileState.IsReadyToDestroy:
-                            RemoveTerrainTile(ref terrainTileBuffer, ecbs, i);
+                            RemoveTerrainTile(ref terrainTileBuffer, ecbs, entityInQueryIndex, i);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
             
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
@@ -56,12 +65,13 @@ namespace ECS.DynamicTerrainSystem
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
             in DynamicTerrainBaseComponent terrainComponent,
             EntityCommandBuffer.ParallelWriter ecbs,
+            int entityInQueryIndex,
             int index
         )
         {
             var tileData = terrainTileBuffer[index];
             var tileIndex = tileData.TileIndex;
-            var tileEntity = ecbs.Instantiate(0, terrainComponent.TerrainTileEntity);
+            var tileEntity = ecbs.Instantiate(entityInQueryIndex, terrainComponent.TerrainTileEntity);
             var tileComponent = new DynamicTerrainTileComponent()
             {
                 TerrainTileSize = terrainComponent.TerrainTileSize,
@@ -82,9 +92,9 @@ namespace ECS.DynamicTerrainSystem
             };
            
             terrainTileBuffer.RemoveAt(index);
-            ecbs.AddComponent(0, tileEntity, translation);
-            ecbs.AddComponent(0, tileEntity, tileComponent);
-            ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainTileInfoData()
+            ecbs.AddComponent(entityInQueryIndex, tileEntity, translation);
+            ecbs.AddComponent(entityInQueryIndex, tileEntity, tileComponent);
+            ecbs.AppendToBuffer(entityInQueryIndex, generatorEntity, new DynamicTerrainTileInfoData()
             {
                 TileEntity = tileEntity,
                 TileIndex = tileData.TileIndex,
@@ -95,13 +105,14 @@ namespace ECS.DynamicTerrainSystem
         private static void RemoveTerrainTile(
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
             EntityCommandBuffer.ParallelWriter ecbs,
+            int entityInQueryIndex,
             int index
         )
         {
             var tileData = terrainTileBuffer[index];
             var tileEntity = tileData.TileEntity;
             
-            ecbs.DestroyEntity(0, tileEntity);
+            ecbs.DestroyEntity(entityInQueryIndex, tileEntity);
 
             terrainTileBuffer.RemoveAtSwapBack(index);
         }

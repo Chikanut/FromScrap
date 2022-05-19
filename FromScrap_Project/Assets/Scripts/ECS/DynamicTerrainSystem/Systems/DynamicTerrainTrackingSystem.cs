@@ -1,13 +1,10 @@
 using Cars.View.Components;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
 
 namespace ECS.DynamicTerrainSystem
 {
     [UpdateInGroup(typeof(DynamicTerrainSimulationGroup), OrderFirst = true)]
-    [UpdateBefore(typeof(DynamicTerrainAddTileSystem))]
-    
+
     public partial class DynamicTerrainTrackingSystem : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
@@ -33,8 +30,9 @@ namespace ECS.DynamicTerrainSystem
                 terrainGeneratorEntity = entity;
             }).Run();
 
-            Entities.ForEach((
+            Dependency = Entities.ForEach((
                 Entity entity,
+                int entityInQueryIndex,
                 in CarIDComponent carIDComponent
             ) =>
             {
@@ -42,12 +40,21 @@ namespace ECS.DynamicTerrainSystem
                 {
                     var trackingInfo = trackingInfoBuffer[terrainGeneratorEntity];
 
-                    AddTrackingEntity(ref terrainGeneratorEntity, ref entity, ref trackingInfo, ecbs, true);
+                    AddTrackingEntity(
+                        ref terrainGeneratorEntity, 
+                        ref entity, 
+                        ref trackingInfo, 
+                        ecbs, 
+                        entityInQueryIndex,
+                        true);
                 }
-            }).WithReadOnly(trackingInfoBuffer).ScheduleParallel();
+            }).WithReadOnly(trackingInfoBuffer).ScheduleParallel(Dependency);
 
-            Entities.ForEach((
+            _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+            
+            Dependency = Entities.ForEach((
                 Entity entity,
+                int entityInQueryIndex,
                 in DynamicTerrainTrackingComponent trackingComponent
             ) =>
             {
@@ -55,9 +62,15 @@ namespace ECS.DynamicTerrainSystem
                 {
                     var trackingInfo = trackingInfoBuffer[terrainGeneratorEntity];
                     
-                    AddTrackingEntity(ref terrainGeneratorEntity, ref entity, ref trackingInfo, ecbs, false);
+                    AddTrackingEntity(
+                        ref terrainGeneratorEntity, 
+                        ref entity,
+                        ref trackingInfo,
+                        ecbs,
+                        entityInQueryIndex,
+                        false);
                 }
-            }).WithReadOnly(trackingInfoBuffer).ScheduleParallel();
+            }).WithReadOnly(trackingInfoBuffer).ScheduleParallel(Dependency);
             
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
@@ -67,6 +80,7 @@ namespace ECS.DynamicTerrainSystem
             ref Entity trackingEntity,
             ref DynamicBuffer<DynamicTerrainTrackInfoData> trackingInfoBuffer,
             EntityCommandBuffer.ParallelWriter ecbs,
+            int entityInQueryIndex,
             bool isPlayer
         )
         {
@@ -81,7 +95,7 @@ namespace ECS.DynamicTerrainSystem
             }
 
             if (!isNotAdd)
-                ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainTrackInfoData()
+                ecbs.AppendToBuffer(entityInQueryIndex, generatorEntity, new DynamicTerrainTrackInfoData()
                 {
                     TrackEntity = trackingEntity,
                     IsPlayer = isPlayer
