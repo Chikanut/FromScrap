@@ -6,8 +6,8 @@ using UnityEngine;
 namespace ECS.DynamicTerrainSystem
 {
     [UpdateInGroup(typeof(DynamicTerrainSimulationGroup), OrderFirst = true)]
-    [UpdateBefore(typeof(DynamicTerrainRemoveTileSystem))]
-    
+    [UpdateAfter(typeof(DynamicTerrainTrackingSystem))]
+
     public partial class DynamicTerrainAddTileSystem : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
@@ -24,11 +24,12 @@ namespace ECS.DynamicTerrainSystem
             var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
             var currentTranslation = GetComponentDataFromEntity<Translation>(true);
 
-            Entities.ForEach((
+            Dependency = Entities.ForEach((
                 Entity entity,
+                int entityInQueryIndex,
                 ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
                 ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
-                ref DynamicBuffer<DynamicTerrainTrackInfoData> dynamicTerrainTrackBuffer
+                ref DynamicBuffer<DynamicTerrainTrackInfoData> dynamicTerrainTrackBuffer 
             ) =>
             {
                 SetupDynamicTerrainTiles(
@@ -37,9 +38,11 @@ namespace ECS.DynamicTerrainSystem
                     ref dynamicTerrainTrackBuffer,
                     ref dynamicTerrainBaseComponent,
                     currentTranslation,
-                    ecbs
+                    ecbs,
+                    entityInQueryIndex
                 );
-            }).WithReadOnly(currentTranslation).ScheduleParallel();
+            }).WithReadOnly(currentTranslation)
+                .ScheduleParallel(Dependency);
             
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
@@ -50,7 +53,8 @@ namespace ECS.DynamicTerrainSystem
             ref DynamicBuffer<DynamicTerrainTrackInfoData> dynamicTerrainTrackBuffer,
             ref DynamicTerrainBaseComponent dynamicTerrainBaseComponent,
             ComponentDataFromEntity<Translation> currentTranslation,
-            EntityCommandBuffer.ParallelWriter ecbs
+            EntityCommandBuffer.ParallelWriter ecbs,
+            int entityInQueryIndex
         )
         {
             var isActive = false;
@@ -84,21 +88,26 @@ namespace ECS.DynamicTerrainSystem
                 var tile = playerTile;
                 var isPlayerTile = tile.x == playerTile.x && tile.y == playerTile.y;
                 var radius = isPlayerTile ? radiusToRender : 1;
-                
+               
                 for (var i = -radius; i <= radius; i++)
                 for (var j = -radius; j <= radius; j++)
                 {
                     var tileIndex = new int2(tile.x + i, tile.y + j);
 
-                    ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainEnabledTileInfoData()
+                    ecbs.AppendToBuffer(entityInQueryIndex, generatorEntity, new DynamicTerrainEnabledTileInfoData()
                     {
                         TileIndex = tileIndex
                     });
 
-                    AddTileData(ref generatorEntity, ref terrainTileBuffer, ecbs, tileIndex);
+                    AddTileData(
+                        ref generatorEntity, 
+                        ref terrainTileBuffer, 
+                        ecbs, 
+                        entityInQueryIndex, 
+                        tileIndex);
                 }
             }
-           
+
             for (var k = 0; k < dynamicTerrainTrackBuffer.Length; k++)
             {
                 var curEntity = dynamicTerrainTrackBuffer[k].TrackEntity;
@@ -106,13 +115,13 @@ namespace ECS.DynamicTerrainSystem
                 if (!currentTranslation.HasComponent(curEntity))
                     dynamicTerrainTrackBuffer.RemoveAtSwapBack(k);
             }
-          
         }
 
         private static void AddTileData(
             ref Entity generatorEntity,
             ref DynamicBuffer<DynamicTerrainTileInfoData> terrainTileBuffer,
             EntityCommandBuffer.ParallelWriter ecbs,
+            int entityInQueryIndex,
             int2 tileIndex
         )
         {
@@ -129,7 +138,7 @@ namespace ECS.DynamicTerrainSystem
 
             if (!exist)
             {
-                ecbs.AppendToBuffer(0, generatorEntity, new DynamicTerrainTileInfoData()
+                ecbs.AppendToBuffer(entityInQueryIndex, generatorEntity, new DynamicTerrainTileInfoData()
                 {
                     TileIndex = tileIndex,
                     TileState = DynamicTerrainTileState.IsReadyToGenerate
