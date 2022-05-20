@@ -106,7 +106,8 @@ namespace Kits.Systems
                         ecb.SetComponent(intalationTarget.TargetEntity, new KitPlatformComponent()
                         {
                             CanOccupy = true,
-                            IsFree = false
+                            IsFree = false,
+                            Scheme = platformInfo.Scheme
                         });
                     }
 

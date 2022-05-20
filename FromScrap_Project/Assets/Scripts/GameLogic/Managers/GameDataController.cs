@@ -80,17 +80,23 @@ public class GameDataController : IGameDataController, IInitializable
         
         _carsConfigController = carsConfigController;
     }
-    
+
     public void UpdateCarData(KitInstalledSignal signal)
     {
-        if(!_entityManager.HasComponent<CarIDComponent>(signal.Car))
+        if (!_entityManager.HasComponent<CarIDComponent>(signal.Car))
+        {
+            Debug.LogError("There is no car entity, or car ID component on target entity!");
             return;
+        }
 
         var carID = Progress.Player.CurrentCar;
-        
-        if(_entityManager.GetComponentData<CarIDComponent>(signal.Car).ID != carID)
+
+        if (_entityManager.GetComponentData<CarIDComponent>(signal.Car).ID != carID)
+        {
+            Debug.LogError("ID of this car is not equal to current car ID!");
             return;
-        
+        }
+
         _data.CarData = new CurrentCarInfoData();
 
         InitCarInfo(signal.Car);
@@ -140,6 +146,7 @@ public class GameDataController : IGameDataController, IInitializable
                 var kitComponent = _entityManager.GetComponentData<KitComponent>(kit.ConnectedKit);
                 var kitID = _entityManager.GetComponentData<KitIDComponent>(kit.ConnectedKit);
                 platformInfo.ConnectedKits.Add(kitComponent);
+                
                 platformInfo.ConnectedKitsIDs.Add(kitID);
             }
 				

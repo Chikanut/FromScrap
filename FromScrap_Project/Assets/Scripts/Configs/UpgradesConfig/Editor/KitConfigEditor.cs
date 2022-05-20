@@ -119,6 +119,8 @@ public class KitConfigEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        UpdateKitsPrefabsInfo();
+        
         serializedObject.Update();
         
         _data.FindPropertyRelative("NameLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("NameLocKey").stringValue, "Name Localization Key");
@@ -135,7 +137,7 @@ public class KitConfigEditor : Editor
         
         serializedObject.ApplyModifiedProperties();
 
-        UpdateKitsPrefabsInfo();
+
     }
 
     void UpdateKitsPrefabsInfo()
@@ -150,9 +152,9 @@ public class KitConfigEditor : Editor
             if(kitsInfo[i].Authoring == null)
                 return;
 
-            for (int j = i; j >= 0; j--)
+            for (int j = 0; j < kitsInfo.Count; j++)
             {
-                if(kitsInfo[j].Authoring == kitsInfo[i].Authoring)
+                if(kitsInfo[j].Authoring == kitsInfo[i].Authoring && j != i)
                     return;
             }
 
