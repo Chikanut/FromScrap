@@ -1,5 +1,4 @@
 ﻿using System;
-using DG.Tweening;
 using MenuNavigation;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,6 +35,7 @@ namespace UI.PopUps.Pause
             _upgradesPanel.UpdateInfo(carInfo);
             _characteristicsPanel.UpdateCharacteristics(carInfo.carData.BaseCharacteristics,
                 carInfo.CurrentCharacteristics);
+            CarViewCamera.Instance.ShowCar(carInfo.carEntity);
         }
 
         void OnContinue()
@@ -63,9 +63,7 @@ namespace UI.PopUps.Pause
         {
             base.OnDisable();
             Time.timeScale = 1;
+            CarViewCamera.Instance.Hide();
         }
-
-
-       
     }
 }

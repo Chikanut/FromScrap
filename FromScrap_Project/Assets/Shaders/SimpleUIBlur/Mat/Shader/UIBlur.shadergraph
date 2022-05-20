@@ -2941,7 +2941,7 @@
 }
 
 {
-    "m_SGVersion": 2,
+    "m_SGVersion": 3,
     "m_Type": "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
     "m_ObjectId": "8c9c4b3dfda3e1848e834759df4f74f8",
     "m_Guid": {
@@ -2949,7 +2949,7 @@
     },
     "m_Name": "_Color",
     "m_DefaultReferenceName": "Color_2E7263A3",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "_Color",
     "m_GeneratePropertyBlock": true,
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
