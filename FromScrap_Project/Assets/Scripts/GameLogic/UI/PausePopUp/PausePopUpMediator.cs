@@ -1,10 +1,20 @@
 ﻿using ShootCommon.Views.Mediation;
 using Signals;
+using UnityEngine;
+using Zenject;
 
 namespace UI.PopUps.Pause
 {
     public class PausePopUpMediator : Mediator<PausePopUpView>
     {
+        private IGameDataController _gameDataController;
+        
+        [Inject]
+        public void Init(IGameDataController gameDataController)
+        {
+            _gameDataController = gameDataController;
+        }
+
         protected override void OnMediatorInitialize()
         {
             base.OnMediatorInitialize();
@@ -12,6 +22,12 @@ namespace UI.PopUps.Pause
             View.OnContinueAction = OnContinueAction;
             View.OnMainMenuAction = OnMainMenuAction;
             View.OnRestartAction = OnRestartAction;
+        }
+
+        protected override void OnMediatorEnable()
+        {
+            base.OnMediatorEnable();
+            View.UpdateInfo(_gameDataController.Data.CarData);
         }
 
         private void OnContinueAction()

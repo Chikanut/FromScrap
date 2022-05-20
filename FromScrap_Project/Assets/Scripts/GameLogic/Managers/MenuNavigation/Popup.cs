@@ -1,9 +1,10 @@
 ﻿using System;
+using DG.Tweening;
 using UnityEngine;
 
 namespace MenuNavigation {
-    public abstract class Popup : Showable {
-
+    public abstract class Popup : Showable
+    {
         protected RectTransform RectTransform;
         protected RectTransform MainPanel;
         protected bool IsTransitionsAvailable;
@@ -26,18 +27,7 @@ namespace MenuNavigation {
 
             _shownPosition = MainPanel.anchoredPosition;
         }
-
-        public override void Show(Action onFinish) {
-            TransitionState = ShowableTransitionState.Shown;
-            onFinish?.Invoke();
-        }
-
-        public override void Hide(Action onFinish) {
-            TransitionState = ShowableTransitionState.Hidden;
-            IsActive = false;
-            onFinish?.Invoke();
-        }
-
+        
         public override bool IsActive {
             get => gameObject.activeSelf;
             set => gameObject.SetActive(value);

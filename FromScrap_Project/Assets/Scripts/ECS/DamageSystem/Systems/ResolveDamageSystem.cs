@@ -85,7 +85,7 @@ namespace DamageSystem.Systems
         {
             Entities.WithName("RecalculateMaxHealthSystem").ForEach((Entity entity, ref Health health, in CharacteristicsComponent characteristic) =>
             {
-                var maxHealth = (int)(health.InitialMaxValue * characteristic.Value.HealthMultiplier + characteristic.Value.AdditionalHealth);
+                var maxHealth = (int)(characteristic.Value.MaxHealth * characteristic.Value.HealthMultiplier + characteristic.Value.AdditionalHealth);
                 
                 if (health.CurrentMaxValue != maxHealth)
                     health.SetMaxHealth(maxHealth);

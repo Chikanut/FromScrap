@@ -1,8 +1,10 @@
+using BovineLabs.Event.Containers;
+using BovineLabs.Event.Systems;
+using ECS.SignalSystems.Systems;
 using StatisticsSystem.Components;
 using StatisticsSystem.Tags;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace StatisticsSystem.Systems
 {
@@ -10,7 +12,7 @@ namespace StatisticsSystem.Systems
     public partial class ApplyCharacteristicsModificationSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
-
+  
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -23,7 +25,8 @@ namespace StatisticsSystem.Systems
             var modificationsBufferFilter = GetBufferFromEntity<CharacteristicModificationsBuffer>(true);
 
             var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
-
+          
+            
             Dependency = Entities.ForEach((Entity entity, ref CharacteristicsModificationComponent modificationComponent) =>
             {
                 if (ApplyModification(entity, entity, modificationComponent, parentFilter, modificationsBufferFilter,
@@ -37,7 +40,7 @@ namespace StatisticsSystem.Systems
                 }
                 
             }).WithReadOnly(parentFilter).WithReadOnly(modificationsBufferFilter).Schedule(Dependency);
-
+            
             _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
@@ -59,6 +62,7 @@ namespace StatisticsSystem.Systems
             ecb.AppendToBuffer(parent,
                 new CharacteristicModificationsBuffer()
                     {Value = modificationComponent.Value, ModificatorHolder = holder, Multiply = modificationComponent.Multiply});
+         
             ecb.AddComponent(parent, new NewCharacteristicsTag());
 
             return true;

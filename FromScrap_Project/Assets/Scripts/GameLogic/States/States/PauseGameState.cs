@@ -3,6 +3,7 @@ using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
 using UI.PopUps.Pause;
+using UnityEngine;
 using Zenject;
 
 namespace GameLogic.States.States

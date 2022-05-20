@@ -5,17 +5,6 @@ using UnityEngine;
 namespace MenuNavigation {
     public abstract class MenuScreen : Showable
     {
-        public override void Show(Action onFinish) {
-            TransitionState = ShowableTransitionState.Shown;
-            onFinish?.Invoke();
-        }
-
-        public override void Hide(Action onFinish) {
-            TransitionState = ShowableTransitionState.Hidden;
-            IsActive = false;
-            onFinish?.Invoke();
-        }
-
         public override bool IsActive {
             get => gameObject.activeSelf;
             set => gameObject.SetActive(value);

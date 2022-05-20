@@ -1,24 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
-using Cars.View.Components;
 using Kits.Components;
-using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.Upgrades;
-using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
-using Zenject;
 
-public class UpgradesInfoPanel : MonoBehaviour
+public class UpgradesInfoPanelBase : MonoBehaviour
 {
-    [Header("Components")] [SerializeField]
-    private RectTransform _rowHolder;
-
+    [Header("Components")]
+    [SerializeField] private RectTransform _rowHolder;
     [SerializeField] private UpgradeIconView _upgradePrefab;
-
-    [Header("Settings")] [SerializeField] private int _maxItemsInRow = 2;
     [SerializeField] List<KitType> _showKitTypes = new List<KitType>();
-    
+    [SerializeField] private bool _includeKitPlatforms = false;
+
     public enum PanelType
     {
         upgrade,
@@ -36,13 +29,13 @@ public class UpgradesInfoPanel : MonoBehaviour
     List<GameObject> _placeHolders = new List<GameObject>();
     List<UpgradeIconView> _icons = new List<UpgradeIconView>();
     List<RectTransform> _rows = new List<RectTransform>();
-    
+
     public void UpdateInfo(CurrentCarInfoData carInfo)
     {
         ClearAll();
 
-       var info = GetInfo(carInfo);
-       Visualise(info);
+        var info = GetInfo(carInfo);
+        Visualise(info);
     }
 
     List<UpgradeInfo> GetInfo(CurrentCarInfoData carInfo)
@@ -52,7 +45,7 @@ public class UpgradesInfoPanel : MonoBehaviour
         foreach (var platform in carInfo.platformInfos)
         {
             var platformConnectedKits = platform.ConnectedKits;
-          
+
             var kitsIDs = platform.ConnectedKitsIDs;
 
             var findedKitInside = false;
@@ -63,19 +56,19 @@ public class UpgradesInfoPanel : MonoBehaviour
                 var kitID = kitsIDs[j];
 
                 if (!_showKitTypes.Contains(kit.Type)) continue;
-                
+
                 kits.Add(new UpgradeInfo()
                 {
                     KitInfo = carInfo.carData.UpgradesConfigs[kitID.ID],
                     Level = kit.KitLevel,
                     Type = PanelType.upgrade
                 });
-                
+
                 findedKitInside = true;
             }
 
-            if (findedKitInside) continue;
-            
+            if (findedKitInside || !_includeKitPlatforms) continue;
+
             var platformConnections = platform.Connections;
             var targetPlatform = platformConnections.Any(connection => _showKitTypes.Contains(connection));
 
@@ -86,70 +79,24 @@ public class UpgradesInfoPanel : MonoBehaviour
         return kits;
     }
 
-    void Visualise(List<UpgradeInfo> info)
+    public virtual void Visualise(List<UpgradeInfo> info)
     {
-        var rowsInfo = GetLinesCount(info.Count);
 
-        var iconCount = 1;
-        
-        for (int i = 0; i < rowsInfo.linesCount; i++)
-        {
-            var row = GetNextRow();
-
-            for (int j = 0; j < iconCount; j++)
-            {
-
-                if (info.Count > 0)
-                {
-                    var infoItem = info[0];
-                    var icon = GetNextIcon(row);
-                    icon.Reset();
-                    
-                    if (infoItem.Type == PanelType.upgrade)
-                    {
-                        icon.Init(infoItem.KitInfo.Icon);
-                        icon.SetState(UpgradeIconView.UpgradeIconState.active);
-                        icon.ShowUpgrades(infoItem.Level, false);
-                    }
-                    else
-                    {
-                        icon.SetState(UpgradeIconView.UpgradeIconState.disabled);
-                    }
-                    
-                    info.RemoveAt(0);
-                }
-                else
-                {
-                    GetNextPlaceHolder(row);
-                }
-            }
-
-            iconCount++;
-            
-            if(iconCount > _maxItemsInRow)
-                iconCount = 1;
-        }
     }
 
-    public (int linesCount, int placeholdersCount) GetLinesCount(int elementsCount)
+    protected void UpdateIconInfo(UpgradeIconView icon, UpgradeInfo info)
     {
-        var n = elementsCount;
-        var elementsInLine = 1;
-        var linesCount = 0;
-        
-        while (n > 0)
+        icon.Reset();
+
+        if (info.Type == PanelType.upgrade)
         {
-            n -= elementsInLine;
-            
-            if (elementsInLine >= _maxItemsInRow)
-                elementsInLine = 0;
-
-            elementsInLine++;
-            
-            linesCount++;
+            icon.Init(info.KitInfo.Icon);
+            icon.SetState(UpgradeIconView.UpgradeIconState.active);
+            icon.ShowUpgrades(info.Level, false);
+        }else
+        {
+            icon.SetState(UpgradeIconView.UpgradeIconState.disabled);
         }
-
-        return (linesCount, math.abs(n));
     }
 
     public void ClearAll()
@@ -159,7 +106,7 @@ public class UpgradesInfoPanel : MonoBehaviour
         _icons.ForEach(o => o.gameObject.SetActive(false));
     }
 
-    RectTransform GetNextRow()
+    public RectTransform GetNextRow()
     {
         foreach (var row in _rows)
         {
@@ -172,13 +119,14 @@ public class UpgradesInfoPanel : MonoBehaviour
         }
 
         var newRow = Instantiate(_rowHolder, _rowHolder.parent);
+        newRow.gameObject.SetActive(true);
         newRow.SetAsLastSibling();
         _rows.Add(newRow);
 
         return newRow;
     }
 
-    UpgradeIconView GetNextIcon(Transform parent)
+    public UpgradeIconView GetNextIcon(Transform parent)
     {
         foreach (var icon in _icons)
         {
@@ -197,7 +145,7 @@ public class UpgradesInfoPanel : MonoBehaviour
         return newIcon;
     }
 
-    GameObject GetNextPlaceHolder(Transform parent)
+    public GameObject GetNextPlaceHolder(Transform parent)
     {
         foreach (var placeHolder in _placeHolders)
         {

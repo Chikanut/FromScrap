@@ -15,7 +15,7 @@ namespace UI.Screens.Loading
         [SerializeField] private TextMeshProUGUI _levelLabel;
         [SerializeField] private TextMeshProUGUI _nextLevelLabel;
         [SerializeField] private TextMeshProUGUI _time;
-        [SerializeField] private UpgradesInfoPanel _upgradesPanel;
+        [SerializeField] private UpgradesInfoPanelPiramid _upgradesPanelPyramid;
 
         [Header("Settings")]
         [SerializeField] private float _experienceFillSpeed;
@@ -39,7 +39,7 @@ namespace UI.Screens.Loading
 
         public void UpdateInfo(CurrentCarInfoData carInfo)
         {
-            _upgradesPanel.UpdateInfo(carInfo);
+            _upgradesPanelPyramid.UpdateInfo(carInfo);
         }
 
         public void SetTimer(float seconds)

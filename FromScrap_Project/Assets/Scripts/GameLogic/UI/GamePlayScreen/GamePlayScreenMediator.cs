@@ -15,18 +15,18 @@ namespace UI.Screens.Loading
         private List<int> _levelsInfo = new List<int>();
 
         private ICarsConfigController _carsConfigController;
-
+        private IGameDataController _gameDataController;
+        
         [Inject]
         public void Init(ICarsConfigController carsConfigController, IGameDataController gameDataController)
         {
             _carsConfigController = carsConfigController;
+            _gameDataController = gameDataController;
             
             SignalService.Receive<OnExperienceChangeSignal>().Subscribe(OnExperienceGathered).AddTo(DisposeOnDestroy);
             SignalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUp).AddTo(DisposeOnDestroy);
             SignalService.Receive<GameTimeChanged>().Subscribe(OnTimeChanged).AddTo(DisposeOnDestroy);
             SignalService.Receive<UpgradesChanged>().Subscribe(OnUpgradesChanged).AddTo(DisposeOnDestroy);
-            
-            View.UpdateInfo(gameDataController.Data.CarData);
         }
 
         private void OnTimeChanged(GameTimeChanged obj)
@@ -44,10 +44,15 @@ namespace UI.Screens.Loading
             base.OnMediatorInitialize();
 
             _currentLevel = 0;
-            View.SetCurrentLevel(_currentLevel);
             _levelsInfo = _carsConfigController.GetCarData(Progress.Player.CurrentCar).LevelsExperience;
-            
             View.PauseAction = PauseAction;
+        }
+        
+        protected override void OnMediatorEnable()
+        {
+            base.OnMediatorEnable();
+            View.SetCurrentLevel(_currentLevel);
+            View.UpdateInfo(_gameDataController.Data.CarData);
         }
 
         private void PauseAction()

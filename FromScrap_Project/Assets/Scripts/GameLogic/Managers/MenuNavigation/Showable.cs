@@ -7,6 +7,8 @@ using UnityEngine;
 namespace MenuNavigation {
     public abstract class Showable : View {
         
+        public ShowableTransitionBase TransitionBase;
+        
         public static string ShowableName = "ScreenName";
         [HideInInspector] public string CurrentShowableName;
 
@@ -36,9 +38,43 @@ namespace MenuNavigation {
             return null;
         }
 
-        public abstract void Show(Action onFinish);
+        public virtual void Show(Action onFinish)
+        {
+            if (TransitionBase != null)
+            {
+                TransitionState = ShowableTransitionState.Showing;
+                TransitionBase.Show(() =>
+                {
+                    TransitionState = ShowableTransitionState.Shown;
+                    onFinish?.Invoke();
+                });
+            }
+            else
+            {
+                TransitionState = ShowableTransitionState.Shown;
+                onFinish?.Invoke();
+            }
+        }
 
-        public abstract void Hide(Action onFinish);
+        public virtual void Hide(Action onFinish)
+        {
+            if (TransitionBase != null)
+            {
+                TransitionState = ShowableTransitionState.Hiding;
+                TransitionBase.Hide(() =>
+                {
+                    TransitionState = ShowableTransitionState.Hidden;
+                    IsActive = false;
+                    onFinish?.Invoke();
+                });
+            }
+            else
+            {
+                TransitionState = ShowableTransitionState.Hidden;
+                IsActive = false;
+                onFinish?.Invoke();
+            }
+        }
 
         public abstract bool IsActive { get; set; }
         public abstract ShowableTransitionState TransitionState { get; protected set; }

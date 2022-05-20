@@ -1,4 +1,5 @@
 ﻿using System;
+using DG.Tweening;
 using MenuNavigation;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,10 +8,16 @@ namespace UI.PopUps.Pause
 {
     public class PausePopUpView : Popup
     {
+
+
+        [Header("Pause PopUp")]
         [SerializeField] private Button _continue;
         [SerializeField] private Button _mainMenu;
         [SerializeField] private Button _restart;
-
+        
+        [SerializeField] CharacteristicsPanel _characteristicsPanel;
+        [SerializeField] private UpgradesInfoPanelChess _upgradesPanel;
+        
         public Action OnContinueAction;
         public Action OnMainMenuAction;
         public Action OnRestartAction;
@@ -18,10 +25,17 @@ namespace UI.PopUps.Pause
         protected override void Start()
         {
             base.Start();
-            
+
             _continue.onClick.AddListener(OnContinue);
             _mainMenu.onClick.AddListener(OnStartGame);
             _restart.onClick.AddListener(OnExitGame);
+        }
+        
+        public void UpdateInfo(CurrentCarInfoData carInfo)
+        {
+            _upgradesPanel.UpdateInfo(carInfo);
+            _characteristicsPanel.UpdateCharacteristics(carInfo.carData.BaseCharacteristics,
+                carInfo.CurrentCharacteristics);
         }
 
         void OnContinue()
@@ -38,7 +52,7 @@ namespace UI.PopUps.Pause
         {
             OnRestartAction?.Invoke();
         }
-        
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -50,5 +64,8 @@ namespace UI.PopUps.Pause
             base.OnDisable();
             Time.timeScale = 1;
         }
+
+
+       
     }
 }

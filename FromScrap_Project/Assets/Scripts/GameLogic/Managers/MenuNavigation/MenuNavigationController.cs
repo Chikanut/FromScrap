@@ -85,7 +85,6 @@ namespace MenuNavigation {
         {
             showableName ??= typeof(T).GetField("ShowableName").GetValue(null).ToString();
             _canvas.CanvasGroup.interactable = false;
-
             HideShowable<T>(_popups,
                 () =>
                 {
@@ -227,13 +226,12 @@ namespace MenuNavigation {
                 return;
             }
 
-            if (!TryGetShowable<T>(out var screen, pool, ShowableSearchMathod.onlyEnabled, showableName))
+            if (!TryGetShowable<T>(out var showable, pool, ShowableSearchMathod.onlyEnabled, showableName))
             {
                 Debug.LogWarning($"Menu Screen of type '{typeof(T)}' does not exist yet!");
                 return;
             }
-            
-            screen.Hide(onFinish);
+            showable.Hide(onFinish);
         }
 
         public bool Interactable

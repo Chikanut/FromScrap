@@ -6,6 +6,7 @@ using Kits.Components;
 using LevelingSystem.Components;
 using Packages.Common.Storage.Config.Cars;
 using ShootCommon.Signals;
+using StatisticsSystem.Components;
 using UniRx;
 using Unity.Entities;
 using UnityEngine;
@@ -25,6 +26,7 @@ public class PlatformInfo
 public class CurrentCarInfoData
 {
     public CarConfigData carData;
+    public Characteristics CurrentCharacteristics;
     public Entity carEntity;
     public int carID;
     public int carLevel;
@@ -114,6 +116,11 @@ public class GameDataController : IGameDataController, IInitializable
         {
             Debug.LogError("There is no car entity, or car ID component on target entity!");
             return;
+        }
+
+        if (_entityManager.HasComponent<CharacteristicsComponent>(car))
+        {
+            _data.CarData.CurrentCharacteristics = _entityManager.GetComponentData<CharacteristicsComponent>(car).Value;
         }
 
         _data.CarData.carID = _entityManager.GetComponentData<CarIDComponent>( _data.CarData.carEntity).ID;
