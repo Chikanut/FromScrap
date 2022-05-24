@@ -24,10 +24,15 @@ public class CarViewCamera : MonoBehaviour
     private Entity _car;
 
     public Camera Camera;
+    [SerializeField] private float _damping = 0.5f;
     [SerializeField] private float _distanceToTarget = 10;
     [SerializeField] private  Material _carMaterial;
     [SerializeField] private  string _textureName;
     [SerializeField] private float _rotationSpeed = 15;
+    [SerializeField] private Vector2 _offset;
+    [SerializeField] private float _cameraVerticalAngle = -15;
+
+    private Vector2 _rotationVelocity;
     
     void Start()
     {
@@ -53,14 +58,22 @@ public class CarViewCamera : MonoBehaviour
 
     private Vector3 previousPosition;
     private Vector2 _input;
-    
+
+    public void InitSettings(float cameraDistance, float movementSpeed, Vector2 offset)
+    {
+        _distanceToTarget = cameraDistance;
+        _rotationSpeed = movementSpeed;
+        _offset = offset;
+    }
+
     public void Input(Vector2 input)
     {
         _input = input;
     }
 
-    private Vector2 _currentAngle;
-
+    private Vector2 _currentAngle = new Vector2(-15,45);
+    private Vector2 _deltaInput;
+    
     private void Update()
     {
         if (_car == Entity.Null)
@@ -68,18 +81,19 @@ public class CarViewCamera : MonoBehaviour
             return;
         }
 
-        _input = Vector2.right * _rotationSpeed;
-
-        _input *= Time.unscaledDeltaTime;
+        _deltaInput = Vector2.SmoothDamp(_deltaInput, _input, ref _rotationVelocity, _damping, Mathf.Infinity, Time.unscaledDeltaTime);
+        
+        _deltaInput *= _rotationSpeed;
+        _deltaInput *= Time.unscaledDeltaTime;
 
         var carLocalToWorld = _entityManager.GetComponentData<LocalToWorld>(_car);
 
-        var rotationAroundYAxis = -_input.x * 180; // camera moves horizontally
-        var rotationAroundXAxis = _input.y * 180; // camera moves vertically
+        var rotationAroundYAxis = -_deltaInput.x * 180; // camera moves horizontally
+        var rotationAroundXAxis = _deltaInput.y * 180; // camera moves vertically
 
         _currentAngle += new Vector2(rotationAroundXAxis, rotationAroundYAxis);
 
-        _currentAngle.x = -15;
+        _currentAngle.x = _cameraVerticalAngle;
 
         Camera.transform.position = carLocalToWorld.Position + carLocalToWorld.Forward * _distanceToTarget;
         Camera.transform.LookAt(carLocalToWorld.Position, carLocalToWorld.Up);
@@ -87,7 +101,9 @@ public class CarViewCamera : MonoBehaviour
         Camera.transform.RotateAround(carLocalToWorld.Position, carLocalToWorld.Right, _currentAngle.x);
         Camera.transform.RotateAround(carLocalToWorld.Position, carLocalToWorld.Up, _currentAngle.y);
         
-        _input = Vector2.zero;
+        Camera.transform.position += transform.right * _offset.x;
+        Camera.transform.position += transform.up * _offset.y;
+        
     }
 
     public void Hide()

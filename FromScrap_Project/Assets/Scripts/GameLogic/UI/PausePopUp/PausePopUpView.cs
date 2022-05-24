@@ -7,8 +7,6 @@ namespace UI.PopUps.Pause
 {
     public class PausePopUpView : Popup
     {
-
-
         [Header("Pause PopUp")]
         [SerializeField] private Button _continue;
         [SerializeField] private Button _mainMenu;
