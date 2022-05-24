@@ -44,7 +44,7 @@ namespace UI.Screens.Loading
             base.OnMediatorInitialize();
 
             _currentLevel = 0;
-            _levelsInfo = _carsConfigController.GetCarData(Progress.Player.CurrentCar).LevelsExperience;
+            _levelsInfo = _carsConfigController.GetCarData(Progress.Player.Car).LevelsExperience;
             View.PauseAction = PauseAction;
         }
         

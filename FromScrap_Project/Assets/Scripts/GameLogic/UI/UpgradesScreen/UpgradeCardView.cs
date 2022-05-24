@@ -34,19 +34,15 @@ namespace UI.Screens.Upgrades
         
         [Header("Components")]
         [SerializeField] private Image _backGround;
-        [SerializeField] private Image _icon;
-        [SerializeField] private Image _frame;
+        [SerializeField] private UpgradeIconView _icon;
         [Space]
-        [SerializeField] private TextMeshProUGUI _name;
         [SerializeField] private TextMeshProUGUI _info;
-        [SerializeField] private TextMeshProUGUI _lvl;
         [Space]
         [SerializeField] private Button _button;
 
         [Space]
         [Header("Resources")] 
         [SerializeField] private BackgroundsDictionary _backgrounds = new BackgroundsDictionary();
-        [SerializeField] private List<Sprite> _frames = new List<Sprite>();
 
 
         private Action _onClick;
@@ -60,12 +56,10 @@ namespace UI.Screens.Upgrades
         {
             if (_backgrounds.ContainsKey(data.Type))
                 _backGround.sprite = _backgrounds[data.Type];
-            
-            if (_frames.Count > 0)
-                _frame.sprite = _frames[Mathf.Clamp(data.UpgradeLevel, 0, _frames.Count - 1)];
-            
-            _icon.sprite = data.Icon;
-            _name.text = LocalizationManager.GetTranslation(data.NameKey);
+
+            _icon.Reset();
+            _icon.Init(data.Icon, data.NameKey);
+            _icon.ShowUpgrades(data.UpgradeLevel, true);
 
             var descriptionText ="";
             
@@ -80,8 +74,7 @@ namespace UI.Screens.Upgrades
             }
 
             _info.text = descriptionText;
-            _lvl.text = data.UpgradeLevel.ToString();
-            
+
             _onClick = onClick;
         }
 

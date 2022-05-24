@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cars.View.Components;
 using ECS.SignalSystems.Systems;
 using Kits.Components;
@@ -33,10 +32,35 @@ public class CurrentCarInfoData
     public List<PlatformInfo> platformInfos = new List<PlatformInfo>();
 }
 
-public class GameData
+public class CurrentGameStats
 {
     public float Time;
+    public int Level;
+    public int Damage;
+    public int Kills;
+    public int CollectedScrap;
+
+    public int ExperienceGained 
+    {
+        get
+        {
+            var experience = 0f;
+
+            experience += Time * 10f;
+            experience += Level * 100f;
+            experience += Damage / 1000f;
+            experience += Kills / 10f;
+            experience += CollectedScrap / 10f;
+
+            return (int)experience;
+        }
+    }
+}
+
+public class GameData
+{
     public CurrentCarInfoData CarData;
+    public CurrentGameStats Stats;
 }
 
 public struct GameTimeChanged : ISignal
@@ -91,7 +115,7 @@ public class GameDataController : IGameDataController, IInitializable
             return;
         }
 
-        var carID = Progress.Player.CurrentCar;
+        var carID = Progress.Player.Car;
 
         if (_entityManager.GetComponentData<CarIDComponent>(signal.Car).ID != carID)
         {
@@ -163,7 +187,7 @@ public class GameDataController : IGameDataController, IInitializable
     
     public void Update(float deltaTime)
     {
-        _data.Time += deltaTime;
-        _signalService.Publish(new GameTimeChanged(){Time = _data.Time});
+        _data.Stats.Time += deltaTime;
+        _signalService.Publish(new GameTimeChanged(){Time = _data.Stats.Time});
     }
 }

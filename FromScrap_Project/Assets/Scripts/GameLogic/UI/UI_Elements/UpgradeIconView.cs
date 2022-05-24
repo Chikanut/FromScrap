@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using I2.Loc;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,8 +14,9 @@ public class UpgradeIconView : MonoBehaviour
         disabled,
         hide,
     }
-    
+
     [Header("Components")]
+    [SerializeField] private TextMeshProUGUI _name;
     [SerializeField] private Image _icon;
     [SerializeField] private Image _frame;
     [SerializeField] private List<Image> _upgradeLevels = new List<Image>();
@@ -38,7 +41,8 @@ public class UpgradeIconView : MonoBehaviour
 
     void Start()
     {
-        _button.onClick.AddListener(OnPressed);
+        if(_button != null)
+            _button.onClick.AddListener(OnPressed);
     }
 
     void OnPressed()
@@ -46,16 +50,27 @@ public class UpgradeIconView : MonoBehaviour
         _onPressed?.Invoke();
     }
 
-    public void Init(Sprite icon, Action onPress = null)
+    public void Init(Sprite icon, string nameKey = "", Action onPress = null)
     {
         _icon.sprite = icon;
         _icon.color = Color.white;
         _onPressed = onPress;
+
+        if (nameKey != "")
+        {
+            _name.gameObject.SetActive(true);
+            _name.text = LocalizationManager.GetTranslation(nameKey);
+        }
+        else
+        {
+            _name.gameObject.SetActive(false);
+        }
     }
     
     public void EnableButton(bool enable)
     {
-        _button.interactable = enable;
+        if(_button != null)
+            _button.interactable = enable;
     }
 
     public void SetState(UpgradeIconState state)
@@ -110,5 +125,6 @@ public class UpgradeIconView : MonoBehaviour
         HideUpgrades();
         SetState(_defaultState);
         _icon.color = Color.clear;
+        _name.gameObject.SetActive(false);
     }
 }

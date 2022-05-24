@@ -60,11 +60,11 @@ namespace GameLogic.States.States
 
         void SpawnPlayer()
         {
-            var carData = _carsConfigController.GetCarData(Progress.Player.CurrentCar);
+            var carData = _carsConfigController.GetCarData(Progress.Player.Car);
         
             EntityPoolManager.Instance.GetObject(carData.Prefab, (entity, manager) =>
             {
-                manager.AddComponentData(entity, new CarIDComponent() {ID = Progress.Player.CurrentCar});
+                manager.AddComponentData(entity, new CarIDComponent() {ID = Progress.Player.Car});
                 manager.AddComponentData(entity, new PlayerTag());
                 manager.SetComponentData(entity, new Translation()
                 {

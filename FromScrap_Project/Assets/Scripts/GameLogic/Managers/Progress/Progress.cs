@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Linq;
 using ShootCommon.GlobalStateMachine;
 
 namespace Visartech.Progress
@@ -12,14 +11,15 @@ namespace Visartech.Progress
         [Serializable]
         public class PlayerData : Observable
         {
-
             public PlayerData()
             {
-                CurrentCar = 0;
+                Car = 0;
+                Level = 0;
             }
 
-            public int CurrentCar;
-
+            public int Car;
+            public int Level;
+            public int Scrap;
         }
 
         [Serializable]
@@ -41,31 +41,10 @@ namespace Visartech.Progress
         public class StatisticsData
         {
             public bool isFirstPlay = false;
-
-            const string DateFormat = "yyyy.MM.dd";
-            public string[] DaysInGame = new string[0];
-
-            public int GetTotalDaysInGame
-            {
-                get
-                {
-                    if (DaysInGame.Any(t => t.Equals(DateTime.Now.ToString(DateFormat))))
-                        return DaysInGame.Length;
-
-                    AddDay();
-                    
-                    return DaysInGame.Length;
-                }
-            }
-
-            public void AddDay()
-            {
-                var newArr = new string[DaysInGame.Length + 1];
-
-                DaysInGame.CopyTo(newArr, 0);
-                newArr[newArr.Length - 1] = DateTime.Now.ToString(DateFormat);
-                DaysInGame = newArr;
-            }
+            public int KillsRecord;
+            public int DamageRecord;
+            public int LevelRecord;
+            public int TimeRecord;
         }
 
         private PlayerData _playerData;
