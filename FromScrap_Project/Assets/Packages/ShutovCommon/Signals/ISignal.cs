@@ -1,9 +1,11 @@
+using System.Collections;
+
 namespace ShootCommon.Signals
 {
     public interface ISignal
     {
     }
-    
+
     public interface ISignal<TValue>: ISignal
     {
         TValue Value { get; }

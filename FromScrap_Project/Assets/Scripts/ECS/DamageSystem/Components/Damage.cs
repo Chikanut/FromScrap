@@ -6,5 +6,6 @@ namespace DamageSystem.Components
     public struct Damage : IBufferElementData
     {
         public int Value;
+        public bool isPlayer;
     }
 }

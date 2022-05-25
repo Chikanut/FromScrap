@@ -1,6 +1,7 @@
 ﻿using Packages.Common.Storage.Config;
 using ShootCommon.Views.Mediation;
 using Signals;
+using UnityEngine;
 using Zenject;
 
 namespace UI.Screens.Loading
@@ -27,9 +28,10 @@ namespace UI.Screens.Loading
         protected override void OnMediatorEnable()
         {
             base.OnMediatorEnable();
+            
             View.UpdateInfo(_gameDataController.Data.CarData);
             View.UpdateStats(_gameDataController.Data.Stats);
-            View.UpdateScrap(_gameDataController.Data.Stats.CollectedScrap);
+            View.UpdateScrap(100);//_gameDataController.Data.Stats.CollectedScrap);
             View.UpdateXP(_gameDataController.Data.Stats.ExperienceGained,
                 _playerProgressionConfigController.GetPlayerProgressionData);
         }

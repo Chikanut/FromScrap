@@ -1,7 +1,4 @@
-﻿// <copyright file="ConsumeSingleEventSystemBase.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
+﻿
 namespace BovineLabs.Event.Systems
 {
     using BovineLabs.Event.Containers;
@@ -25,4 +22,6 @@ namespace BovineLabs.Event.Systems
             }
         }
     }
+    
+   
 }

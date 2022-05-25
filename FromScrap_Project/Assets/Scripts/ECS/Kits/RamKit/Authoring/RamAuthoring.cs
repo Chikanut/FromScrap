@@ -9,6 +9,7 @@ namespace Ram.Authorings
 {
     public class RamAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
+        [SerializeField] private bool _isPlayer;
         [SerializeField] private float2 _damageRange = new float2(5, 25);
         [SerializeField] private float2 _impulseRange = new float2(5, 25);
         [SerializeField] private float2 _speedRange = new float2(5, 25);
@@ -23,7 +24,8 @@ namespace Ram.Authorings
             });
             dstManager.AddComponentData(entity, new DealDamage()
             {
-                DamageDelay = 0f
+                DamageDelay = 0f,
+                isPlayer = _isPlayer
             });
 
             dstManager.AddComponentData(entity, new CollisionEventBuffer() {CalculateDetails = 0});

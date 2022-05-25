@@ -1,5 +1,6 @@
 using BovineLabs.Event.Systems;
 using DamageSystem.Components;
+using ECS.SignalSystems.Systems;
 using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Transforms;
@@ -22,6 +23,9 @@ namespace DamageSystem.Systems
         protected override void OnUpdate()
         {
             var onDamageTextEvent = _eventSystem.CreateEventWriter<DamagePointsEvent>();
+            var onEnemyDamageEvent = _eventSystem.CreateEventWriter<EnemyDamageSignal>();
+            var onEnemyKillEvent = _eventSystem.CreateEventWriter<EnemyKillSignal>();
+            
             var ecb = _ecbSystem.CreateCommandBuffer();
             var damageBlockers = GetComponentDataFromEntity<DamageBlockTimer>(true);
             var characteristicsFilter = GetComponentDataFromEntity<CharacteristicsComponent>(true);
@@ -36,6 +40,11 @@ namespace DamageSystem.Systems
                     if (characteristicsFilter.HasComponent(entity))
                     {
                         dmgValue = (int)(dmgValue / characteristicsFilter[entity].Value.DamageResistMultiplier);
+                    }
+
+                    if (damage.isPlayer)
+                    {
+                        onEnemyDamageEvent.Write(new EnemyDamageSignal(){Damage = dmgValue});
                     }
 
                     health.Value -= dmgValue;
@@ -56,6 +65,9 @@ namespace DamageSystem.Systems
                     health.Value = 0;
                     ecb.AddComponent<Dead>(entity);
 
+                    if(damage.isPlayer)
+                        onEnemyKillEvent.Write(new EnemyKillSignal());
+                    
                     break;
                 }
 
@@ -63,6 +75,8 @@ namespace DamageSystem.Systems
             }).WithReadOnly(characteristicsFilter).WithReadOnly(damageBlockers).Schedule(Dependency);
             
             _eventSystem.AddJobHandleForProducer<DamagePointsEvent>(Dependency);
+            _eventSystem.AddJobHandleForProducer<EnemyDamageSignal>(Dependency);
+            _eventSystem.AddJobHandleForProducer<EnemyKillSignal>(Dependency);
 
             var deltaTime = Time.DeltaTime;
             

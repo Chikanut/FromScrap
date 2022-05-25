@@ -4,6 +4,7 @@ using ShootCommon.GlobalStateMachine;
 using Signals;
 using Stateless;
 using UI.Screens.Loading;
+using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 

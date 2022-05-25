@@ -30,7 +30,7 @@ namespace DamageSystem.Systems
                     }
                     
                     if(!damageBlockers.HasComponent(otherEntity))
-                        damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
+                        damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value, isPlayer = dealDamage.isPlayer});
                     
                     dealDamage.PrevHitTime = time;
                 }
@@ -53,7 +53,7 @@ namespace DamageSystem.Systems
                     }
                     
                     if(!damageBlockers.HasComponent(otherEntity))
-                        damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value});
+                        damageBuffers[otherEntity].Add(new Damage() {Value = dealDamage.Value, isPlayer = dealDamage.isPlayer});
                     
                     dealDamage.PrevHitTime = time;
                 }

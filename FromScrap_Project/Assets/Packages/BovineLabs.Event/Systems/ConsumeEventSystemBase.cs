@@ -2,6 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+using System;
+using System.Reflection;
+using UnityEngine;
+
 namespace BovineLabs.Event.Systems
 {
     using System.Collections.Generic;
@@ -12,7 +16,6 @@ namespace BovineLabs.Event.Systems
     /// <typeparam name="T"> The job type. </typeparam>
     [AlwaysUpdateSystem]
     public abstract partial class ConsumeEventSystemBase<T> : SystemBase
-        where T : unmanaged
     {
         private EventSystem eventSystem;
 
@@ -44,21 +47,21 @@ namespace BovineLabs.Event.Systems
         protected sealed override void OnUpdate()
         {
             this.BeforeEvent();
-
+            
             if (!this.eventSystem.HasEventReaders<T>())
             {
                 return;
             }
-
+            
             this.Dependency = this.eventSystem.GetEventReaders<T>(this.Dependency, out IReadOnlyList<NativeEventStream.Reader> readers);
             this.Dependency.Complete();
-
+            
             try
             {
                 foreach (var t in readers)
                 {
                     var reader = t;
-
+            
                     for (var foreachIndex = 0; foreachIndex < reader.ForEachCount; foreachIndex++)
                     {
                         var events = reader.BeginForEachIndex(foreachIndex);

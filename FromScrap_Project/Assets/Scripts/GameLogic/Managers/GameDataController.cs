@@ -8,6 +8,7 @@ using ShootCommon.Signals;
 using StatisticsSystem.Components;
 using UniRx;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using Visartech.Progress;
 using Zenject;
@@ -108,8 +109,26 @@ public class GameDataController : IGameDataController, IInitializable
         _signalService = signalService;
         
         _signalService.Receive<KitInstalledSignal>().Subscribe(UpdateCarData).AddTo(_disposeOnDestroy);
+        _signalService.Receive<EnemyDamageSignal>().Subscribe(OnEnemyDamage).AddTo(_disposeOnDestroy);
+        _signalService.Receive<EnemyKillSignal>().Subscribe(OnEnemyKill).AddTo(_disposeOnDestroy);
+        _signalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUpSignal).AddTo(_disposeOnDestroy);
         
         _carsConfigController = carsConfigController;
+    }
+
+    private void OnLevelUpSignal(OnLevelUpSignal obj)
+    {
+        _data.Stats.Level = math.max(_data.Stats.Level, obj.Level);
+    }
+
+    private void OnEnemyKill(EnemyKillSignal obj)
+    {
+        _data.Stats.Kills++;
+    }
+
+    private void OnEnemyDamage(EnemyDamageSignal obj)
+    {
+        _data.Stats.Damage += obj.Damage;
     }
 
     public void UpdateCarData(KitInstalledSignal signal)

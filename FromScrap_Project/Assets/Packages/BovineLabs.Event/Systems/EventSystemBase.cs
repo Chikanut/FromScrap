@@ -2,6 +2,9 @@
 // Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+using System.Reflection;
+using UnityEngine;
+
 namespace BovineLabs.Event.Systems
 {
     using System;
@@ -54,12 +57,11 @@ namespace BovineLabs.Event.Systems
         /// <returns> A <see cref="NativeEventStream.ThreadWriter"/> you can write events to. </returns>
         /// <exception cref="InvalidOperationException"> Throw if unbalanced CreateEventWriter and AddJobHandleForProducer calls. </exception>
         public NativeEventStream.ThreadWriter CreateEventWriter<T>()
-            where T : unmanaged
         {
             var container = this.GetOrCreateEventContainer<T>();
             return container.CreateEventStream(-1).AsThreadWriter();
         }
-
+        
         /// <summary> Create a new NativeEventStream for writing events to . </summary>
         /// <param name="foreachCount"> The foreach count. </param>
         /// <typeparam name="T"> The type of event. </typeparam>
@@ -88,7 +90,6 @@ namespace BovineLabs.Event.Systems
         /// <typeparam name="T"> The event type to check. </typeparam>
         /// <returns> True if there are readers for the event. </returns>
         public bool HasEventReaders<T>()
-            where T : unmanaged
         {
             return this.GetEventReadersCount<T>() != 0;
         }
@@ -97,7 +98,6 @@ namespace BovineLabs.Event.Systems
         /// <typeparam name="T"> The event type to check. </typeparam>
         /// <returns> True if there are readers for the event. </returns>
         public int GetEventReadersCount<T>()
-            where T : unmanaged
         {
             var container = this.GetOrCreateEventContainer<T>();
             return container.GetReadersCount();
@@ -109,18 +109,17 @@ namespace BovineLabs.Event.Systems
         /// <typeparam name="T"> The type of event. </typeparam>
         /// <returns> The updated dependency handle. </returns>
         public JobHandle GetEventReaders<T>(JobHandle handle, out IReadOnlyList<NativeEventStream.Reader> readers)
-            where T : unmanaged
         {
             var container = this.GetOrCreateEventContainer<T>();
             readers = container.GetReaders();
             return JobHandle.CombineDependencies(container.ProducerHandle, handle);
         }
+        
 
         /// <summary> Adds the specified JobHandle to the events list of consumer dependency handles. </summary>
         /// <param name="handle"> The job handle to add. </param>
         /// <typeparam name="T"> The type of event to associate the handle to. </typeparam>
         public void AddJobHandleForConsumer<T>(JobHandle handle)
-            where T : unmanaged
         {
             this.GetOrCreateEventContainer<T>().AddJobHandleForConsumer(handle);
         }
@@ -228,7 +227,6 @@ namespace BovineLabs.Event.Systems
         }
 
         private EventContainer GetOrCreateEventContainer<T>()
-            where T : unmanaged
         {
             return this.GetOrCreateEventContainer(typeof(T));
         }

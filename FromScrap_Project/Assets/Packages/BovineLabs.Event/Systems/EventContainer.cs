@@ -196,7 +196,7 @@ namespace BovineLabs.Event.Systems
 
             this.SetReadMode();
             return this.readers.Count;
-        }
+            }
 
         /// <summary> Add readers to the container. Requires read mode.  </summary>
         /// <param name="externalStreams"> The readers to be added. </param>

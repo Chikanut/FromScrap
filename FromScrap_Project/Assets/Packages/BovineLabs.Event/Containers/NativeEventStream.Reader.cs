@@ -1,3 +1,5 @@
+using BovineLabs.Event.Systems;
+
 namespace BovineLabs.Event.Containers
 {
     using System;
@@ -106,8 +108,7 @@ namespace BovineLabs.Event.Containers
             /// <summary> Read data. </summary>
             /// <typeparam name="T"> The type of value. </typeparam>
             /// <returns> The returned data. </returns>
-            public ref T Read<T>()
-                where T : unmanaged
+            public ref T Read<T>() where T : struct
             {
                 var size = UnsafeUtility.SizeOf<T>();
 #if UNITY_COLLECTIONS_0_14_OR_NEWER
@@ -116,8 +117,8 @@ namespace BovineLabs.Event.Containers
                 return ref UnsafeUtilityEx.AsRef<T>(this.ReadUnsafePtr(size));
 #endif
             }
-
-            /// <summary>
+            
+        /// <summary>
             /// Peek into data.
             /// </summary>
             /// <typeparam name="T">The type of value.</typeparam>
