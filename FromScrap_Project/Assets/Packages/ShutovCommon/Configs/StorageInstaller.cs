@@ -12,6 +12,7 @@ namespace Packages.Common.Storage
             Container.BindInterfacesTo<EnemySpawnerConfigController>().AsSingle();
             Container.BindInterfacesTo<CarsConfigController>().AsSingle();
             Container.BindInterfacesTo<SoundConfigController>().AsSingle();
+            Container.BindInterfacesTo<PlayerProgressionConfigController>().AsSingle();
         }
     }
 }

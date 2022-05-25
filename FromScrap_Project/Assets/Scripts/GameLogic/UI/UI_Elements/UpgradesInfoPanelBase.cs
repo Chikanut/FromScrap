@@ -30,7 +30,7 @@ public class UpgradesInfoPanelBase : MonoBehaviour
     List<UpgradeIconView> _icons = new List<UpgradeIconView>();
     List<RectTransform> _rows = new List<RectTransform>();
 
-    public void UpdateInfo(CurrentCarInfoData carInfo)
+    public virtual void UpdateInfo(CurrentCarInfoData carInfo)
     {
         ClearAll();
 

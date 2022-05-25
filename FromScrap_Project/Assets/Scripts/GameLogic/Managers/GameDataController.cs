@@ -59,6 +59,11 @@ public class CurrentGameStats
 
 public class GameData
 {
+    public GameData()
+    {
+        Stats = new CurrentGameStats();
+    }
+
     public CurrentCarInfoData CarData;
     public CurrentGameStats Stats;
 }

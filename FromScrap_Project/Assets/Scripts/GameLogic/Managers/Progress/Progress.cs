@@ -19,6 +19,7 @@ namespace Visartech.Progress
 
             public int Car;
             public int Level;
+            public int Experience;
             public int Scrap;
         }
 
