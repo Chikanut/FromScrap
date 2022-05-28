@@ -24,6 +24,7 @@ namespace MenuNavigation
             
             Container.BindViewToMediator<MainMenuScreenView, MainManuScreenMediator>();
             Container.BindViewToMediator<RaceTab, RaceTabMediator>();
+            Container.BindViewToMediator<UpgradesTab, UpgradesTabMediator>();
             
             //PopUps
             Container.BindViewToMediator<PausePopUpView, PausePopUpMediator>();

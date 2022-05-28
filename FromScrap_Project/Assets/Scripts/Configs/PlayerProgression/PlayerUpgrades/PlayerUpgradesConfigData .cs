@@ -11,7 +11,8 @@ namespace Packages.Common.Storage.Config
         public class UpgradeLevelData
         {
             public GameObject Authoring;
-
+            public int Cost;
+            
             [Serializable]
             public class Description
             {
@@ -27,7 +28,6 @@ namespace Packages.Common.Storage.Config
         {
             [Header("Info")]
             public string NameLocKey;
-            public string DescriptionLocKey;
             public Sprite Icon;
             
             public List<UpgradeLevelData> UpgradesLevels = new List<UpgradeLevelData>();

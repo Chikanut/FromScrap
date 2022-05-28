@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using I2.Loc;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -106,7 +107,15 @@ public class UpgradeIconView : MonoBehaviour
             _upgradeLevels[i].color = i < currentLevel ? _upgradeLevelActiveColor : _upgradeLevelDefaultColor;
         }
     }
-    
+
+    public void SetMaxLevel(int maxLevel)
+    {
+        for (var i = math.min(math.max(maxLevel,1), _upgradeLevels.Count) - 1 ; i < _upgradeLevels.Count; i++)
+        {
+            _upgradeLevels[i].gameObject.SetActive(false);
+        }
+    }
+
     public void HideUpgrades()
     {
         _upgradesHolder.SetActive(false);
@@ -124,6 +133,10 @@ public class UpgradeIconView : MonoBehaviour
         EnablePlusSign(false);
         HideUpgrades();
         SetState(_defaultState);
+        
+        foreach (var level in _upgradeLevels)
+            level.gameObject.SetActive(true);
+
         _icon.color = Color.clear;
         _name.gameObject.SetActive(false);
     }

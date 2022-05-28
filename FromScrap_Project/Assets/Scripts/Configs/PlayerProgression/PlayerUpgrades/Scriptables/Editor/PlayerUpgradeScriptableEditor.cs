@@ -28,7 +28,6 @@ public class PlayerUpgradeScriptableEditor : Editor
         serializedObject.Update();
         
         _data.FindPropertyRelative("NameLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("NameLocKey").stringValue, "Name Localization Key");
-        _data.FindPropertyRelative("DescriptionLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("DescriptionLocKey").stringValue, "Description Localization Key");
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("Icon"));
         
         _upgradesList.DoLayoutList();
@@ -41,7 +40,7 @@ public class PlayerUpgradeScriptableEditor : Editor
         var arraySize = _upgradesList.serializedProperty.GetArrayElementAtIndex(index).FindPropertyRelative("Descriptions")
             .arraySize;
         
-        return EditorGUIUtility.singleLineHeight * 3 +
+        return EditorGUIUtility.singleLineHeight * 5 +
                arraySize * EditorGUIUtility.singleLineHeight * 2 + 11 *arraySize;
     }
     
@@ -50,9 +49,12 @@ public class PlayerUpgradeScriptableEditor : Editor
         SerializedProperty element = _upgradesList.serializedProperty.GetArrayElementAtIndex(index);
 
         EditorGUI.PropertyField(
-            new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight/2, 200, EditorGUIUtility.singleLineHeight), 
-            element.FindPropertyRelative("Authoring"),
-            GUIContent.none
+            new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight/2, EditorGUIUtility.currentViewWidth-50, EditorGUIUtility.singleLineHeight), 
+            element.FindPropertyRelative("Authoring")
+        );
+        EditorGUI.PropertyField(
+            new Rect(rect.x, rect.y + EditorGUIUtility.singleLineHeight*2, EditorGUIUtility.currentViewWidth-50, EditorGUIUtility.singleLineHeight), 
+            element.FindPropertyRelative("Cost")
         );
         
         DrawDescriptions(element, rect);
@@ -62,7 +64,7 @@ public class PlayerUpgradeScriptableEditor : Editor
     {
         var descriptionsList = element.FindPropertyRelative("Descriptions");
 
-        var currentHeight = rect.y + EditorGUIUtility.singleLineHeight * 1.5f;
+        var currentHeight = rect.y + EditorGUIUtility.singleLineHeight * 3;
         
         for (int d = 0; d < descriptionsList.arraySize; d++)
         {
