@@ -72,8 +72,8 @@ namespace UI.Screens.Loading
             _killsStats.SetInfo(StatisticPanelView.StatisticType.count, currentKills, recordKills);
             _damageStats.SetInfo(StatisticPanelView.StatisticType.count, currentDamage,
                 recordDamage);
-            _levelStats.SetInfo(StatisticPanelView.StatisticType.count, currentLevel + 1,
-                recordLevel + 1);
+            _levelStats.SetInfo(StatisticPanelView.StatisticType.count, currentLevel+1,
+                recordLevel+1);
             _timeStats.SetInfo(StatisticPanelView.StatisticType.time, (int) currentTime, recordTime);
         }
 
@@ -116,7 +116,7 @@ namespace UI.Screens.Loading
             _newXP.text = "+" + gatheredExperience + " <sup>XP</sup>";
             _levelProgressBar.value =
                 (float) currentExperience / levelsExperience[currentLevel];
-            _level.text = (currentLevel + 1).ToString();
+            _level.text = (currentLevel).ToString();
 
             VisualiseExperienceBar(currentLevel, currentExperience, gatheredExperience, levelsExperience,
                 _experienceAnimationTime);
@@ -163,7 +163,7 @@ namespace UI.Screens.Loading
                 tween.onComplete = () =>
                 {
                     _levelProgressBar.value = 0;
-                    _level.text = (i1 + 2).ToString();
+                    _level.text = (i1 + 1).ToString();
                 };
                 _levelSequence.Insert(_initTime + animNum * animTime, tween);
                 animNum++;

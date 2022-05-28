@@ -24,9 +24,9 @@ public class UpgradesLevelPanel : MonoBehaviour
         var upgradeIcon = _upgradeIconPool.GetNextObject();
         upgradeIcon.Reset();
         
-        upgradeIcon.Init(upgrade.Icon, upgrade.NameLocKey, onPress);
+        upgradeIcon.Init(upgrade.Icon, "", onPress);
         upgradeIcon.ShowUpgrades(currentLevel, true);
-        upgradeIcon.EnableButton(true);
+        upgradeIcon.EnableButton(canBuy);
         upgradeIcon.SetState(canBuy
             ? UpgradeIconView.UpgradeIconState.active
             : UpgradeIconView.UpgradeIconState.disabled);

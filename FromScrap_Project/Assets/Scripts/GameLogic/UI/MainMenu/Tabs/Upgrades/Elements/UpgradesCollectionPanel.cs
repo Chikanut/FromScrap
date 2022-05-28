@@ -40,7 +40,7 @@ namespace UI.Screens.MainMenu.Tabs.Upgrades.Elements
             for(var i = 0 ; i < data.Upgrades.Count; i++)
             {
                 var upgradeID = i + startIndex;
-                panel.AddUpgrade(data.Upgrades[i], currentScrap, Progress.Upgrades.GetUpgrade(_collectionID, i).Level, () =>
+                panel.AddUpgrade(data.Upgrades[i], currentScrap, Progress.Upgrades.GetUpgrade(_collectionID, upgradeID).Level, () =>
                 {
                     OnUpgradePressed(upgradeID);
                 });

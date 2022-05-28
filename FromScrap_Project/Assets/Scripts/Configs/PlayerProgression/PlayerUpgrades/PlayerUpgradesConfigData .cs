@@ -47,5 +47,55 @@ namespace Packages.Common.Storage.Config
         }
         
         public List<UpgradesDataCollection> UpgradesCollections = new List<UpgradesDataCollection>();
+
+        public UpgradeLevelData GetUpgradeLevelData(int collectionID, int upgradeID, int upgradeLevel)
+        {
+            var upgradeInfo = GetUpgradeData(collectionID, upgradeID);
+            if (upgradeInfo == null || upgradeInfo.UpgradesLevels.Count <= upgradeLevel)
+            {
+                return null;
+            }
+            
+            return upgradeInfo.UpgradesLevels[upgradeLevel];
+        }
+
+        public UpgradeData GetUpgradeData(int collectionID, int upgradeID)
+        {
+            var upgradeCoordinate = GetUpgradeCoordinate(UpgradesCollections[collectionID], upgradeID);
+
+            if (upgradeCoordinate != (-1, -1))
+                return UpgradesCollections[collectionID].Upgrades[upgradeCoordinate.levelUpgradesID]
+                    .Upgrades[upgradeCoordinate.upgradeIDinLevel];
+            
+            Debug.LogError("Can't find upgrade with id: " + upgradeID);
+            return null;
+        }
+
+        (int levelUpgradesID, int upgradeIDinLevel) GetUpgradeCoordinate(UpgradesDataCollection collection, int upgradeID)
+        {
+            var levelUpgradesID = 0;
+            var upgradeIDInLevel = 0;
+
+            var currentUpgrade = 0;
+            
+            for (int i = 0; i < collection.Upgrades.Count; i++)
+            {
+                for (int j = 0; j < collection.Upgrades[i].Upgrades.Count; j++)
+                {
+                    if (currentUpgrade == upgradeID)
+                    {
+                        return (levelUpgradesID, upgradeIDInLevel);
+                    }
+
+                    upgradeIDInLevel++;
+                    currentUpgrade++;
+                }
+
+                levelUpgradesID++;
+                upgradeIDInLevel = 0;
+            }
+            
+            return (-1, -1);
+        }
     }
 }

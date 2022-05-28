@@ -26,6 +26,7 @@ public class UpgradeIconView : MonoBehaviour
     [SerializeField] private GameObject _upgradesHolder;
     [SerializeField] private GameObject _shine;
     [SerializeField] private Button _button;
+    [SerializeField] private Toggle _toggle;
 
     [Header("Settings")]
     [SerializeField] private UpgradeIconState _defaultState = UpgradeIconState.active;
@@ -44,6 +45,13 @@ public class UpgradeIconView : MonoBehaviour
     {
         if(_button != null)
             _button.onClick.AddListener(OnPressed);
+        
+        if(_toggle != null)
+            _toggle.onValueChanged.AddListener((b) =>
+            {
+                if(b)
+                    OnPressed();
+            });
     }
 
     void OnPressed()
@@ -72,6 +80,8 @@ public class UpgradeIconView : MonoBehaviour
     {
         if(_button != null)
             _button.interactable = enable;
+        if (_toggle != null)
+            _toggle.interactable = enable;
     }
 
     public void SetState(UpgradeIconState state)
@@ -133,6 +143,9 @@ public class UpgradeIconView : MonoBehaviour
         EnablePlusSign(false);
         HideUpgrades();
         SetState(_defaultState);
+
+        if (_toggle != null)
+            _toggle.isOn = false;
         
         foreach (var level in _upgradeLevels)
             level.gameObject.SetActive(true);

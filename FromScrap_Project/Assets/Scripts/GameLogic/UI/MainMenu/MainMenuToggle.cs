@@ -9,7 +9,7 @@ public class MainMenuToggle : MonoBehaviour
 
     public Action<bool> OnActive;
     
-    private void Start()
+    public void Init()
     {
         _toggle.onValueChanged.AddListener(OnValueChanged);
     }

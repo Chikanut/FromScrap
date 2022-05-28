@@ -21,12 +21,24 @@ namespace UI.Screens.MainMenu
             base.OnMediatorInitialize();
 
             SignalService.Receive<OnNewUpdateAction>().Subscribe(OnNewUpdated).AddTo(DisposeOnDestroy);
+            SignalService.Receive<OnPlayerInfoChanged>().Subscribe(OnPlayerInfoChanged).AddTo(DisposeOnDestroy);
         }
 
         protected override void OnMediatorEnable()
         {
             base.OnMediatorEnable();
+            
+            Progress.Player.Scrap = View.StartScrap;
+            Progress.Player.Level = View.StartLevel;
+            
+            View.InitPlayerInfo(Progress.Player.Level,
+                (float)Progress.Player.Experience /
+                _playerProgressionConfigController.GetPlayerProgressionData.LevelsExperience[Progress.Player.Level],
+                Progress.Player.Scrap);
+        }
 
+        public void OnPlayerInfoChanged(OnPlayerInfoChanged signal)
+        {
             View.InitPlayerInfo(Progress.Player.Level,
                 (float)Progress.Player.Experience /
                 _playerProgressionConfigController.GetPlayerProgressionData.LevelsExperience[Progress.Player.Level],

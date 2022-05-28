@@ -9,6 +9,8 @@ public struct OnMainMenuChangeViewAction : ISignal
 
 public struct OnNewUpdateAction : ISignal { }
 
+public struct OnPlayerInfoChanged : ISignal { }
+
 public class MainMenuTab : View
 {
     [Header("Base")]

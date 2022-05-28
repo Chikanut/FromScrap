@@ -24,6 +24,12 @@ namespace UI.Screens.MainMenu
         [SerializeField] private List<TabInfo> _mainMenuStructure = new List<TabInfo>();
         [SerializeField] int _defaultTabIndex = 0;
 
+        [Header("Test")]
+        public int StartLevel = 0;
+
+        public int StartScrap = 0;
+        
+
         private void Awake()
         {
             InitToggles();
@@ -33,6 +39,7 @@ namespace UI.Screens.MainMenu
         {
             foreach (var tabInfo in _mainMenuStructure)
             {
+                tabInfo.Toggle.Init();
                 tabInfo.Toggle.OnActive = (b) =>
                 {
                     if (tabInfo.Tab == null) return;
@@ -40,6 +47,9 @@ namespace UI.Screens.MainMenu
                     if (b) tabInfo.Tab.Show();
                     else tabInfo.Tab.Hide();
                 };
+                
+                if (tabInfo.Tab == null) return;
+                    tabInfo.Tab.Hide();
             }
         }
 

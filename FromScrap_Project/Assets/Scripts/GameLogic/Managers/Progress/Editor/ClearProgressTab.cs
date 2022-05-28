@@ -5,14 +5,14 @@ namespace Visartech.Progress.Editor
 {
     public class ClearProgressTab
     {
-        [MenuItem("Tools/EditorPrefs/Clear all Editor Preferences")]
+        [MenuItem("Tools/Clear all Saves")]
         static void deleteAllExample()
         {
-            if (EditorUtility.DisplayDialog("Delete all editor preferences.",
-                    "Are you sure you want to delete all the editor preferences? " +
+            if (EditorUtility.DisplayDialog("Delete all saves.",
+                    "Are you sure you want to delete all player prefs? " +
                     "This action cannot be undone.", "Yes", "No"))
             {
-                EditorPrefs.DeleteAll();
+                PlayerPrefs.DeleteAll();
             }
         }
     }
