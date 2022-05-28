@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ShootCommon.GlobalStateMachine;
 
 namespace Visartech.Progress
@@ -48,10 +50,68 @@ namespace Visartech.Progress
             public int TimeRecord;
         }
 
+        [Serializable]
+        public class UpgradesData
+        {
+            [Serializable]
+            public class Upgrade
+            {
+                public int CollectionID;
+                public int UpgradeID;
+                public int Level;
+            }
+
+            public List<Upgrade> Upgrades = new List<Upgrade>();
+
+            public void SetUpgrade(int collectionID, int upgradeID, int level)
+            {
+                var getUpgrade =
+                    Upgrades.FirstOrDefault(x => x.CollectionID == collectionID && x.UpgradeID == upgradeID);
+
+                if (getUpgrade != null)
+                {
+                    getUpgrade.Level = level;
+                }
+                else
+                {
+                    Upgrades.Add(new Upgrade()
+                    {
+                        CollectionID = collectionID,
+                        UpgradeID = upgradeID,
+                        Level = level
+                    });
+                }
+            }
+
+            public Upgrade GetUpgrade(int collectionID, int upgradeID)
+            {
+                var getUpgrade =
+                    Upgrades.FirstOrDefault(x => x.CollectionID == collectionID && x.UpgradeID == upgradeID);
+
+                if (getUpgrade != null)
+                {
+                    return getUpgrade;
+                }
+
+                var newUpgrade = new Upgrade()
+                {
+                    CollectionID = collectionID,
+                    UpgradeID = upgradeID,
+                    Level = 0
+                };
+
+                Upgrades.Add(newUpgrade);
+
+                return newUpgrade;
+
+            }
+        }
+
         private PlayerData _playerData;
         private GameData _gameData = new GameData();
         private DevelopmentData _developmentData = new DevelopmentData();
         private StatisticsData _statisticsData = new StatisticsData();
+        private UpgradesData _upgradesData = new UpgradesData();
 
         public static PlayerData Player
         {
@@ -72,6 +132,12 @@ namespace Visartech.Progress
         public static StatisticsData Statistics {
             get => instance._statisticsData;
             set => instance._statisticsData = value;
+        }
+
+        public static UpgradesData Upgrades
+        {
+            get => instance._upgradesData;
+            set => instance._upgradesData = value;
         }
 
         public void Reset()

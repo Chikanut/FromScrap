@@ -36,8 +36,6 @@ namespace Packages.Common.Storage.Config
                 LevelsExperience = data.PlayerLevels.LevelsExperience,
                 Upgrades = data.PlayerUpgrades.UpgradeData
             };
-            
-            Debug.LogError("PlayerProgressionConfigController: SetInfo");
         }
     }
 }
