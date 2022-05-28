@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using MenuNavigation;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,28 +8,64 @@ namespace UI.Screens.MainMenu
 {
     public class MainMenuScreenView : MenuScreen
     {
-        [SerializeField] private Button _startGameButton;
-        [SerializeField] private Button _exitButton;
-
-        public Action OnStartGameAction;
-        public Action OnExitAction;
-
-        protected override void Start()
+        [System.Serializable]
+        public class TabInfo
         {
-            base.Start();
+            public MainMenuToggle Toggle;
+            public MainMenuTab Tab;
+        }
+
+        [Header("PlayerInfo")]
+        [SerializeField] private TextMeshProUGUI _levelNum;
+        [SerializeField] private Slider _levelProgress;
+        [SerializeField] private TextMeshProUGUI _scrapCount;
+        
+        [Header("Tabs")]
+        [SerializeField] private List<TabInfo> _mainMenuStructure = new List<TabInfo>();
+        [SerializeField] int _defaultTabIndex = 0;
+
+        private void Awake()
+        {
+            InitToggles();
+        }
+
+        void InitToggles()
+        {
+            foreach (var tabInfo in _mainMenuStructure)
+            {
+                tabInfo.Toggle.OnActive = (b) =>
+                {
+                    if (tabInfo.Tab == null) return;
+                    
+                    if (b) tabInfo.Tab.Show();
+                    else tabInfo.Tab.Hide();
+                };
+            }
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
             
-            _startGameButton.onClick.AddListener(OnStartGame);
-            _exitButton.onClick.AddListener(OnExitGame);
+            CheckNew();
+            
+            _mainMenuStructure[_defaultTabIndex].Toggle.Enable();
         }
 
-        void OnStartGame()
+        public void CheckNew()
         {
-            OnStartGameAction?.Invoke();
+            foreach (var tabInfo in _mainMenuStructure)
+            {
+                if (tabInfo.Tab == null) return;
+                tabInfo.Toggle.SetNew(tabInfo.Tab.HasNew);
+            }
         }
 
-        void OnExitGame()
+        public void InitPlayerInfo(int levelNum, float levelProgress, int scrapCount)
         {
-            OnExitAction?.Invoke();
+            _levelNum.text = levelNum.ToString();
+            _levelProgress.value = levelProgress;
+            _scrapCount.text = scrapCount.ToString();
         }
     }
 }

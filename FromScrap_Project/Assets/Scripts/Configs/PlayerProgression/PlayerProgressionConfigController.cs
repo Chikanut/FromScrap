@@ -8,6 +8,7 @@ namespace Packages.Common.Storage.Config
     public class PlayerProgressionConfigData 
     {
         public List<int> LevelsExperience = new List<int>();
+        public PlayerUpgradesConfigData Upgrades;
     }
 }
 
@@ -32,8 +33,11 @@ namespace Packages.Common.Storage.Config
         {
             _model = new PlayerProgressionConfigData
             {
-                LevelsExperience = data.PlayerLevels.LevelsExperience
+                LevelsExperience = data.PlayerLevels.LevelsExperience,
+                Upgrades = data.PlayerUpgrades.UpgradeData
             };
+            
+            Debug.LogError("PlayerProgressionConfigController: SetInfo");
         }
     }
 }

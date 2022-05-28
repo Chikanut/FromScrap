@@ -1,7 +1,7 @@
 ﻿using Packages.Common.Storage.Config;
 using ShootCommon.Views.Mediation;
 using Signals;
-using UnityEngine;
+using Visartech.Progress;
 using Zenject;
 
 namespace UI.Screens.Loading
@@ -30,10 +30,14 @@ namespace UI.Screens.Loading
             base.OnMediatorEnable();
             
             View.UpdateInfo(_gameDataController.Data.CarData);
-            View.UpdateStats(_gameDataController.Data.Stats);
-            View.UpdateScrap(100);//_gameDataController.Data.Stats.CollectedScrap);
-            View.UpdateXP(_gameDataController.Data.Stats.ExperienceGained,
-                _playerProgressionConfigController.GetPlayerProgressionData);
+            var stats = _gameDataController.Data.Stats;
+            View.UpdateStats(stats.Kills, Progress.Statistics.KillsRecord,
+                stats.Damage, Progress.Statistics.DamageRecord,
+                stats.Level, Progress.Statistics.LevelRecord,
+                stats.Time, Progress.Statistics.TimeRecord);
+            View.UpdateScrap(100,0);//_gameDataController.Data.Stats.CollectedScrap);
+            View.UpdateXP(Progress.Player.Level, Progress.Player.Experience ,_gameDataController.Data.Stats.ExperienceGained,
+                _playerProgressionConfigController.GetPlayerProgressionData.LevelsExperience);
         }
         
         private void OnMainMenuAction()

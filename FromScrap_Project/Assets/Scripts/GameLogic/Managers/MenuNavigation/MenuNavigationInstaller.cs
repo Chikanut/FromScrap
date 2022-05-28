@@ -2,6 +2,7 @@ using ShootCommon.Views.Mediation;
 using UI.PopUps.Pause;
 using UI.Screens.Loading;
 using UI.Screens.MainMenu;
+using UI.Screens.MainMenu.Tabs;
 using UI.Screens.Preloader;
 using UI.Screens.Upgrades;
 using Zenject;
@@ -19,8 +20,10 @@ namespace MenuNavigation
             Container.BindViewToMediator<UpgradeScreenView, UpgradeScreenMediator>();
             Container.BindViewToMediator<PreloaderScreenView, PreloaderScreenMediator>();
             Container.BindViewToMediator<LoadingScreenView, LoadingScreenMediator>();
-            Container.BindViewToMediator<MainMenuScreenView, MainManuScreenMadiator>();
             Container.BindViewToMediator<EndGameScreenView, EndGameScreenMediator>();
+            
+            Container.BindViewToMediator<MainMenuScreenView, MainManuScreenMediator>();
+            Container.BindViewToMediator<RaceTab, RaceTabMediator>();
             
             //PopUps
             Container.BindViewToMediator<PausePopUpView, PausePopUpMediator>();
