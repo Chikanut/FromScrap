@@ -58,7 +58,7 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
                 if (Progress.Player.Scrap >= getPrice)
                 {
                     Progress.Player.Scrap -= getPrice;
-                    progress.Level++;
+                    Progress.Upgrades.SetUpgrade(_upgradeCoordinates.x, _upgradeCoordinates.y, progress.Level + 1);
                     InitView();
                     OnUpgradePressed(_upgradeCoordinates.x, _upgradeCoordinates.y);
                     

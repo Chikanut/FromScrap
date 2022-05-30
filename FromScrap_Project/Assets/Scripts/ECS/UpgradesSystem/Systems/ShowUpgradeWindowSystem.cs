@@ -8,11 +8,10 @@ using UI.Screens.Upgrades;
 using Unity.Entities;
 using Zenject;
 
-namespace Upgrades.Systems
+namespace UpgradesSystem.Systems
 {
-    public partial class UpgradesSystem : SystemBase
+    public partial class ShowUpgradeWindowSystem : SystemBase
     {
-
         public List<(Entity upgradeObject, int upgradeLevel)> _upgradesQueue = new List<(Entity, int)>();
         private IMenuNavigationController _menuNavigationController;
 

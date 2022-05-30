@@ -158,7 +158,7 @@ public class GameDataController : IGameDataController, IInitializable
     void InitCarInfo(Entity car)
     {
         _data.CarData.carEntity = car;
-        _data.CarData.carLevel = _entityManager.GetComponentData<LevelComponent>(car).Level;
+        _data.CarData.carLevel =_entityManager.HasComponent<LevelComponent>(car) ? _entityManager.GetComponentData<LevelComponent>(car).Level : 0;
 
         if (car == Entity.Null || !_entityManager.HasComponent<CarIDComponent>(car))
         {

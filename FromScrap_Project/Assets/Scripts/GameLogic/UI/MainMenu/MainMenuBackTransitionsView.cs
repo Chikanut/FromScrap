@@ -12,6 +12,7 @@ public class MainMenuBackTransitionsView : View
         public string TriggerName;
     }
 
+    public Transform CarPosition;
     [SerializeField] private Animator _camerasBlend;
     [SerializeField] private List<CameraState> _cameraStates = new List<CameraState>();
     
@@ -21,5 +22,12 @@ public class MainMenuBackTransitionsView : View
         {
             _camerasBlend.SetTrigger(cameraState.TriggerName);
         }
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        Debug.LogError("View enabled");
     }
 }

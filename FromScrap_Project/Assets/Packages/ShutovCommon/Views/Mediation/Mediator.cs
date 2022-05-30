@@ -13,7 +13,8 @@ namespace ShootCommon.Views.Mediation
         
         private DisposableManager _disposableManager;
         private bool _isDisposed;
-        private bool _isInitialized;
+        private
+            bool _isInitialized;
 
         [Inject]
         public void Init(
@@ -29,6 +30,8 @@ namespace ShootCommon.Views.Mediation
         
         public virtual void Initialize()
         {
+            if(_isInitialized) return;
+            
             _isInitialized = true;
             OnMediatorInitialize();
         }

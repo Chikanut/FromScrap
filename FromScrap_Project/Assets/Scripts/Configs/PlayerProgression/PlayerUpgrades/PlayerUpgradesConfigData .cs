@@ -50,6 +50,13 @@ namespace Packages.Common.Storage.Config
 
         public UpgradeLevelData GetUpgradeLevelData(int collectionID, int upgradeID, int upgradeLevel)
         {
+            upgradeLevel -= 1;
+            
+            if (collectionID < 0 || collectionID >= UpgradesCollections.Count)
+            {
+                return null;
+            }
+            
             var upgradeInfo = GetUpgradeData(collectionID, upgradeID);
             if (upgradeInfo == null || upgradeInfo.UpgradesLevels.Count <= upgradeLevel)
             {
