@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DG.Tweening;
 using MenuNavigation;
 using TMPro;
 using UnityEngine;
@@ -48,7 +49,7 @@ namespace UI.Screens.MainMenu
                     else tabInfo.Tab.Hide();
                 };
                 
-                if (tabInfo.Tab == null) return;
+                if (tabInfo.Tab == null) continue;
                     tabInfo.Tab.Hide();
             }
         }
@@ -64,11 +65,14 @@ namespace UI.Screens.MainMenu
 
         public void CheckNew()
         {
-            foreach (var tabInfo in _mainMenuStructure)
+            DOVirtual.DelayedCall(0.1f, () =>
             {
-                if (tabInfo.Tab == null) return;
-                tabInfo.Toggle.SetNew(tabInfo.Tab.HasNew);
-            }
+                foreach (var tabInfo in _mainMenuStructure)
+                {
+                    if (tabInfo.Tab == null) return;
+                    tabInfo.Toggle.SetNew(tabInfo.Tab.HasNew);
+                }
+            });
         }
 
         public void InitPlayerInfo(int levelNum, float levelProgress, int scrapCount)

@@ -1,3 +1,4 @@
+using System;
 using ShootCommon.Signals;
 using ShootCommon.Views.Mediation;
 using UnityEngine;
@@ -15,15 +16,21 @@ public class MainMenuTab : View
 {
     [Header("Base")]
     public string TabName = "default";
-    public virtual bool HasNew => false;
+
+    public GameObject TabObject;
+    public bool HasNew => CheckIsNewAction?.Invoke() ?? false;
 
     public virtual void Show()
     {
-        gameObject.SetActive(true);
+        TabObject.SetActive(true);
+        OnTabSelected?.Invoke();
     }
 
     public virtual void Hide()
     {
-        gameObject.SetActive(false);
+        TabObject.SetActive(false);
     }
+    
+    public Action OnTabSelected;
+    public Func<bool> CheckIsNewAction;
 }

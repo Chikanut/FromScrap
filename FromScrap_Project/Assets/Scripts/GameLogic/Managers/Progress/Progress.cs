@@ -53,6 +53,8 @@ namespace Visartech.Progress
         [Serializable]
         public class UpgradesData
         {
+            public int PreviousLevel;
+
             [Serializable]
             public class Upgrade
             {

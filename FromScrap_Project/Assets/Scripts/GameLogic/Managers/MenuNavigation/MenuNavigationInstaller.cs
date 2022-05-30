@@ -22,9 +22,12 @@ namespace MenuNavigation
             Container.BindViewToMediator<LoadingScreenView, LoadingScreenMediator>();
             Container.BindViewToMediator<EndGameScreenView, EndGameScreenMediator>();
             
+            //Main menu with tabs
             Container.BindViewToMediator<MainMenuScreenView, MainManuScreenMediator>();
             Container.BindViewToMediator<RaceTab, RaceTabMediator>();
             Container.BindViewToMediator<UpgradesTab, UpgradesTabMediator>();
+            Container.BindViewToMediator<SettingsTab, SettingsTabMediator>();
+            Container.BindViewToMediator<MainMenuBackTransitionsView, MainMenuBackTransitionsMediator>();
             
             //PopUps
             Container.BindViewToMediator<PausePopUpView, PausePopUpMediator>();

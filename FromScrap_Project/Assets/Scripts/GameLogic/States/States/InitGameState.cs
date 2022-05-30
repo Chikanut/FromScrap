@@ -62,6 +62,7 @@ namespace GameLogic.States.States
             EntityPoolManager.Instance.GetObject(carData.Prefab, (entity, manager) =>
             {
                 manager.AddComponentData(entity, new CarIDComponent() {ID = Progress.Player.Car});
+                manager.AddComponentData(entity, new PlayerMovementInputComponent());
                 manager.AddComponentData(entity, new PlayerTag());
                 manager.SetComponentData(entity, new Translation()
                 {

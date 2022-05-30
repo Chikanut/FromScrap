@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Packages.Common.Storage.Config;
 using TMPro;
 using UnityEngine;
@@ -16,8 +17,12 @@ public class UpgradesTab : MainMenuTab
     [SerializeField] private TextMeshProUGUI _costText;
     [SerializeField] ToggleGroup _toggleGroup;
 
+    [SerializeField] private List<LayoutGroup> _layoutGroups = new List<LayoutGroup>();
+    [SerializeField] private List<ContentSizeFitter> _sizeFitters = new List<ContentSizeFitter>();
+
     public Action OnBuyButtonClicked;
-    
+
+
     private void Awake()
     {
         _buyUpgrade.onClick.AddListener(BuyUpgrade);
@@ -43,15 +48,18 @@ public class UpgradesTab : MainMenuTab
         _upgradesCollectionsPanel.Init(currentLevel, currentScrap, playerUpgradesData, onIconPressed);
     }
     
-    public void ShowUpgradeBuyInfo(int upgradeCost, string description)
+    public void ShowUpgradeBuyInfo(int upgradeCost, string description, bool canBuy)
     {
         _upgradeInfoPanel.SetActive(true);
         _descriptionText.text = description;
         _costText.text = upgradeCost.ToString();
         _costObject.SetActive(true);
         _buyUpgrade.gameObject.SetActive(true);
+        _buyUpgrade.interactable = canBuy;
 
         _toggleGroup.allowSwitchOff = false;
+
+        UpdateLayouts();
     }
 
     public void ShowUpgradeInfo(string description)
@@ -62,6 +70,17 @@ public class UpgradesTab : MainMenuTab
         _buyUpgrade.gameObject.SetActive(false);
         
         _toggleGroup.allowSwitchOff = false;
+
+        UpdateLayouts();
+    }
+
+    public void UpdateLayouts()
+    {
+        _sizeFitters.ForEach(group=>group.enabled = false);
+        _layoutGroups.ForEach(group=>group.enabled = false);
+        _layoutGroups.ForEach(group=>group.enabled = true);
+        _sizeFitters.ForEach(group=>group.enabled = true);
+ 
     }
 
     public void HideInfoPanel()
@@ -73,5 +92,4 @@ public class UpgradesTab : MainMenuTab
     {
         OnBuyButtonClicked?.Invoke();
     }
-
 }

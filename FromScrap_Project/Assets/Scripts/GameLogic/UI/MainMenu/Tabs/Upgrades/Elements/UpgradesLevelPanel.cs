@@ -20,17 +20,25 @@ public class UpgradesLevelPanel : MonoBehaviour
     
     public void AddUpgrade(PlayerUpgradesConfigData.UpgradeData upgrade, int currentScrap, int currentLevel, Action onPress)
     {
-        var canBuy = currentScrap >= upgrade.UpgradesLevels[currentLevel].Cost;
+        var isMaxed = upgrade.UpgradesLevels.Count <= currentLevel;
+        var canBuy = !isMaxed && currentScrap >= upgrade.UpgradesLevels[currentLevel].Cost;
         var upgradeIcon = _upgradeIconPool.GetNextObject();
         upgradeIcon.Reset();
         
         upgradeIcon.Init(upgrade.Icon, "", onPress);
         upgradeIcon.ShowUpgrades(currentLevel, true);
-        upgradeIcon.EnableButton(canBuy);
-        upgradeIcon.SetState(canBuy
-            ? UpgradeIconView.UpgradeIconState.active
-            : UpgradeIconView.UpgradeIconState.disabled);
-        upgradeIcon.SetMaxLevel(upgrade.UpgradesLevels.Count);
+        upgradeIcon.EnableButton(true);
+
+        if(isMaxed)
+            upgradeIcon.SetState(UpgradeIconView.UpgradeIconState.selected);
+        else
+        {
+            upgradeIcon.SetState(canBuy
+                ? UpgradeIconView.UpgradeIconState.active
+                : UpgradeIconView.UpgradeIconState.disabled);
+        }
+
+        upgradeIcon.SetMaxLevel(upgrade.UpgradesLevels.Count + 1);
     }
     
     public void ClearAll()

@@ -9,12 +9,11 @@ namespace UI.Screens.MainMenu.Tabs
         {
             base.OnMediatorInitialize();
             View.OnStartGameAction += OnStartGame;
+            View.OnTabSelected += OnTabSelected;
         }
 
-        protected override void OnMediatorEnable()
+        private void OnTabSelected()
         {
-            base.OnMediatorEnable();
-            
             SignalService.Publish(new OnMainMenuChangeViewAction()
             {
                 ViewName = View.TabName

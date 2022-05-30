@@ -8,12 +8,20 @@ public class LineLayout : MonoBehaviour
     public List<RectTransform> _anchors = new List<RectTransform>();
 
     private RectTransform _rectTransform;
+
+    private RectTransform RectTransform
+    {
+        get
+        {
+            if (_rectTransform == null)
+                _rectTransform = GetComponent<RectTransform>();
+            return _rectTransform;
+        }
+    }
     private readonly List<RectTransform> _children = new List<RectTransform>();
     
     private void OnEnable()
     {
-        _rectTransform = GetComponent<RectTransform>();
-        
         UpdateChildrens();
     }
     
@@ -25,12 +33,12 @@ public class LineLayout : MonoBehaviour
     void UpdateChildrens()
     {
         _children.Clear();
-
-        for(int i = 0 ; i < _rectTransform.childCount ; i ++)
+        
+        for(int i = 0 ; i < RectTransform.childCount ; i ++)
         {
-            if(_rectTransform.GetChild(i).GetComponent<RectTransform>() != null)
+            if(RectTransform.GetChild(i).GetComponent<RectTransform>() != null)
             {
-                var rectTrans = _rectTransform.GetChild(i).GetComponent<RectTransform>();
+                var rectTrans = RectTransform.GetChild(i).GetComponent<RectTransform>();
                 
                 if(!_anchors.Contains(rectTrans))
                     _children.Add(rectTrans);

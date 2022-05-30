@@ -1,3 +1,4 @@
+using System.Linq;
 using I2.Loc;
 using Packages.Common.Storage.Config;
 using ShootCommon.Views.Mediation;
@@ -20,6 +21,27 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
         base.OnMediatorInitialize();
         
         View.OnBuyButtonClicked += OnBuyButtonClicked;
+        View.CheckIsNewAction += CheckIfNew;
+        View.OnTabSelected += OnTabSelected;
+    }
+
+    public bool _hasSelectedUpgrade;
+    public Vector2Int _upgradeCoordinates;
+    
+    private void OnTabSelected()
+    {
+        Progress.Upgrades.PreviousLevel = Progress.Player.Level;
+        
+        SignalService.Publish(new OnMainMenuChangeViewAction()
+        {
+            ViewName = View.TabName
+        });
+
+        InitView();
+        
+        _hasSelectedUpgrade = false;
+
+        SignalService.Publish(new OnNewUpdateAction());
     }
 
     private void OnBuyButtonClicked()
@@ -45,24 +67,7 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
             }
         }
     }
-
-    public bool _hasSelectedUpgrade;
-    public Vector2Int _upgradeCoordinates;
-
-    protected override void OnMediatorEnable()
-    {
-        base.OnMediatorEnable();
-
-        SignalService.Publish(new OnMainMenuChangeViewAction()
-        {
-            ViewName = View.TabName
-        });
-
-        InitView();
-        
-        _hasSelectedUpgrade = false;
-    }
-
+    
     void InitView()
     {
         View.UpdateCollections(Progress.Player.Level, Progress.Player.Scrap,
@@ -79,12 +84,13 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
 
         if (progress.Level >= upgrade.UpgradesLevels.Count)
         {
-            View.ShowUpgradeInfo(GetUpgradeDescription(upgrade.UpgradesLevels[progress.Level]));
+            View.ShowUpgradeInfo(GetUpgradeDescription(upgrade.UpgradesLevels[upgrade.UpgradesLevels.Count-1]));
         }
         else
         {
+            var canBuy = upgrade.UpgradesLevels[progress.Level].Cost <= Progress.Player.Scrap;
             View.ShowUpgradeBuyInfo(upgrade.UpgradesLevels[progress.Level].Cost,
-                GetUpgradeDescription(upgrade.UpgradesLevels[progress.Level]));
+                GetUpgradeDescription(upgrade.UpgradesLevels[progress.Level]), canBuy);
         }
     }
     
@@ -104,6 +110,19 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
 
         return descriptionText;
     }
-    
-    
+
+    public bool CheckIfNew()
+    {
+        if (Progress.Player.Level > Progress.Upgrades.PreviousLevel &&
+            _playerProgressionConfigController.GetPlayerProgressionData.Upgrades.UpgradesCollections.Any(collection =>
+                collection.Upgrades.Any(upgradeLevel =>
+                    upgradeLevel.MinLevel > Progress.Upgrades.PreviousLevel &&
+                    upgradeLevel.MinLevel <= Progress.Player.Level)))
+        {
+            return true;
+        }
+        
+        return false;
+    }
+
 }
