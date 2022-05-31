@@ -27,10 +27,7 @@ namespace UI.Screens.MainMenu
         protected override void OnMediatorEnable()
         {
             base.OnMediatorEnable();
-            
-            Progress.Player.Scrap = View.StartScrap;
-            Progress.Player.Level = View.StartLevel;
-            
+
             View.InitPlayerInfo(Progress.Player.Level,
                 (float)Progress.Player.Experience /
                 _playerProgressionConfigController.GetPlayerProgressionData.LevelsExperience[Progress.Player.Level],

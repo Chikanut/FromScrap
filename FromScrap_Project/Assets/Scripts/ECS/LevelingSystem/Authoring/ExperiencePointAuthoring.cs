@@ -1,6 +1,5 @@
 using LevelingSystem.Components;
 using Unity.Entities;
-using Unity.Physics.Stateful;
 using UnityEngine;
 
 public class ExperiencePointAuthoring : SpawnAfterDeathAuthoring
@@ -13,6 +12,5 @@ public class ExperiencePointAuthoring : SpawnAfterDeathAuthoring
         base.ConvertAncestors(entity, dstManager, conversionSystem);
         
         dstManager.AddComponentData(entity, new ExperienceComponent() {Value = ExperiencePoints});
-        dstManager.AddBuffer<StatefulTriggerEvent>(entity);
     }
 }

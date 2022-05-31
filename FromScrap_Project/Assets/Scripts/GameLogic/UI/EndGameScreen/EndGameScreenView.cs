@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using FromScrap.Tools;
 using MenuNavigation;
 using TMPro;
 using Unity.Mathematics;
@@ -69,12 +70,12 @@ namespace UI.Screens.Loading
             int currentLevel, int recordLevel,
             float currentTime, int recordTime)
         {
-            _killsStats.SetInfo(StatisticPanelView.StatisticType.count, currentKills, recordKills);
-            _damageStats.SetInfo(StatisticPanelView.StatisticType.count, currentDamage,
+            _killsStats.SetInfo(StatisticType.count, currentKills, recordKills);
+            _damageStats.SetInfo(StatisticType.count, currentDamage,
                 recordDamage);
-            _levelStats.SetInfo(StatisticPanelView.StatisticType.count, currentLevel+1,
+            _levelStats.SetInfo(StatisticType.count, currentLevel+1,
                 recordLevel+1);
-            _timeStats.SetInfo(StatisticPanelView.StatisticType.time, (int) currentTime, recordTime);
+            _timeStats.SetInfo(StatisticType.time, (int) currentTime, recordTime);
         }
 
         private Sequence _scrapView;
@@ -86,8 +87,8 @@ namespace UI.Screens.Loading
             _newScrap.rectTransform.anchoredPosition = _startScrapPosition;
             _newScrap.color = Color.white;
 
-            _scrap.text = currentScrap.ToString();
-            _newScrap.text = "+" + scrapGathered;
+            _scrap.text = UI_Extentions.GetValue(currentScrap, StatisticType.count);
+            _newScrap.text = "+" + UI_Extentions.GetValue(scrapGathered, StatisticType.count);
 
             if (scrapGathered <= 0)
             {
@@ -100,7 +101,7 @@ namespace UI.Screens.Loading
             _scrapView.Insert(_initTime, _newScrap.rectTransform.DOAnchorPosY(_startScrapPosition.y - 15, 2f));
             _scrapView.Insert(_initTime, _newScrap.DOFade(0, 2f));
             _scrapView.Insert(_initTime + 0.3f,
-                _scrap.DOCounter(currentScrap, currentScrap + scrapGathered, 2f));
+                _scrap.DOCounter(currentScrap, currentScrap + scrapGathered, 2f, true));
 
             _scrapView.SetUpdate(true);
         }

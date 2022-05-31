@@ -79,6 +79,11 @@ public struct UpgradesChanged : ISignal
     public CurrentCarInfoData CarData;
 }
 
+public struct ScrapCountChanged : ISignal
+{
+    public int Count;
+}
+
 public interface IGameDataController
 {
     void Initialize();
@@ -112,9 +117,18 @@ public class GameDataController : IGameDataController, IInitializable
         _signalService.Receive<EnemyDamageSignal>().Subscribe(OnEnemyDamage).AddTo(_disposeOnDestroy);
         _signalService.Receive<EnemyKillSignal>().Subscribe(OnEnemyKill).AddTo(_disposeOnDestroy);
         _signalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUpSignal).AddTo(_disposeOnDestroy);
+        _signalService.Receive<ScrapGatherSignal>().Subscribe(OnScrapGathered).AddTo(_disposeOnDestroy);
         
         _carsConfigController = carsConfigController;
     }
+    
+    private void OnScrapGathered(ScrapGatherSignal signal)
+    {
+        _data.Stats.CollectedScrap += signal.Value;
+
+        _signalService.Publish(new ScrapCountChanged() {Count = _data.Stats.CollectedScrap});
+    }
+
 
     private void OnLevelUpSignal(OnLevelUpSignal obj)
     {

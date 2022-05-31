@@ -1,10 +1,6 @@
+using Collectables.Components;
 using DamageSystem.Components;
-using LevelingSystem.Components;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Physics.Stateful;
-using UnityEngine.Rendering;
-
 namespace DamageSystem.Systems
 {
     [UpdateBefore(typeof(ResolveDamageSystem))]
@@ -23,26 +19,16 @@ namespace DamageSystem.Systems
             var health = GetComponentDataFromEntity<Health>();
             var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in AddHealthComponent addHealth, in DynamicBuffer<StatefulTriggerEvent> triggerEvents) =>
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in AddHealthComponent addHealth, in CollectableGatheredComponent collectInfo) =>
             {
-                foreach (var triggerEvent in triggerEvents)
-                {
-                    // if(triggerEvent.State != EventOverlapState.Enter) continue;
+                if (!health.HasComponent(collectInfo.CollectedEntity)) return;
 
-                    var otherEntity = triggerEvent.GetOtherEntity(entity);
-                   
-                    if (!health.HasComponent(otherEntity)) continue;
-
-                    var h = health[otherEntity];
-                    // h.Value = math.clamp( h.Value + addHealth.Value, 0, h.InitialValue);
-                    h.AddHealth(addHealth.Value);
-                    health[otherEntity] = h;
+                var h = health[collectInfo.CollectedEntity];
+                h.AddHealth(addHealth.Value);
+                health[collectInfo.CollectedEntity] = h;
+                
+                ecb.AddComponent(entityInQueryIndex, entity, new Dead());
                     
-                    ecb.AddComponent(entityInQueryIndex, entity, new Dead());
-                   
-                    break;
-
-                }
             }).Schedule(Dependency);
 
             _ecbSystem.AddJobHandleForProducer(Dependency);

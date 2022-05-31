@@ -27,6 +27,16 @@ namespace UI.Screens.Loading
             SignalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUp).AddTo(DisposeOnDestroy);
             SignalService.Receive<GameTimeChanged>().Subscribe(OnTimeChanged).AddTo(DisposeOnDestroy);
             SignalService.Receive<UpgradesChanged>().Subscribe(OnUpgradesChanged).AddTo(DisposeOnDestroy);
+            SignalService.Receive<ScrapCountChanged>().Subscribe(OnScrapGathered).AddTo(DisposeOnDestroy);
+        }
+
+
+        private int _prevScrapValue;
+        private void OnScrapGathered(ScrapCountChanged signal)
+        {
+            View.OnScrap(Progress.Player.Scrap + _prevScrapValue, Progress.Player.Scrap + signal.Count);
+
+            _prevScrapValue = signal.Count;
         }
 
         private void OnTimeChanged(GameTimeChanged obj)

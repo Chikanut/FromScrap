@@ -3,7 +3,6 @@ using Packages.Common.Storage.Config.Cars;
 using ShootCommon.Views.Mediation;
 using UniRx;
 using Unity.Transforms;
-using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 
@@ -25,19 +24,11 @@ public class MainMenuBackTransitionsMediator : Mediator<MainMenuBackTransitionsV
         SpawnCar();
     }
 
-    protected override void OnMediatorEnable()
-    {
-        base.OnMediatorEnable();
-        
-        Debug.LogError("Enable");
-    }
-
     void SpawnCar()
     {
         if(View.CarPosition == null)
             return;
         
-        Debug.LogError("Spawn car");
         var carData = _carsConfigController.GetCarData(Progress.Player.Car);
         
         EntityPoolManager.Instance.GetObject(carData.PresentationPrefab, (entity, manager) =>
