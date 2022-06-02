@@ -66,7 +66,7 @@ namespace UI.Screens.Upgrades
             foreach (var description in data.Descriptions)
             {
                 var descriptionTranslation = LocalizationManager.GetTranslation(description.DescriptionKey);
-                if (!string.IsNullOrEmpty(descriptionText))
+                if (!string.IsNullOrEmpty(descriptionTranslation))
                 {
                     for (var i = 0; i < description.Values.Length; i++)
                         descriptionTranslation =
