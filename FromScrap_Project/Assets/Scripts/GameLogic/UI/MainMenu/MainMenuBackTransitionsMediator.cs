@@ -3,6 +3,7 @@ using Packages.Common.Storage.Config.Cars;
 using ShootCommon.Views.Mediation;
 using UniRx;
 using Unity.Transforms;
+using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 
@@ -29,6 +30,7 @@ public class MainMenuBackTransitionsMediator : Mediator<MainMenuBackTransitionsV
         if(View.CarPosition == null)
             return;
         
+        Debug.LogError(Progress.Player.Car);
         var carData = _carsConfigController.GetCarData(Progress.Player.Car);
         
         EntityPoolManager.Instance.GetObject(carData.PresentationPrefab, (entity, manager) =>
