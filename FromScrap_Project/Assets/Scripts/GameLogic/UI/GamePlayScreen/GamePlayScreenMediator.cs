@@ -52,14 +52,14 @@ namespace UI.Screens.Loading
         protected override void OnMediatorInitialize()
         {
             base.OnMediatorInitialize();
-
-            _currentLevel = 0;
+            
             _levelsInfo = _carsConfigController.GetCarData(Progress.Player.Car).LevelsExperience;
             View.PauseAction = PauseAction;
         }
         
         protected override void OnMediatorEnable()
         {
+            _currentLevel = 0;
             base.OnMediatorEnable();
             View.SetCurrentLevel(_currentLevel);
             View.UpdateInfo(_gameDataController.Data.CarData);

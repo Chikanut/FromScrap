@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 using ModestTree;
 using Zenject.Internal;
 
+#if !NOT_UNITY3D
+#endif
+
 namespace Zenject
 {
     public delegate InjectTypeInfo ZenTypeInfoGetter();
@@ -21,10 +24,12 @@ namespace Zenject
     {
         static Dictionary<Type, InjectTypeInfo> _typeInfo = new Dictionary<Type, InjectTypeInfo>();
 
+#if UNITY_EDITOR
         // We store this separately from InjectTypeInfo because this flag is needed for contract
         // types whereas InjectTypeInfo is only needed for types that are instantiated, and
         // we want to minimize the types that generate InjectTypeInfo for
         static Dictionary<Type, bool> _allowDuringValidation = new Dictionary<Type, bool>();
+#endif
 
         // Use double underscores for generated methods since this is also what the C# compiler does
         // for things like anonymous methods
@@ -44,6 +49,12 @@ namespace Zenject
             return ShouldAllowDuringValidation(typeof(T));
         }
 
+#if !UNITY_EDITOR
+        public static bool ShouldAllowDuringValidation(Type type)
+        {
+            return false;
+        }
+#else
         public static bool ShouldAllowDuringValidation(Type type)
         {
             bool shouldAllow;
@@ -76,12 +87,9 @@ namespace Zenject
             }
 #endif
 
-#if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-            return type.GetTypeInfo().GetCustomAttribute<ZenjectAllowDuringValidationAttribute>() != null;
-#else
             return type.HasAttribute<ZenjectAllowDuringValidationAttribute>();
-#endif
         }
+#endif
 
         public static bool HasInfo<T>()
         {
@@ -138,7 +146,7 @@ namespace Zenject
 
                 var baseType = type.BaseType();
 
-                if (baseType != null && !ShouldSkipTypeAnalysis(baseType))
+                if (baseType != null && ShouldAnalyzeType(baseType))
                 {
                     info.BaseTypeInfo = TryGetInfo(baseType);
                 }
@@ -148,7 +156,7 @@ namespace Zenject
             lock (_typeInfo)
 #endif
             {
-                _typeInfo[type] = info;
+                _typeInfo.Add(type, info);
             }
 
             return info;
@@ -156,7 +164,7 @@ namespace Zenject
 
         static InjectTypeInfo GetInfoInternal(Type type)
         {
-            if (ShouldSkipTypeAnalysis(type))
+            if (!ShouldAnalyzeType(type))
             {
                 return null;
             }
@@ -214,17 +222,35 @@ namespace Zenject
             }
         }
 
-        public static bool ShouldSkipTypeAnalysis(Type type)
+        public static bool ShouldAnalyzeType(Type type)
         {
-            return type == null || type.IsEnum() || type.IsArray || type.IsInterface()
+            if (type == null || type.IsEnum() || type.IsArray || type.IsInterface()
                 || type.ContainsGenericParameters() || IsStaticType(type)
-                || type == typeof(object);
+                || type == typeof(object))
+            {
+                return false;
+            }
+
+            return ShouldAnalyzeNamespace(type.Namespace);
         }
 
         static bool IsStaticType(Type type)
         {
             // Apparently this is unique to static classes
             return type.IsAbstract() && type.IsSealed();
+        }
+
+        public static bool ShouldAnalyzeNamespace(string ns)
+        {
+            if (ns == null)
+            {
+                return true;
+            }
+
+            return ns != "System" && !ns.StartsWith("System.")
+                && ns != "UnityEngine" && !ns.StartsWith("UnityEngine.")
+                && ns != "UnityEditor" && !ns.StartsWith("UnityEditor.")
+                && ns != "UnityStandardAssets" && !ns.StartsWith("UnityStandardAssets.");
         }
 
         static InjectTypeInfo CreateTypeInfoFromReflection(Type type)

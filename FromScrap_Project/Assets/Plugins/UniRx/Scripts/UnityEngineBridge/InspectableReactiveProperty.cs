@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UniRx.InternalUtil;
 using UnityEngine;
 
 namespace UniRx

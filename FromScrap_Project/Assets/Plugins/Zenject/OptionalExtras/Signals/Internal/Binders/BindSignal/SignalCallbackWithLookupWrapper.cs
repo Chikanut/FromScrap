@@ -31,7 +31,7 @@ namespace Zenject
             _signalBus = signalBus;
             _lookupId = lookupId;
 
-            signalBus.SubscribeId(signalBindInfo.SignalType, _identifier, OnSignalFired);
+            signalBus.Subscribe(signalBindInfo.SignalType, OnSignalFired, _identifier);
         }
 
         void OnSignalFired(object signal)
@@ -46,7 +46,7 @@ namespace Zenject
 
         public void Dispose()
         {
-            _signalBus.UnsubscribeId(_signalType, _identifier, OnSignalFired);
+            _signalBus.Unsubscribe(_signalType, OnSignalFired, _identifier);
         }
     }
 }

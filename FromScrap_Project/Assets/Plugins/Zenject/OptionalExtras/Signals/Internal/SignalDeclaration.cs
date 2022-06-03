@@ -172,9 +172,5 @@ namespace Zenject
         {
             _subscriptions.RemoveWithConfirm(subscription);
         }
-
-        public class Factory : PlaceholderFactory<SignalDeclarationBindInfo, SignalDeclaration>
-        {
-        }
     }
 }

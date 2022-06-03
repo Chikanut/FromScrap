@@ -99,13 +99,16 @@ public class GameDataController : IGameDataController, IInitializable
     public GameData Data => _data;
     private GameData _data;
     
-    private EntityManager _entityManager;
+    private EntityManager _entityManager => World.DefaultGameObjectInjectionWorld.EntityManager;
     private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
     
     public void Initialize()
     {
-        _data = new GameData();
-        _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        _data = new GameData
+        {
+            Stats = new CurrentGameStats(),
+            CarData = new CurrentCarInfoData()
+        };
     }
     
     [Inject]

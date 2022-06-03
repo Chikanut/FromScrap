@@ -27,7 +27,7 @@ public partial class EnemiesSpawnerSystem : SystemBase
         public EnemySpawnerConfigData.SpawnRange CurrentSpawnRange;
     }
     
-    private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
+  private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
     
     private IEnemySpawnerConfigController _enemySpawnerConfigController;
     private BuildPhysicsWorld _physicsWorldSystem;
@@ -52,8 +52,8 @@ public partial class EnemiesSpawnerSystem : SystemBase
 
     protected override void OnDestroy()
     {
-        base.OnDestroy();
         _disposeOnDestroy.Dispose();
+        base.OnDestroy();
     }
 
     [Inject]

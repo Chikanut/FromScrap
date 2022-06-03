@@ -27,7 +27,5 @@ public class MainMenuBackTransitionsView : View
     protected override void OnEnable()
     {
         base.OnEnable();
-        
-        Debug.LogError("View enabled");
     }
 }

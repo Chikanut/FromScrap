@@ -45,8 +45,16 @@ namespace UI.Screens.Loading
         
         protected override void OnEnable()
         {
+            _newXP.text = "0";
+            _level.text = "0";
+            _xpProgress.text = "0";
+            _newScrap.text = "0";
+            _scrap.text = "0";
+            _levelProgressBar.value = 0;
+            _upgradesInfo.ClearAll();
+            
             base.OnEnable();
-
+            
             _mainMenu.interactable = false;
 
             DOVirtual.DelayedCall(_initTime, () =>

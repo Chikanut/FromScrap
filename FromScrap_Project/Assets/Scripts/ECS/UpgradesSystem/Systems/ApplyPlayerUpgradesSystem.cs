@@ -13,7 +13,6 @@ namespace UpgradesSystem.Systems
     public partial class ApplyPlayerUpgradesSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBuffer;
-        private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
         private IPlayerProgressionConfigController _playerProgressionConfigController;
 
         private readonly List<(Entity target, GameObject upgrade)> _spawnUpgrades =
@@ -27,13 +26,7 @@ namespace UpgradesSystem.Systems
 
             ProjectContext.Instance.Container.Inject(this);
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            _disposeOnDestroy.Dispose();
-        }
-
+        
         [Inject]
         public void Init(ISignalService signalService,
             IPlayerProgressionConfigController playerProgressionConfigController)

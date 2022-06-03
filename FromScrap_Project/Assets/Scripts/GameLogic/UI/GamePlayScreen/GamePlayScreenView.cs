@@ -35,6 +35,15 @@ namespace UI.Screens.Loading
             _pause.onClick.AddListener(OnPause);
         }
 
+        protected override void OnEnable()
+        {
+            SetCurrentLevel(0);
+            SetExperience(0);
+            SetTimer(0);
+            
+            base.OnEnable();
+        }
+
         void OnPause()
         {
             PauseAction?.Invoke();

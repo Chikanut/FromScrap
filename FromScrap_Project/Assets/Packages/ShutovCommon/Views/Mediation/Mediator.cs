@@ -13,8 +13,7 @@ namespace ShootCommon.Views.Mediation
         
         private DisposableManager _disposableManager;
         private bool _isDisposed;
-        private
-            bool _isInitialized;
+        private bool _isInitialized;
 
         [Inject]
         public void Init(
