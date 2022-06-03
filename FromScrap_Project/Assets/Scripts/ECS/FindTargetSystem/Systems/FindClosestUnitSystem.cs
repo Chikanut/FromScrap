@@ -37,14 +37,14 @@ namespace ECS.FindTargetSystem
 
         protected override void OnUpdate()
         {
-            if (_targetsQuery.CalculateEntityCount() == 0) return;
+            // if (_targetsQuery.CalculateEntityCount() == 0) return;
             
             var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
             
             Dependency = FindTarget(EntityObjectType.Player, ecb, Dependency);
             Dependency = FindTarget(EntityObjectType.Unit, ecb, Dependency);
-            // Dependency = FindTarget(EntityObjectType.Object, ecb, Dependency);
-            // Dependency = FindTarget(EntityObjectType.Collectable, ecb, Dependency);
+            Dependency = FindTarget(EntityObjectType.Object, ecb, Dependency);
+            Dependency = FindTarget(EntityObjectType.Collectable, ecb, Dependency);
             
             _ecbSystem.AddJobHandleForProducer(Dependency);
         }
@@ -52,16 +52,22 @@ namespace ECS.FindTargetSystem
         [BurstCompile]
         public JobHandle FindTarget(EntityObjectType type, EntityCommandBuffer.ParallelWriter ecb, JobHandle dependency)
         {
-            var hasTargetFilter = GetComponentDataFromEntity<HasTarget>(true);
-
-            _targetsQuery.ResetFilter();
+            if(_targetsQuery.HasFilter())
+                _targetsQuery.ResetFilter();
+            
             _targetsQuery.SetSharedComponentFilter(new ObjectTypeComponent {Type = type});
-            _searchingQuery.ResetFilter();
+            
+            if(_searchingQuery.HasFilter())
+                _searchingQuery.ResetFilter();
+            
             _searchingQuery.SetSharedComponentFilter(new FindTargetData {TargetType = type});
 
+            if (_targetsQuery.CalculateEntityCount() == 0) return dependency;
+            
             var targets = _targetsQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
             var entities = _targetsQuery.ToEntityArray(Allocator.TempJob);
-
+            var hasTargetFilter = GetComponentDataFromEntity<HasTarget>(true);
+            
             var handle = new FindTargetJob()
             {
                 SearchingObjectType = EntityObjectType.Player, Ecb = ecb, Targets = targets, Entities = entities,
