@@ -10,7 +10,8 @@ public class UpgradesInfoPanelSeparated : UpgradesInfoPanelBase
     [SerializeField] List<KitType> _leftKitsTypes = new List<KitType>();
     [SerializeField] private GameObject _separator;
 
-    [SerializeField] private RectTransform[] _updateLayouts;
+    [SerializeField] private List<LayoutGroup> _layoutGroups = new List<LayoutGroup>();
+    [SerializeField] private List<ContentSizeFitter> _sizeFitters = new List<ContentSizeFitter>();
     
     public override void UpdateInfo(CurrentCarInfoData carInfo)
     {
@@ -31,13 +32,28 @@ public class UpgradesInfoPanelSeparated : UpgradesInfoPanelBase
             var icon = GetNextIcon(parent);
             UpdateIconInfo(icon, info[i]);
         }
-
-        for (int i = 0; i < _updateLayouts.Length; i++)
-        {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_updateLayouts[i]);
-        }
-
+        
         Canvas.ForceUpdateCanvases();
+        
+        // for (int i = 0; i < _updateLayouts.Length; i++)
+        // {
+        //     // LayoutRebuilder.ForceRebuildLayoutImmediate(_updateLayouts[i].rec);
+        //
+        //     _updateLayouts[i].enabled = false;
+        //     _updateLayouts[i].enabled = true;
+        //     
+        //     _updateLayouts[i].CalculateLayoutInputHorizontal();
+        //     _updateLayouts[i].CalculateLayoutInputVertical();
+        //     
+        //     LayoutRebuilder.ForceRebuildLayoutImmediate(_updateLayouts[i].GetComponent<RectTransform>());
+        //     
+        //
+        // }
+        
+        _sizeFitters.ForEach(group=>group.enabled = false);
+        _layoutGroups.ForEach(group=>group.enabled = false);
+        _layoutGroups.ForEach(group=>group.enabled = true);
+        _sizeFitters.ForEach(group=>group.enabled = true);
         
     }
 }

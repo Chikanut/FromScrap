@@ -72,7 +72,6 @@ namespace ShootCommon.GlobalStateMachine
         protected void Permit<TState>(StateMachineTriggers trigger)
             where TState: IState
         {
-            Debug.LogError($"No handler found for trigger {trigger} in state {typeof(TState)}");
             _stateConfiguration.Permit(trigger, _stateMachine.GetState<TState>());
         }
         
