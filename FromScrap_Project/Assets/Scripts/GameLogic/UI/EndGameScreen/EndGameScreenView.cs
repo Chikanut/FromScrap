@@ -36,11 +36,6 @@ namespace UI.Screens.Loading
         {
             base.Start();
 
-            // _startScrapPosition = _newScrap.rectTransform.anchoredPosition;
-            // _startExperiencePosition = _xpProgress.rectTransform.anchoredPosition;
-            
-            Debug.LogError("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
             _mainMenu.onClick.AddListener(OnStartGame);
         }
 

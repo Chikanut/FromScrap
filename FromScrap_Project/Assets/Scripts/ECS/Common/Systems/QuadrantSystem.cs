@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using ECS.Common;
+using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 
@@ -19,13 +20,13 @@ public partial class QuadrantSystem : SystemBase
     {
         var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
         
-         Dependency = Entities.WithName("QuadrantEntityMapping").ForEach((Entity entity, int entityInQueryIndex, in QuadrantEntityData quadrantEntityData, in LocalToWorld translation) =>
+         Dependency = Entities.WithName("QuadrantEntityMapping").ForEach((Entity entity, int entityInQueryIndex, in QuadrantHashKey quadrantEntityData, in LocalToWorld translation) =>
             {
                 var hashMapKey = (int) (math.floor(translation.Position.x / quadrantCellSize) +
                                         (quadrantYMultiplier * math.floor(translation.Position.z / quadrantCellSize)));
 
                 ecb.SetComponent(entityInQueryIndex, entity,
-                    new QuadrantEntityData {HashKey = hashMapKey, Type = quadrantEntityData.Type});
+                    new QuadrantHashKey {HashKey = hashMapKey});
 
             }).ScheduleParallel(Dependency);
          

@@ -15,14 +15,13 @@ namespace Visartech.Progress
     [Serializable]
     public class ProgressBase<T> : MonoBehaviour where T : ProgressBase<T>
     {
-
         private static T p_instance;
 
         private const BindingFlags Flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
 
         public static T instance
         {
-            get
+            get 
             {
                 if (p_instance == null)
                 {
