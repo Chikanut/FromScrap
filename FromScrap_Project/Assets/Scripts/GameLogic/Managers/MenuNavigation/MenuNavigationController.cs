@@ -48,29 +48,36 @@ namespace MenuNavigation {
                 menu.IsActive = false;
         }
 
-        public void HideMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : MenuScreen
+        public void HideMenuScreen<T>(Action onFinish = null, [CanBeNull] string showableName = null)
+            where T : MenuScreen
         {
             showableName ??= typeof(T).GetField("ShowableName").GetValue(null).ToString();
+
+            if (_canvas != null)
+                _canvas.CanvasGroup.interactable = false;
             
-            _canvas.CanvasGroup.interactable = false;
             HideAllPopups();
             HideAllScreensElements();
 
             HideShowable<T>(_menuScreens, () =>
             {
-                _canvas.CanvasGroup.interactable = true;
+                if (_canvas != null)
+                    _canvas.CanvasGroup.interactable = true;
+                
                 onFinish?.Invoke();
             }, showableName);
         }
 
         public void HideMenuScreen(MenuScreen menuScreen, Action onFinish = null)
         {
-            _canvas.CanvasGroup.interactable = false;
+            if (_canvas != null)
+                _canvas.CanvasGroup.interactable = false;
             HideAllPopups();
             HideAllScreensElements();
             menuScreen.Hide(() =>
             {
-                _canvas.CanvasGroup.interactable = true;
+                if (_canvas != null)
+                    _canvas.CanvasGroup.interactable = true;
                 onFinish?.Invoke();
             });
         }
@@ -106,7 +113,10 @@ namespace MenuNavigation {
         public void HideAllPopups()
         {
             foreach (var popup in _popups.Values)
-                popup.IsActive = false;
+            {
+                if(popup != null)
+                    popup.IsActive = false;
+            }
         }
 
         public async Task<T> ShowScreenElement<T>(Action onFinish = null, [CanBeNull] string showableName = null) where T : ScreenElement

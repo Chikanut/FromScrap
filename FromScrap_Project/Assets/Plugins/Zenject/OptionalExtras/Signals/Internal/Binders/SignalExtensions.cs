@@ -1,21 +1,14 @@
-using System;
 namespace Zenject
 {
     public static class SignalExtensions
     {
-        public static SignalDeclarationBindInfo CreateDefaultSignalDeclarationBindInfo(DiContainer container, Type signalType)
+        public static DeclareSignalIdRequireHandlerAsyncTickPriorityCopyBinder DeclareSignal<TSignal>(this DiContainer container)
         {
-            return new SignalDeclarationBindInfo(signalType)
-            {
-                RunAsync = container.Settings.Signals.DefaultSyncMode == SignalDefaultSyncModes.Asynchronous,
-                MissingHandlerResponse = container.Settings.Signals.MissingHandlerDefaultResponse,
-                TickPriority = container.Settings.Signals.DefaultAsyncTickPriority
-            };
-        }
+            var signalBindInfo = new SignalDeclarationBindInfo(typeof(TSignal));
 
-        public static DeclareSignalIdRequireHandlerAsyncTickPriorityCopyBinder DeclareSignal(this DiContainer container, Type type)
-        {
-            var signalBindInfo = CreateDefaultSignalDeclarationBindInfo(container, type);
+            signalBindInfo.RunAsync = container.Settings.Signals.DefaultSyncMode == SignalDefaultSyncModes.Asynchronous;
+            signalBindInfo.MissingHandlerResponse = container.Settings.Signals.MissingHandlerDefaultResponse;
+            signalBindInfo.TickPriority = container.Settings.Signals.DefaultAsyncTickPriority;
 
             var bindInfo = container.Bind<SignalDeclaration>().AsCached()
                 .WithArguments(signalBindInfo).WhenInjectedInto(typeof(SignalBus), typeof(SignalDeclarationAsyncInitializer)).BindInfo;
@@ -23,11 +16,6 @@ namespace Zenject
             var signalBinder = new DeclareSignalIdRequireHandlerAsyncTickPriorityCopyBinder(signalBindInfo);
             signalBinder.AddCopyBindInfo(bindInfo);
             return signalBinder;
-        }
-
-        public static DeclareSignalIdRequireHandlerAsyncTickPriorityCopyBinder DeclareSignal<TSignal>(this DiContainer container)
-        {
-            return container.DeclareSignal(typeof(TSignal));
         }
 
         public static BindSignalIdToBinder<TSignal> BindSignal<TSignal>(this DiContainer container)
@@ -38,4 +26,3 @@ namespace Zenject
         }
     }
 }
-

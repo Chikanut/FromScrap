@@ -1,4 +1,5 @@
-﻿using MenuNavigation;
+﻿using DG.Tweening;
+using MenuNavigation;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
 using UI.Screens.Loading;

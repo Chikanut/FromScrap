@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ModestTree;
 
@@ -21,7 +20,7 @@ namespace Zenject
             _subCreator = subCreator;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context, out Action injectAction)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             // We can't really support arguments if we are using the cached value since
             // the arguments might change when called after the first time
@@ -39,18 +38,13 @@ namespace Zenject
                     _isLookingUp = true;
 #endif
 
-                    _subContainer = _subCreator.CreateSubContainer(
-                            new List<TypeValuePair>(), context, out injectAction);
+                    _subContainer = _subCreator.CreateSubContainer(new List<TypeValuePair>(), context);
 
 #if !ZEN_MULTITHREADING
                     _isLookingUp = false;
 #endif
 
                     Assert.IsNotNull(_subContainer);
-                }
-                else 
-                {
-                    injectAction = null;
                 }
 
                 return _subContainer;

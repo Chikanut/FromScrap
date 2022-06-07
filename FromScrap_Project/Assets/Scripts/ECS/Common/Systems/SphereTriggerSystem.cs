@@ -25,17 +25,19 @@ public partial class SphereTriggerSystem : SystemBase
             var filter = colliders[entity].Value.Value.Filter;
             var material = Material.Default;
             material.CollisionResponse = CollisionResponsePolicy.RaiseTriggerEvents;
-                
+            
             ecb.RemoveComponent<PhysicsCollider>(entityInQueryIndex, entity);
+            
             var sphere = new SphereGeometry
             {
                 Center = float3.zero,
                 Radius = sphereInfo.Radius
             };
-            var colliderRef = SphereCollider.Create(sphere, filter, material);
+            var sphereCollider = SphereCollider.Create(sphere, filter, material);
 
-            ecb.AddComponent(entityInQueryIndex, entity, new PhysicsCollider {Value = colliderRef});
+            ecb.AddComponent(entityInQueryIndex, entity, new PhysicsCollider {Value = sphereCollider});
             sphereInfo.PrevRadius = sphere.Radius;
+            
         }).WithReadOnly(colliders).ScheduleParallel(Dependency);
 
         _ecbSystem.AddJobHandleForProducer(Dependency);

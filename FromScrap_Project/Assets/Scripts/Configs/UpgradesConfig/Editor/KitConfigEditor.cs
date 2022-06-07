@@ -89,12 +89,21 @@ public class KitConfigEditor : Editor
             
             currentPos += 60;
             
-            var arguments = new object[description.FindPropertyRelative("Values").arraySize];
+            var arguments = description.FindPropertyRelative("Values").arraySize;
             var descriptionText = LocalizationManager.GetTranslation(description.FindPropertyRelative("DescriptionKey").stringValue);
-            
-            for(var i = 0 ; i < arguments.Length ; i ++)
-                descriptionText = descriptionText.Replace("{" + i + "}", description.FindPropertyRelative("Values").GetArrayElementAtIndex(i).floatValue.ToString());
-            
+
+            if (!string.IsNullOrEmpty(descriptionText))
+            {
+                for (var i = 0; i < arguments; i++)
+                {
+                    if (descriptionText.Contains("{" + i + "}"))
+                    {
+                        descriptionText = descriptionText.Replace("{" + i + "}",
+                            description.FindPropertyRelative("Values").GetArrayElementAtIndex(i).floatValue.ToString());
+                    }
+                }
+            }
+
             EditorGUI.LabelField(new Rect(currentPos, currentHeight, 500, EditorGUIUtility.singleLineHeight), descriptionText);
             
             currentHeight += 3;

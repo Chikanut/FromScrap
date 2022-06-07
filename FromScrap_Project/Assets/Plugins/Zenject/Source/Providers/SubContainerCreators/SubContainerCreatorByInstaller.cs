@@ -37,7 +37,7 @@ namespace Zenject
         {
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context, out Action injectAction)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
             var subContainer = _container.CreateSubContainer();
 
@@ -55,10 +55,7 @@ namespace Zenject
 
             installer.InstallBindings();
 
-            injectAction = () => 
-            {
-                subContainer.ResolveRoots();
-            };
+            subContainer.ResolveRoots();
 
             return subContainer;
         }

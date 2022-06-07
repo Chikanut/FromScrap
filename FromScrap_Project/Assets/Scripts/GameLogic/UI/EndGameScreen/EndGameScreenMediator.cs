@@ -35,7 +35,7 @@ namespace UI.Screens.Loading
                 stats.Damage, Progress.Statistics.DamageRecord,
                 stats.Level, Progress.Statistics.LevelRecord,
                 stats.Time, Progress.Statistics.TimeRecord);
-            View.UpdateScrap(100,0);//_gameDataController.Data.Stats.CollectedScrap);
+            View.UpdateScrap(_gameDataController.Data.Stats.CollectedScrap, Progress.Player.Scrap);
             View.UpdateXP(Progress.Player.Level, Progress.Player.Experience ,_gameDataController.Data.Stats.ExperienceGained,
                 _playerProgressionConfigController.GetPlayerProgressionData.LevelsExperience);
         }

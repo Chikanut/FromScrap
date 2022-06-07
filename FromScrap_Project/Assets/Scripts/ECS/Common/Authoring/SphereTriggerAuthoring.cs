@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Authoring;
 using UnityEngine;
+using Collider = Unity.Physics.Collider;
 using Material = Unity.Physics.Material;
 
 namespace ECS.Common.Authoring
@@ -24,7 +25,7 @@ namespace ECS.Common.Authoring
 
             material.CollisionResponse = CollisionResponsePolicy.RaiseTriggerEvents;
             
-            var colliderRef = Unity.Physics.SphereCollider.Create(sphere, new CollisionFilter()
+            BlobAssetReference<Collider> colliderRef = Unity.Physics.SphereCollider.Create(sphere, new CollisionFilter()
             {
                 CollidesWith = CollideWith.Value,
                 BelongsTo = BelongsTo.Value

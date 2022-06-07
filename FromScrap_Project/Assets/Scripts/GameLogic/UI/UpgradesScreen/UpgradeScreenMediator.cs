@@ -11,7 +11,7 @@ namespace UI.Screens.Upgrades
 {
 	public class UpgradeScreenMediator : Mediator<UpgradeScreenView>
 	{
-		private EntityManager _entityManager;
+		private EntityManager _entityManager => World.DefaultGameObjectInjectionWorld.EntityManager;
 		private IGameDataController _gameDataController;
 
 		private CurrentCarInfoData _data;
@@ -25,8 +25,7 @@ namespace UI.Screens.Upgrades
 		protected override void OnMediatorEnable()
 		{
 			base.OnMediatorEnable();
-
-			_entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+			
 			_data = _gameDataController.Data.CarData;
 	
 			InitCards();

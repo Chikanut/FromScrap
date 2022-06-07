@@ -42,7 +42,7 @@ public class ConfigsPusher : MonoBehaviour
 
     private void OnDestroy()
     {
-        _disposeOnExit.Dispose();
+       _disposeOnExit.Dispose();
     }
 
     private void ParsConfig(LoadGameInfoSignal signal)

@@ -79,6 +79,11 @@ public struct UpgradesChanged : ISignal
     public CurrentCarInfoData CarData;
 }
 
+public struct ScrapCountChanged : ISignal
+{
+    public int Count;
+}
+
 public interface IGameDataController
 {
     void Initialize();
@@ -94,13 +99,16 @@ public class GameDataController : IGameDataController, IInitializable
     public GameData Data => _data;
     private GameData _data;
     
-    private EntityManager _entityManager;
+    private EntityManager _entityManager => World.DefaultGameObjectInjectionWorld.EntityManager;
     private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
     
     public void Initialize()
     {
-        _data = new GameData();
-        _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        _data = new GameData
+        {
+            Stats = new CurrentGameStats(),
+            CarData = new CurrentCarInfoData()
+        };
     }
     
     [Inject]
@@ -112,9 +120,18 @@ public class GameDataController : IGameDataController, IInitializable
         _signalService.Receive<EnemyDamageSignal>().Subscribe(OnEnemyDamage).AddTo(_disposeOnDestroy);
         _signalService.Receive<EnemyKillSignal>().Subscribe(OnEnemyKill).AddTo(_disposeOnDestroy);
         _signalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUpSignal).AddTo(_disposeOnDestroy);
+        _signalService.Receive<ScrapGatherSignal>().Subscribe(OnScrapGathered).AddTo(_disposeOnDestroy);
         
         _carsConfigController = carsConfigController;
     }
+    
+    private void OnScrapGathered(ScrapGatherSignal signal)
+    {
+        _data.Stats.CollectedScrap += signal.Value;
+
+        _signalService.Publish(new ScrapCountChanged() {Count = _data.Stats.CollectedScrap});
+    }
+
 
     private void OnLevelUpSignal(OnLevelUpSignal obj)
     {
@@ -158,7 +175,7 @@ public class GameDataController : IGameDataController, IInitializable
     void InitCarInfo(Entity car)
     {
         _data.CarData.carEntity = car;
-        _data.CarData.carLevel = _entityManager.GetComponentData<LevelComponent>(car).Level;
+        _data.CarData.carLevel =_entityManager.HasComponent<LevelComponent>(car) ? _entityManager.GetComponentData<LevelComponent>(car).Level : 0;
 
         if (car == Entity.Null || !_entityManager.HasComponent<CarIDComponent>(car))
         {

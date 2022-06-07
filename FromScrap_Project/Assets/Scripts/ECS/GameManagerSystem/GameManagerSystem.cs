@@ -23,28 +23,30 @@ public partial class GameManagerSystem : SystemBase
     public void Init(IGameDataController gameDataController, ISignalService signalService)
     {
         _gameDataController = gameDataController;
+        signalService.Receive<ChangeStateSignal>().Subscribe(OnStateChanged).AddTo(_disposeOnDestroy);
+    }
+    
+    void OnStateChanged(ChangeStateSignal stateSignal)
+    {
         
-        signalService.Receive<ChangeStateSignal>().Subscribe((stateSignal) =>
+        switch (stateSignal.SelectedState)
         {
-            switch (stateSignal.SelectedState)
-            {
-                case StateMachineTriggers.InitGame:
-                    PrepareGame();
-                    break;
-                case StateMachineTriggers.Game:
-                    StartGame();
-                    break;
-                case StateMachineTriggers.EndGame:
-                    EndGame();
-                    break;
-            }
-        }).AddTo(_disposeOnDestroy);
+            case StateMachineTriggers.InitGame:
+                PrepareGame();
+                break;
+            case StateMachineTriggers.Game:
+                StartGame();
+                break;
+            case StateMachineTriggers.EndGame:
+                EndGame();
+                break;
+        }
     }
     
     protected override void OnDestroy()
     {
-        base.OnDestroy();
         _disposeOnDestroy.Dispose();
+        base.OnDestroy();
     }
 
     public void PrepareGame()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using FromScrap.Tools;
 using MenuNavigation;
 using TMPro;
 using Unity.Mathematics;
@@ -28,15 +29,12 @@ namespace UI.Screens.Loading
 
         public Action OnMainMenuAction;
 
-        private Vector2 _startScrapPosition;
-        Vector2 _startExperiencePosition;
+        [SerializeField] Vector2 _startScrapPosition;
+        [SerializeField] Vector2 _startExperiencePosition;
 
         protected override void Start()
         {
             base.Start();
-
-            _startScrapPosition = _newScrap.rectTransform.anchoredPosition;
-            _startExperiencePosition = _xpProgress.rectTransform.anchoredPosition;
 
             _mainMenu.onClick.AddListener(OnStartGame);
         }
@@ -44,8 +42,16 @@ namespace UI.Screens.Loading
         
         protected override void OnEnable()
         {
+            _newXP.text = "0";
+            _level.text = "0";
+            _xpProgress.text = "0";
+            _newScrap.text = "0";
+            _scrap.text = "0";
+            _levelProgressBar.value = 0;
+            _upgradesInfo.ClearAll();
+            
             base.OnEnable();
-
+            
             _mainMenu.interactable = false;
 
             DOVirtual.DelayedCall(_initTime, () =>
@@ -69,12 +75,12 @@ namespace UI.Screens.Loading
             int currentLevel, int recordLevel,
             float currentTime, int recordTime)
         {
-            _killsStats.SetInfo(StatisticPanelView.StatisticType.count, currentKills, recordKills);
-            _damageStats.SetInfo(StatisticPanelView.StatisticType.count, currentDamage,
+            _killsStats.SetInfo(StatisticType.count, currentKills, recordKills);
+            _damageStats.SetInfo(StatisticType.count, currentDamage,
                 recordDamage);
-            _levelStats.SetInfo(StatisticPanelView.StatisticType.count, currentLevel+1,
+            _levelStats.SetInfo(StatisticType.count, currentLevel+1,
                 recordLevel+1);
-            _timeStats.SetInfo(StatisticPanelView.StatisticType.time, (int) currentTime, recordTime);
+            _timeStats.SetInfo(StatisticType.time, (int) currentTime, recordTime);
         }
 
         private Sequence _scrapView;
@@ -86,8 +92,8 @@ namespace UI.Screens.Loading
             _newScrap.rectTransform.anchoredPosition = _startScrapPosition;
             _newScrap.color = Color.white;
 
-            _scrap.text = currentScrap.ToString();
-            _newScrap.text = "+" + scrapGathered;
+            _scrap.text = UI_Extentions.GetValue(currentScrap, StatisticType.count);
+            _newScrap.text = "+" + UI_Extentions.GetValue(scrapGathered, StatisticType.count);
 
             if (scrapGathered <= 0)
             {
@@ -96,13 +102,14 @@ namespace UI.Screens.Loading
             }
 
             _scrapView = DOTween.Sequence();
+            _scrapView.SetUpdate(true);
 
             _scrapView.Insert(_initTime, _newScrap.rectTransform.DOAnchorPosY(_startScrapPosition.y - 15, 2f));
             _scrapView.Insert(_initTime, _newScrap.DOFade(0, 2f));
             _scrapView.Insert(_initTime + 0.3f,
-                _scrap.DOCounter(currentScrap, currentScrap + scrapGathered, 2f));
+                _scrap.DOCounter(currentScrap, currentScrap + scrapGathered, 2f, true));
 
-            _scrapView.SetUpdate(true);
+
         }
 
         Sequence _levelSequence;
@@ -112,7 +119,8 @@ namespace UI.Screens.Loading
         {
             _levelSequence?.Kill();
             _levelSequence = DOTween.Sequence();
-
+            _levelSequence.SetUpdate(true);
+            
             _newXP.text = "+" + gatheredExperience + " <sup>XP</sup>";
             _levelProgressBar.value =
                 (float) currentExperience / levelsExperience[currentLevel];
@@ -126,7 +134,7 @@ namespace UI.Screens.Loading
             List<int> levelsExperience, float time)
         {
             _xpProgress.color = Color.clear;
-            _xpProgress.rectTransform.anchoredPosition += Vector2.down * 25;
+            _xpProgress.rectTransform.anchoredPosition = _startExperiencePosition + Vector2.down * 25;
 
             var maxExperience = currentExperience + gatheredExperience;
             var maxLevel = currentLevel;
@@ -178,12 +186,10 @@ namespace UI.Screens.Loading
 
             _levelSequence.Insert(_initTime + startTime,
                 _levelProgressBar.DOValue((float) maxExperience / levelsExperience[maxLevel], animTime * 0.25f));
-            _levelSequence.Insert(_initTime + startTime, _xpProgress.rectTransform.DOAnchorPosY(
-                _startExperiencePosition.y,
+            _levelSequence.Insert(_initTime + startTime, _xpProgress.rectTransform.DOAnchorPos(
+                _startExperiencePosition,
                 animTime * 0.25f));
             _levelSequence.Insert(_initTime + startTime, _xpProgress.DOFade(1, animTime * 0.25f));
-
-            _levelSequence.SetUpdate(true);
         }
     }
 }

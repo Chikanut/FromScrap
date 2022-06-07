@@ -1,10 +1,11 @@
+using ECS.Common;
 using Unity.Entities;
 using UnityEngine;
 
 public class QuadrantObjectAuthoring : MonoBehaviour , IConvertGameObjectToEntity
 {
     [Header("Quadrant Entity Settings")]
-    [SerializeField] private QuadrantEntityData.TypeNum EntityType;
+    [SerializeField] private EntityObjectType EntityType;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -14,11 +15,12 @@ public class QuadrantObjectAuthoring : MonoBehaviour , IConvertGameObjectToEntit
     protected virtual void ConvertAncestors(Entity entity, EntityManager dstManager,
         GameObjectConversionSystem conversionSystem)
     {
-        var quadrantEntityData = new QuadrantEntityData()
+        var quadrantEntityData = new ObjectTypeComponent()
         {
             Type = EntityType
         };
 
-        dstManager.AddComponentData(entity, quadrantEntityData);
+        dstManager.AddComponentData(entity, new QuadrantHashKey());
+        dstManager.AddSharedComponentData(entity, quadrantEntityData);
     }
 }

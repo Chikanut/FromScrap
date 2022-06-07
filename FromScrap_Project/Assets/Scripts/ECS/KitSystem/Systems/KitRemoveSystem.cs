@@ -26,7 +26,7 @@ namespace Kits.Systems
             var installEvent = _eventSystem.CreateEventWriter<KitInstalledSignal>();
             
             Dependency = Entities.WithNone<KitInstalatorComponent>().WithNone<Dead>().WithAll<KitRemoveComponent>().ForEach(
-                (Entity entity, int entityInQueryIndex, KitComponent kitComponent) =>
+                (Entity entity, int entityInQueryIndex, in KitComponent kitComponent) =>
                 {
                     if (kpkb.HasComponent(kitComponent.Platform))
                     {

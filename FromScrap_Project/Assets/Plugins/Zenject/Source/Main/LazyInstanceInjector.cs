@@ -55,18 +55,14 @@ namespace Zenject
 #endif
             {
                 var tempList = new List<object>();
-
                 while (!_instancesToInject.IsEmpty())
                 {
                     tempList.Clear();
                     tempList.AddRange(_instancesToInject);
-
+                    _instancesToInject.Clear();
                     foreach (var instance in tempList)
                     {
-                        // We use LazyInject instead of calling _container.inject directly
-                        // Because it might have already been lazily injected
-                        // as a result of a previous call to inject
-                        LazyInject(instance);
+                        _container.Inject(instance);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FromScrap.Tools;
 using Packages.Common.Storage.Config;
 using TMPro;
 using UnityEngine;
@@ -52,7 +53,7 @@ public class UpgradesTab : MainMenuTab
     {
         _upgradeInfoPanel.SetActive(true);
         _descriptionText.text = description;
-        _costText.text = upgradeCost.ToString();
+        _costText.text = UI_Extentions.GetValue(upgradeCost, StatisticType.count);
         _costObject.SetActive(true);
         _buyUpgrade.gameObject.SetActive(true);
         _buyUpgrade.interactable = canBuy;

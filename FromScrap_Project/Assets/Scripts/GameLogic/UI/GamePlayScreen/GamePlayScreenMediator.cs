@@ -27,6 +27,16 @@ namespace UI.Screens.Loading
             SignalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUp).AddTo(DisposeOnDestroy);
             SignalService.Receive<GameTimeChanged>().Subscribe(OnTimeChanged).AddTo(DisposeOnDestroy);
             SignalService.Receive<UpgradesChanged>().Subscribe(OnUpgradesChanged).AddTo(DisposeOnDestroy);
+            SignalService.Receive<ScrapCountChanged>().Subscribe(OnScrapGathered).AddTo(DisposeOnDestroy);
+        }
+
+
+        private int _prevScrapValue;
+        private void OnScrapGathered(ScrapCountChanged signal)
+        {
+            View.OnScrap(Progress.Player.Scrap + _prevScrapValue, Progress.Player.Scrap + signal.Count);
+
+            _prevScrapValue = signal.Count;
         }
 
         private void OnTimeChanged(GameTimeChanged obj)
@@ -42,14 +52,14 @@ namespace UI.Screens.Loading
         protected override void OnMediatorInitialize()
         {
             base.OnMediatorInitialize();
-
-            _currentLevel = 0;
+            
             _levelsInfo = _carsConfigController.GetCarData(Progress.Player.Car).LevelsExperience;
             View.PauseAction = PauseAction;
         }
         
         protected override void OnMediatorEnable()
         {
+            _currentLevel = 0;
             base.OnMediatorEnable();
             View.SetCurrentLevel(_currentLevel);
             View.UpdateInfo(_gameDataController.Data.CarData);

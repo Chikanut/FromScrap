@@ -25,6 +25,7 @@ namespace GameLogic.States.States
             {
                 SubscribeToSignals();
                 UpdateResults();
+                Time.timeScale = 0;
             }, "EndGameScreen");
         }
         
@@ -107,14 +108,22 @@ namespace GameLogic.States.States
         {
             _menuNavigationController.HideAllMenuScreens();
 
-            ECS_Logic_Extentions.ClearScene(() => { Fire(StateMachineTriggers.LoadMenuScene); });
+            ECS_Logic_Extentions.ClearScene(() =>
+            {
+                Time.timeScale = 1;
+                Fire(StateMachineTriggers.LoadMenuScene);
+            });
         }
 
         void RestartGame(RestartGameSignal signal)
         {
             _menuNavigationController.HideAllMenuScreens();
             
-            ECS_Logic_Extentions.ClearScene(() => { Fire(StateMachineTriggers.LoadGameScene); });
+            ECS_Logic_Extentions.ClearScene(() =>
+            {
+                Time.timeScale = 1;
+                Fire(StateMachineTriggers.LoadGameScene);
+            });
         }
     }
 }

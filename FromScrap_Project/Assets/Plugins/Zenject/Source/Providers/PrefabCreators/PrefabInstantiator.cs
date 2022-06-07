@@ -17,14 +17,12 @@ namespace Zenject
         readonly List<TypeValuePair> _extraArguments;
         readonly GameObjectCreationParameters _gameObjectBindInfo;
         readonly Type _argumentTarget;
-        readonly List<Type> _instantiateCallbackTypes;
         readonly Action<InjectContext, object> _instantiateCallback;
 
         public PrefabInstantiator(
             DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Type argumentTarget,
-            IEnumerable<Type> instantiateCallbackTypes,
             IEnumerable<TypeValuePair> extraArguments,
             IPrefabProvider prefabProvider,
             Action<InjectContext, object> instantiateCallback)
@@ -34,7 +32,6 @@ namespace Zenject
             _container = container;
             _gameObjectBindInfo = gameObjectBindInfo;
             _argumentTarget = argumentTarget;
-            _instantiateCallbackTypes = instantiateCallbackTypes.ToList();
             _instantiateCallback = instantiateCallback;
         }
 
@@ -58,10 +55,9 @@ namespace Zenject
             return _prefabProvider.GetPrefab();
         }
 
-        public GameObject Instantiate(InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public GameObject Instantiate(List<TypeValuePair> args, out Action injectAction)
         {
-            Assert.That(_argumentTarget == null || _argumentTarget.DerivesFromOrEqual(context.MemberType));
-
+            var context = new InjectContext(_container, _argumentTarget, null);
             bool shouldMakeActive;
             var gameObject = _container.CreateAndParentPrefab(
                 GetPrefab(), _gameObjectBindInfo, context, out shouldMakeActive);
@@ -81,13 +77,15 @@ namespace Zenject
                         "Unexpected arguments provided to prefab instantiator.  Arguments are not allowed if binding multiple components in the same binding");
                 }
 
+                Component targetComponent = null;
+
                 if (_argumentTarget == null || allArgs.IsEmpty())
                 {
                     _container.InjectGameObject(gameObject);
                 }
                 else
                 {
-                    _container.InjectGameObjectForComponentExplicit(
+                    targetComponent = _container.InjectGameObjectForComponentExplicit(
                         gameObject, _argumentTarget, allArgs, context, null);
 
                     Assert.That(allArgs.Count == 0);
@@ -105,26 +103,17 @@ namespace Zenject
                     }
                 }
 
-                if (_instantiateCallback != null)
+                if (_instantiateCallback != null && _argumentTarget != null)
                 {
-                    var callbackObjects = ZenPools.SpawnHashSet<object>();
-
-                    foreach (var type in _instantiateCallbackTypes)
+                    if (targetComponent == null)
                     {
-                        var obj = gameObject.GetComponentInChildren(type);
-
-                        if (obj != null)
-                        {
-                            callbackObjects.Add(obj);
-                        }
+                        targetComponent = gameObject.GetComponentInChildren(_argumentTarget);
                     }
 
-                    foreach (var obj in callbackObjects)
+                    if (targetComponent != null)
                     {
-                        _instantiateCallback(context, obj);
+                        _instantiateCallback(context, targetComponent);
                     }
-
-                    ZenPools.DespawnHashSet(callbackObjects);
                 }
             };
 

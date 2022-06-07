@@ -16,7 +16,6 @@ namespace DamageSystem.Authoring
             base.ConvertAncestors(entity, dstManager, conversionSystem);
 
             dstManager.AddComponentData(entity, new AddHealthComponent() {Value = HealthPoints});
-            dstManager.AddBuffer<StatefulTriggerEvent>(entity);
         }
     }
 }

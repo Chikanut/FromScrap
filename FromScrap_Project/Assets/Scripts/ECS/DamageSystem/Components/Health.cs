@@ -28,10 +28,17 @@ namespace DamageSystem.Components
 
         public void SetMaxHealth(int maxHealth, bool rewriteInitialMax = false)
         {
+            var healthToAdd = 0;
+            
             if(rewriteInitialMax)
                 InitialMaxValue = Value = maxHealth;
+            else
+                healthToAdd = maxHealth - CurrentMaxValue;
 
             CurrentMaxValue = maxHealth;
+            
+            if (healthToAdd > 0)
+                AddHealth(healthToAdd);
         }
 
         public void AddHealth(int value)

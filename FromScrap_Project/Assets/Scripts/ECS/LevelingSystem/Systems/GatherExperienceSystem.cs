@@ -1,7 +1,7 @@
+using Collectables.Components;
 using DamageSystem.Components;
 using LevelingSystem.Components;
 using Unity.Entities;
-using Unity.Physics.Stateful;
 
 namespace LevelingSystem.Systems
 {
@@ -20,24 +20,15 @@ namespace LevelingSystem.Systems
            var experienceBuffer = GetBufferFromEntity<AddExperienceBuffer>();
            var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
-           Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in ExperienceComponent experience, in DynamicBuffer<StatefulTriggerEvent> triggerEvents) =>
+           Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, in ExperienceComponent experience, in CollectableGatheredComponent collectedInfo) =>
            {
-               foreach (var triggerEvent in triggerEvents)
-               {
-                   if(triggerEvent.State != EventOverlapState.Enter) continue;
+               if (!experienceBuffer.HasComponent(collectedInfo.CollectedEntity)) return;
+               
+               experienceBuffer[collectedInfo.CollectedEntity].Add(new AddExperienceBuffer()
+                   {Value = experience.Value});
 
-                   var otherEntity = triggerEvent.GetOtherEntity(entity);
-                   
-                   if (!experienceBuffer.HasComponent(otherEntity)) continue;
-                   
-                   experienceBuffer[otherEntity].Add(new AddExperienceBuffer()
-                       {Value = experience.Value});
-                   
-                   ecb.AddComponent(entityInQueryIndex, entity, new Dead());
-                   
-                   break;
+               ecb.AddComponent(entityInQueryIndex, entity, new Dead());
 
-               }
            }).Schedule(Dependency);
 
             _ecbSystem.AddJobHandleForProducer(Dependency);

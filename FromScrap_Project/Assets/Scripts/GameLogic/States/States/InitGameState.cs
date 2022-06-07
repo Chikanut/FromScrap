@@ -9,6 +9,7 @@ using StatisticsSystem.Tags;
 using UI.Screens.Loading;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using Visartech.Progress;
 using Zenject;
 

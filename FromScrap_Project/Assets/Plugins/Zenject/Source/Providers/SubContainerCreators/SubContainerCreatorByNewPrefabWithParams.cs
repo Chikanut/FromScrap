@@ -31,32 +31,17 @@ namespace Zenject
             get { return _container; }
         }
 
-        IEnumerable<InjectableInfo> GetAllInjectableIncludingBaseTypes() 
-        {
-            var info = TypeAnalyzer.GetInfo(_installerType);
-
-            while (info != null) 
-            {
-                foreach (var injectable in info.AllInjectables) 
-                {
-                    yield return injectable;
-                }
-
-                info = info.BaseTypeInfo;
-            }
-        }
-
         DiContainer CreateTempContainer(List<TypeValuePair> args)
         {
             var tempSubContainer = Container.CreateSubContainer();
 
-            var allInjectables = GetAllInjectableIncludingBaseTypes();
+            var installerInjectables = TypeAnalyzer.GetInfo(_installerType);
 
             foreach (var argPair in args)
             {
                 // We need to intelligently match on the exact parameters here to avoid the issue
                 // brought up in github issue #217
-                var match = allInjectables
+                var match = installerInjectables.AllInjectables
                     .Where(x => argPair.Type.DerivesFromOrEqual(x.MemberType))
                     .OrderBy(x => ZenUtilInternal.GetInheritanceDelta(argPair.Type, x.MemberType)).FirstOrDefault();
 
@@ -71,39 +56,19 @@ namespace Zenject
             return tempSubContainer;
         }
 
-        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext parentContext, out Action injectAction)
+        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext parentContext)
         {
             Assert.That(!args.IsEmpty());
 
             var prefab = _prefabProvider.GetPrefab();
-            var tempContainer = CreateTempContainer(args);
-
-            bool shouldMakeActive;
-            var gameObject = tempContainer.CreateAndParentPrefab(
-                prefab, _gameObjectBindInfo, null, out shouldMakeActive);
+            var gameObject = CreateTempContainer(args).InstantiatePrefab(prefab, _gameObjectBindInfo);
 
             var context = gameObject.GetComponent<GameObjectContext>();
 
             Assert.That(context != null,
                 "Expected prefab with name '{0}' to container a component of type 'GameObjectContext'", prefab.name);
 
-            context.Install(tempContainer);
-
-            injectAction = () => 
-            {
-                // Note: We don't need to call ResolveRoots here because GameObjectContext does this for us
-                tempContainer.Inject(context);
-
-                if (shouldMakeActive && !_container.IsValidating)
-                {
-#if ZEN_INTERNAL_PROFILING
-                    using (ProfileTimers.CreateTimedBlock("User Code"))
-#endif
-                    {
-                        gameObject.SetActive(true);
-                    }
-                }
-            };
+            // Note: We don't need to call ResolveRoots here because GameObjectContext does this for us
 
             return context.Container;
         }
@@ -111,4 +76,5 @@ namespace Zenject
 }
 
 #endif
+
 

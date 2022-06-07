@@ -3,6 +3,8 @@ using System.ComponentModel;
 using DG.Tweening;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
+using Unity.Physics.Authoring;
 using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
@@ -185,5 +187,22 @@ public static class ECS_Logic_Extentions
         onCleanedUp?.Invoke();
         
         DefaultWorldInitialization.Initialize("Default World", false);
+    }
+}
+
+public static class ECS_ClassExtentions
+{
+    [System.Serializable]
+    public class PhysicLayer
+    {
+        public PhysicsCategoryTags BelongsTo;
+        public PhysicsCategoryTags CollideWith;
+
+        public CollisionFilter GetCollisionFilter =>
+            new CollisionFilter()
+            {
+                CollidesWith = CollideWith.Value,
+                BelongsTo = BelongsTo.Value
+            };
     }
 }

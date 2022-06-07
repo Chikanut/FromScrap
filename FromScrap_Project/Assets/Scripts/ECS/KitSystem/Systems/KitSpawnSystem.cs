@@ -11,8 +11,6 @@ namespace Kits.Systems
 {
     public partial class KitSpawnSystem : SystemBase
     {
-        private readonly CompositeDisposable _disposeOnDestroy = new CompositeDisposable();
-
         private ICarsConfigController _carsConfigController;
         
         private readonly List<(Entity platform, int kitID, GameObject kit)> _spawnKits = new List<(Entity platform, int kitID, GameObject kit)>();
@@ -22,12 +20,6 @@ namespace Kits.Systems
             base.OnCreate();
 
             ProjectContext.Instance.Container.Inject(this);
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            _disposeOnDestroy.Dispose();
         }
         
         [Inject]

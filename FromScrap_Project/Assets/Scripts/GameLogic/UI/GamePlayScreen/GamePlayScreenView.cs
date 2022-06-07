@@ -16,6 +16,9 @@ namespace UI.Screens.Loading
         [SerializeField] private TextMeshProUGUI _nextLevelLabel;
         [SerializeField] private TextMeshProUGUI _time;
         [SerializeField] private UpgradesInfoPanelPiramid _upgradesPanelPyramid;
+        
+        [SerializeField] CanvasGroup _scrapPanel;
+        [SerializeField] TextMeshProUGUI _scrapText;
 
         [Header("Settings")]
         [SerializeField] private float _experienceFillSpeed;
@@ -32,9 +35,31 @@ namespace UI.Screens.Loading
             _pause.onClick.AddListener(OnPause);
         }
 
+        protected override void OnEnable()
+        {
+            SetCurrentLevel(0);
+            SetExperience(0);
+            SetTimer(0);
+            
+            base.OnEnable();
+        }
+
         void OnPause()
         {
             PauseAction?.Invoke();
+        }
+
+        private Sequence _scrapPanelSequence;
+        
+        public void OnScrap(int prevValue, int addedValue)
+        {
+            _scrapPanelSequence?.Kill();
+            _scrapPanelSequence = DOTween.Sequence();
+            
+            _scrapPanelSequence.Append(_scrapPanel.DOFade(1, 0.5f));
+            _scrapPanelSequence.Insert(0, _scrapText.DOCounter(prevValue, addedValue, 0.5f, true));
+            _scrapPanelSequence.AppendInterval(2f);
+            _scrapPanelSequence.Append(_scrapPanel.DOFade(0, 1));
         }
 
         public void UpdateInfo(CurrentCarInfoData carInfo)

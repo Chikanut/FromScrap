@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DG.Tweening;
+using FromScrap.Tools;
 using MenuNavigation;
 using TMPro;
 using UnityEngine;
@@ -24,13 +25,7 @@ namespace UI.Screens.MainMenu
         [Header("Tabs")]
         [SerializeField] private List<TabInfo> _mainMenuStructure = new List<TabInfo>();
         [SerializeField] int _defaultTabIndex = 0;
-
-        [Header("Test")]
-        public int StartLevel = 0;
-
-        public int StartScrap = 0;
         
-
         private void Awake()
         {
             InitToggles();
@@ -79,7 +74,7 @@ namespace UI.Screens.MainMenu
         {
             _levelNum.text = levelNum.ToString();
             _levelProgress.value = levelProgress;
-            _scrapCount.text = scrapCount.ToString();
+            _scrapCount.text = UI_Extentions.GetValue(scrapCount, StatisticType.count);
         }
     }
 }

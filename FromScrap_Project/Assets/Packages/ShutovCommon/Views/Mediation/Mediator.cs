@@ -29,6 +29,8 @@ namespace ShootCommon.Views.Mediation
         
         public virtual void Initialize()
         {
+            if(_isInitialized) return;
+            
             _isInitialized = true;
             OnMediatorInitialize();
         }

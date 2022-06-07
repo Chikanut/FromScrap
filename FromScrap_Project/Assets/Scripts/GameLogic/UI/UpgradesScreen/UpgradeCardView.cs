@@ -66,10 +66,13 @@ namespace UI.Screens.Upgrades
             foreach (var description in data.Descriptions)
             {
                 var descriptionTranslation = LocalizationManager.GetTranslation(description.DescriptionKey);
-                
-                for(var i = 0 ; i < description.Values.Length ; i ++)
-                    descriptionTranslation = descriptionTranslation.Replace("{" + i + "}", description.Values[i].ToString());
-                
+                if (!string.IsNullOrEmpty(descriptionTranslation))
+                {
+                    for (var i = 0; i < description.Values.Length; i++)
+                        descriptionTranslation =
+                            descriptionTranslation.Replace("{" + i + "}", description.Values[i].ToString());
+                }
+
                 descriptionText += descriptionTranslation + "\n";
             }
 
