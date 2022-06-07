@@ -1,14 +1,14 @@
-using ShootCommon.GlobalStateMachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Visartech.Progress;
 
 public class SetTestScene : MonoBehaviour
 {
-    public StateMachineTriggers TestState;
+    // public string TestScene;
     
-    private void Awake()
+    private void Awake() 
     {
         Progress.Development.isTesting = true;
-        Progress.Development.testState = TestState;
+        Progress.Development.testSceneName = SceneManager.GetActiveScene().name;
     }
 }

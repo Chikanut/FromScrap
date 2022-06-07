@@ -24,13 +24,6 @@ namespace GameLogic.States.States
         {
             Application.targetFrameRate = 120;
             
-            if (Progress.Development.isTesting)
-            {
-                SignalService.Publish(new LoadGameInfoSignal());
-                Progress.Development.isTesting = false;
-                return;
-            }
-
             SubscribeToSignals();
             LoadScene();
         }
@@ -60,13 +53,16 @@ namespace GameLogic.States.States
             }
             else
             {
-                SceneManager.LoadScene(PreloaderScene, new LoadSceneParameters()
+                ECS_Logic_Extentions.ClearScene(() =>
                 {
-                    loadSceneMode = LoadSceneMode.Single,
-                    localPhysicsMode = LocalPhysicsMode.None
+                    SceneManager.LoadScene(PreloaderScene, new LoadSceneParameters()
+                    {
+                        loadSceneMode = LoadSceneMode.Single,
+                        localPhysicsMode = LocalPhysicsMode.None
+                    });
+
+                    SceneManager.sceneLoaded += OnPreloaderSceneLoaded;
                 });
-                
-                SceneManager.sceneLoaded += OnPreloaderSceneLoaded;
             }
         }
          
@@ -95,7 +91,17 @@ namespace GameLogic.States.States
 
         void OnSettingsLoaded()
         {
-            Fire(StateMachineTriggers.LoadMenuScene);
+            if (Progress.Development.isTesting)
+            {
+                SceneManager.LoadScene( Progress.Development.testSceneName);
+                Progress.Development.isTesting = false;
+                _menuNavigationController.HideMenuScreen<PreloaderScreenView>(null, "PreloaderScreen");
+                SceneManager.sceneLoaded -= OnPreloaderSceneLoaded;
+            }
+            else
+            {
+                Fire(StateMachineTriggers.LoadMenuScene);
+            }
         }
     }
 }
