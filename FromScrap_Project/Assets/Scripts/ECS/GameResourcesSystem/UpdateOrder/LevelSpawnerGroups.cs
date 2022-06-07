@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace ECS.LevelSpawnerSystem
+namespace ECS.GameResourcesSystem.UpdateOrder
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class LevelSpawnerGroup : ComponentSystemGroup { }

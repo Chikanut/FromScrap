@@ -1,6 +1,8 @@
+using ECS.GameResourcesSystem.UpdateOrder;
+using ECS.LevelSpawnerSystem;
 using Unity.Entities;
 
-namespace ECS.LevelSpawnerSystem
+namespace ECS.GameResourcesSystem.Systems
 {
     [UpdateInGroup(typeof(LevelSpawnerGroup), OrderFirst = true)]
     public partial class LevelPropsSpawnSystem : SystemBase
