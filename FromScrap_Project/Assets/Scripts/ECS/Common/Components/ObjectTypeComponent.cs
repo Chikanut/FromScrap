@@ -8,7 +8,8 @@ namespace ECS.Common
         Object,
         Collectable,
         Player,
-        None
+        None,
+        Projectile
     }
     
     public struct ObjectTypeComponent : ISharedComponentData

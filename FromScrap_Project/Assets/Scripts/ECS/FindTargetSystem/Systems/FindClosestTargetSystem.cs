@@ -45,6 +45,7 @@ namespace ECS.FindTargetSystem
             Dependency = FindTarget(EntityObjectType.Unit, ecb, Dependency);
             Dependency = FindTarget(EntityObjectType.Object, ecb, Dependency);
             Dependency = FindTarget(EntityObjectType.Collectable, ecb, Dependency);
+            Dependency = FindTarget(EntityObjectType.Projectile, ecb, Dependency);
             
             _ecbSystem.AddJobHandleForProducer(Dependency);
         }

@@ -168,10 +168,7 @@ namespace WeaponsSystem.Base.Systems
                     SpawnPos = muzzlePos,
                     SpawnDir = forward,
                     SpawnProjectileName = muzzleData.Projectile,
-                    SpeedMultiplier = characteristics.ProjectileSpeedMultiplier,
-                    DamageMultiplier = characteristics.DamageMultiplier,
-                    SizeMultiplier = characteristics.ProjectileSizeMultiplier,
-                    AdditionalDamage = characteristics.AdditionalDamage
+                    Characteristics = characteristics
                 });
             }
         }
@@ -193,8 +190,6 @@ namespace WeaponsSystem.Base.Systems
             EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
             ComponentDataFromEntity<BlendShapeAnimationComponent> animationComponentFilter)
         {
-           
-            
             switch (weaponData.MuzzleType)
             {
                 case MuzzleType.Queue:
@@ -252,6 +247,7 @@ namespace WeaponsSystem.Base.Systems
             EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
             ComponentDataFromEntity<BlendShapeAnimationComponent> animationComponentFilter)
         {
+            if(viewEntity == Entity.Null) return;
             if (animationIndex < 0) return;
             if (animationComponentFilter.HasComponent(viewEntity))
             {

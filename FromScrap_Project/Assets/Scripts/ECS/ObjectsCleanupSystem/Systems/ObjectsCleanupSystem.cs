@@ -1,3 +1,4 @@
+using DamageSystem.Components;
 using IsVisible.Components;
 using Lifetime.Components;
 using Unity.Entities;
@@ -21,8 +22,12 @@ namespace ObjectsCleanup.Systems
             
             Dependency = Entities.WithNone<IsVisibleComponent>().ForEach((Entity entity, int entityInQueryIndex, in LifetimeComponent lifetime) =>
             {
-                if(lifetime.CurrentLifetime > lifetime.MaxLifeTime)
+                if (!(lifetime.CurrentLifetime > lifetime.MaxLifeTime)) return;
+                
+                if(!lifetime.CallDeathEvent)
                     ecb.DestroyEntity(entityInQueryIndex, entity);
+                else
+                    ecb.AddComponent<Dead>(entityInQueryIndex, entity);
             }).ScheduleParallel(Dependency);
             
             _ecbSystem.AddJobHandleForProducer (Dependency);

@@ -7,5 +7,6 @@ namespace Lifetime.Components
 	{
 		public float CurrentLifetime;
 		public float MaxLifeTime;
+		public bool CallDeathEvent;
 	}
 }
