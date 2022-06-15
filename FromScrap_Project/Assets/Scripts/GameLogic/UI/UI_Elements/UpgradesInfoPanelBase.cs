@@ -30,15 +30,15 @@ public class UpgradesInfoPanelBase : MonoBehaviour
     List<UpgradeIconView> _icons = new List<UpgradeIconView>();
     List<RectTransform> _rows = new List<RectTransform>();
 
-    public virtual void UpdateInfo(CurrentCarInfoData carInfo)
+    public virtual void UpdateInfo(CurrentCarInfoData carInfo, UpgradesConfigData upgradesData)
     {
         ClearAll();
 
-        var info = GetInfo(carInfo);
+        var info = GetInfo(carInfo, upgradesData);
         Visualise(info);
     }
 
-    List<UpgradeInfo> GetInfo(CurrentCarInfoData carInfo)
+    List<UpgradeInfo> GetInfo(CurrentCarInfoData carInfo, UpgradesConfigData upgradesData)
     {
         var kits = new List<UpgradeInfo>();
 
@@ -46,7 +46,7 @@ public class UpgradesInfoPanelBase : MonoBehaviour
         {
             var platformConnectedKits = platform.ConnectedKits;
 
-            var kitsIDs = platform.ConnectedKitsIDs;
+            var kitsIDs = platform.ConnectedKitsIndexes;
 
             var findedKitInside = false;
 
@@ -59,7 +59,7 @@ public class UpgradesInfoPanelBase : MonoBehaviour
 
                 kits.Add(new UpgradeInfo()
                 {
-                    KitInfo = carInfo.carData.UpgradesConfigs[kitID.ID],
+                    KitInfo = upgradesData.Kits[kitID.Index].Data,
                     Level = kit.KitLevel,
                     Type = PanelType.upgrade
                 });

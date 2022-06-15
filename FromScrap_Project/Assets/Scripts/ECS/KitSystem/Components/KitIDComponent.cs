@@ -4,6 +4,6 @@ namespace Kits.Components
 {
     public struct KitIDComponent : IComponentData
     {
-        public int ID;
+        public int Index;
     }
 }

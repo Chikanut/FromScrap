@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using MenuNavigation;
+using Packages.Common.Storage.Config.Upgrades;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -62,9 +63,9 @@ namespace UI.Screens.Loading
             _scrapPanelSequence.Append(_scrapPanel.DOFade(0, 1));
         }
 
-        public void UpdateInfo(CurrentCarInfoData carInfo)
+        public void UpdateInfo(CurrentCarInfoData carInfo, UpgradesConfigData upgradesConfigData)
         {
-            _upgradesPanelPyramid.UpdateInfo(carInfo);
+            _upgradesPanelPyramid.UpdateInfo(carInfo, upgradesConfigData);
         }
 
         public void SetTimer(float seconds)

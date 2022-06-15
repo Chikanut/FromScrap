@@ -13,7 +13,6 @@ namespace Packages.Common.Storage.Config.Cars
         public GameObject PresentationPrefab;
         public Characteristics BaseCharacteristics;
         public List<int> LevelsExperience = new List<int>();
-        public List<KitInfoData> UpgradesConfigs = new List<KitInfoData>();
     }
 
     [Serializable]

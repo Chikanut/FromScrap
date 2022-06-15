@@ -13,13 +13,15 @@ namespace UI.Screens.Upgrades
 	{
 		private EntityManager _entityManager => World.DefaultGameObjectInjectionWorld.EntityManager;
 		private IGameDataController _gameDataController;
+		private IUpgradesConfigController _upgradesConfigController;
 
 		private CurrentCarInfoData _data;
 
 		[Inject]
-		public void Init(IGameDataController gameDataController)
+		public void Init(IGameDataController gameDataController, IUpgradesConfigController upgradesConfigController)
 		{
 			_gameDataController = gameDataController;
+			_upgradesConfigController = upgradesConfigController;
 		}
 		
 		protected override void OnMediatorEnable()
@@ -82,7 +84,7 @@ namespace UI.Screens.Upgrades
 			{
 				PlatformID = info.PlatformID,
 				CarID = _data.carID,
-				KitID = info.KitID,
+				KitIndex = info.KitIndex,
 				KitLevel = info.Level
 			});
 			
@@ -94,7 +96,7 @@ namespace UI.Screens.Upgrades
 		{
 			public int PlatformID;
 			public int Level;
-			public int KitID;
+			public int KitIndex;
 			public KitInfoData KitInfo;
 		}
 
@@ -118,18 +120,18 @@ namespace UI.Screens.Upgrades
 
 				if(freeConnectors.Count == 0) continue;
 
-				for (var i = 0; i < _data.carData.UpgradesConfigs.Count; i++)
+				for (var i = 0; i < _upgradesConfigController.GetUpgradesData.Kits.Count; i++)
 				{
-					if(_data.carData.UpgradesConfigs[i].isDefault && !withDefault) continue;
+					if(_upgradesConfigController.GetUpgradesData.Kits[i].Data.isDefault && !withDefault) continue;
 					
-					if (freeConnectors.Contains(_data.carData.UpgradesConfigs[i].Type) && platform.ConnectedKitsIDs.All(k => k.ID != i))
+					if (freeConnectors.Contains(_upgradesConfigController.GetUpgradesData.Kits[i].Data.Type) && platform.ConnectedKitsIndexes.All(k => k.Index != i))
 					{
 						suitableKits.Add(new InstallKitInfo()
 						{
 							PlatformID = platform.ID,
-							KitID = i,
+							KitIndex = i,
 							Level = 0,
-							KitInfo = _data.carData.UpgradesConfigs[i]
+							KitInfo = _upgradesConfigController.GetUpgradesData.Kits[i].Data
 						});
 					}
 				}
@@ -147,13 +149,13 @@ namespace UI.Screens.Upgrades
 			{
 				for (var i = 0; i < platform.ConnectedKits.Count; i++)
 				{
-					var kitInfo = _data.carData.UpgradesConfigs[platform.ConnectedKitsIDs[i].ID];
+					var kitInfo = _upgradesConfigController.GetUpgradesData.Kits[platform.ConnectedKitsIndexes[i].Index].Data;
 					if (kitInfo.KitObjects.Count > platform.ConnectedKits[i].KitLevel + 1)
 						suitableKits.Add(new InstallKitInfo()
 						{
 							PlatformID = platform.ID,
 							Level = platform.ConnectedKits[i].KitLevel + 1,
-							KitID = platform.ConnectedKitsIDs[i].ID,
+							KitIndex = platform.ConnectedKitsIndexes[i].Index,
 							KitInfo = kitInfo
 						});
 				}

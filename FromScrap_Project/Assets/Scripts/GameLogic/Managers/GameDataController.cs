@@ -20,7 +20,7 @@ public class PlatformInfo
     public bool isFree;
     public bool canOccupy;
     public List<KitComponent> ConnectedKits = new List<KitComponent>();
-    public List<KitIDComponent> ConnectedKitsIDs = new List<KitIDComponent>();
+    public List<KitIDComponent> ConnectedKitsIndexes = new List<KitIDComponent>();
 }
     
 public class CurrentCarInfoData
@@ -219,7 +219,7 @@ public class GameDataController : IGameDataController, IInitializable
                 var kitID = _entityManager.GetComponentData<KitIDComponent>(kit.ConnectedKit);
                 platformInfo.ConnectedKits.Add(kitComponent);
                 
-                platformInfo.ConnectedKitsIDs.Add(kitID);
+                platformInfo.ConnectedKitsIndexes.Add(kitID);
             }
 				
             _data.CarData.platformInfos.Add(platformInfo);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Packages.Common.Storage.Config.Upgrades;
 using UnityEngine;
 using Vehicles.Wheels.Authorings;
 
@@ -16,7 +15,6 @@ namespace Packages.Common.Storage.Config.Cars
             public VehicleAuthoring PresentationPrefab;
             public CarBaseCharacterisitcsScriptable BaseSettings;
             public LevelsConfigScriptable Levels;
-            public UpgradesConfigScriptable Upgrades;
         }
 
         public List<CarInfo> CarsData = new List<CarInfo>();

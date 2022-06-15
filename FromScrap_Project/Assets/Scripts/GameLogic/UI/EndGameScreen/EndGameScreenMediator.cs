@@ -1,4 +1,5 @@
 ﻿using Packages.Common.Storage.Config;
+using Packages.Common.Storage.Config.Upgrades;
 using ShootCommon.Views.Mediation;
 using Signals;
 using Visartech.Progress;
@@ -10,12 +11,14 @@ namespace UI.Screens.Loading
     {
         private IGameDataController _gameDataController;
         private IPlayerProgressionConfigController _playerProgressionConfigController;
+        IUpgradesConfigController _upgradesConfigController;
         
         [Inject]
-        public void Init(IGameDataController gameDataController, IPlayerProgressionConfigController playerProgressionConfigController)
+        public void Init(IGameDataController gameDataController, IPlayerProgressionConfigController playerProgressionConfigController, IUpgradesConfigController upgradesConfigController)
         {
             _gameDataController = gameDataController;
             _playerProgressionConfigController = playerProgressionConfigController;
+            _upgradesConfigController = upgradesConfigController;
         }
         
         protected override void OnMediatorInitialize()
@@ -29,7 +32,7 @@ namespace UI.Screens.Loading
         {
             base.OnMediatorEnable();
             
-            View.UpdateInfo(_gameDataController.Data.CarData);
+            View.UpdateInfo(_gameDataController.Data.CarData, _upgradesConfigController.GetUpgradesData);
             var stats = _gameDataController.Data.Stats;
             View.UpdateStats(stats.Kills, Progress.Statistics.KillsRecord,
                 stats.Damage, Progress.Statistics.DamageRecord,

@@ -6,7 +6,7 @@ namespace Kits.Components
     {
         public int CarID;
         public int PlatformID;
-        public int KitID;
+        public int KitIndex;
         public int KitLevel;
     }
 }

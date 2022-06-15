@@ -1,6 +1,7 @@
 using Packages.Common.Storage.Config;
 using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.EnemySpawner;
+using Packages.Common.Storage.Config.Upgrades;
 using Zenject;
 
 namespace Packages.Common.Storage
@@ -13,6 +14,7 @@ namespace Packages.Common.Storage
             Container.BindInterfacesTo<CarsConfigController>().AsSingle();
             Container.BindInterfacesTo<SoundConfigController>().AsSingle();
             Container.BindInterfacesTo<PlayerProgressionConfigController>().AsSingle();
+            Container.BindInterfacesTo<UpgradesConfigController>().AsSingle();
         }
     }
 }

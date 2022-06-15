@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using FromScrap.Tools;
 using MenuNavigation;
+using Packages.Common.Storage.Config.Upgrades;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -65,9 +66,9 @@ namespace UI.Screens.Loading
             OnMainMenuAction?.Invoke();
         }
 
-        public void UpdateInfo(CurrentCarInfoData carInfo)
+        public void UpdateInfo(CurrentCarInfoData carInfo, UpgradesConfigData upgradesConfigData)
         {
-            _upgradesInfo.UpdateInfo(carInfo);
+            _upgradesInfo.UpdateInfo(carInfo, upgradesConfigData);
         }
 
         public void UpdateStats(int currentKills, int recordKills,

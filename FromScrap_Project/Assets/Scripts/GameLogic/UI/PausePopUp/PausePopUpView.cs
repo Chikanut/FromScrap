@@ -1,5 +1,6 @@
 ﻿using System;
 using MenuNavigation;
+using Packages.Common.Storage.Config.Upgrades;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,9 +29,9 @@ namespace UI.PopUps.Pause
             _restart.onClick.AddListener(OnExitGame);
         }
         
-        public void UpdateInfo(CurrentCarInfoData carInfo)
+        public void UpdateInfo(CurrentCarInfoData carInfo, UpgradesConfigData upgradesConfigData)
         {
-            _upgradesPanel.UpdateInfo(carInfo);
+            _upgradesPanel.UpdateInfo(carInfo, upgradesConfigData);
             _characteristicsPanel.UpdateCharacteristics(carInfo.carData.BaseCharacteristics,
                 carInfo.CurrentCharacteristics);
             CarViewCamera.Instance.ShowCar(carInfo.carEntity);

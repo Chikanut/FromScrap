@@ -1,4 +1,5 @@
-﻿using ShootCommon.Views.Mediation;
+﻿using Packages.Common.Storage.Config.Upgrades;
+using ShootCommon.Views.Mediation;
 using Signals;
 using UnityEngine;
 using Zenject;
@@ -8,11 +9,13 @@ namespace UI.PopUps.Pause
     public class PausePopUpMediator : Mediator<PausePopUpView>
     {
         private IGameDataController _gameDataController;
+        private IUpgradesConfigController _upgradesConfigController;
         
         [Inject]
-        public void Init(IGameDataController gameDataController)
+        public void Init(IGameDataController gameDataController, IUpgradesConfigController upgradesConfigController)
         {
             _gameDataController = gameDataController;
+            _upgradesConfigController = upgradesConfigController;
         }
 
         protected override void OnMediatorInitialize()
@@ -27,7 +30,7 @@ namespace UI.PopUps.Pause
         protected override void OnMediatorEnable()
         {
             base.OnMediatorEnable();
-            View.UpdateInfo(_gameDataController.Data.CarData);
+            View.UpdateInfo(_gameDataController.Data.CarData, _upgradesConfigController.GetUpgradesData);
         }
 
         private void OnContinueAction()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Packages.Common.Storage.Config.Cars;
+using Packages.Common.Storage.Config.Upgrades;
 using ShootCommon.Views.Mediation;
 using Signals;
 using UniRx;
@@ -16,13 +17,15 @@ namespace UI.Screens.Loading
 
         private ICarsConfigController _carsConfigController;
         private IGameDataController _gameDataController;
+        private IUpgradesConfigController _upgradesConfigController;
         
         [Inject]
-        public void Init(ICarsConfigController carsConfigController, IGameDataController gameDataController)
+        public void Init(ICarsConfigController carsConfigController, IGameDataController gameDataController, IUpgradesConfigController upgradesConfigController)
         {
             _carsConfigController = carsConfigController;
             _gameDataController = gameDataController;
-            
+            _upgradesConfigController = upgradesConfigController;
+
             SignalService.Receive<OnExperienceChangeSignal>().Subscribe(OnExperienceGathered).AddTo(DisposeOnDestroy);
             SignalService.Receive<OnLevelUpSignal>().Subscribe(OnLevelUp).AddTo(DisposeOnDestroy);
             SignalService.Receive<GameTimeChanged>().Subscribe(OnTimeChanged).AddTo(DisposeOnDestroy);
@@ -46,7 +49,7 @@ namespace UI.Screens.Loading
         
         private void OnUpgradesChanged(UpgradesChanged obj)
         {
-            View.UpdateInfo(obj.CarData);
+            View.UpdateInfo(obj.CarData, _upgradesConfigController.GetUpgradesData);
         }
         
         protected override void OnMediatorInitialize()
@@ -62,7 +65,7 @@ namespace UI.Screens.Loading
             _currentLevel = 0;
             base.OnMediatorEnable();
             View.SetCurrentLevel(_currentLevel);
-            View.UpdateInfo(_gameDataController.Data.CarData);
+            View.UpdateInfo(_gameDataController.Data.CarData, _upgradesConfigController.GetUpgradesData);
         }
 
         private void PauseAction()

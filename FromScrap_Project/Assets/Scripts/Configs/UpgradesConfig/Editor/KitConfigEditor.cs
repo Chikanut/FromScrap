@@ -131,7 +131,8 @@ public class KitConfigEditor : Editor
         UpdateKitsPrefabsInfo();
         
         serializedObject.Update();
-        
+
+        _data.FindPropertyRelative("ID").stringValue = EditorGUILayout.TextField("ID", _data.FindPropertyRelative("ID").stringValue);
         _data.FindPropertyRelative("NameLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("NameLocKey").stringValue, "Name Localization Key");
         _data.FindPropertyRelative("DescriptionLocKey").stringValue = EditorExtensions.GetLocalizationTermFieldLayout(_data.FindPropertyRelative("DescriptionLocKey").stringValue, "Description Localization Key");
         

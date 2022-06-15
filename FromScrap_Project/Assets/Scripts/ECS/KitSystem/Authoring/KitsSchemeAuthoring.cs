@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cars.View.Components;
 using Kits.Components;
 using Packages.Common.Storage.Config.Cars;
+using Packages.Common.Storage.Config.Upgrades;
 using Unity.Entities;
 using UnityEngine;
 using Zenject;
@@ -15,7 +16,7 @@ namespace Kits.Authoring
         {
             public GameObject KitPlatform;
             public List<KitType> ConnectionTypes;
-            public int[] DefaultKits;
+            public string[] DefaultKits;
             public bool CanOccupy;
         }
         
@@ -23,11 +24,13 @@ namespace Kits.Authoring
 
 
         private ICarsConfigController _carsConfigController;
+        private IUpgradesConfigController _upgradesConfigController;
         
         [Inject]
-        public void Init(ICarsConfigController carsConfigController)
+        public void Init(ICarsConfigController carsConfigController, IUpgradesConfigController upgradesConfigController)
         {
             _carsConfigController = carsConfigController;
+            _upgradesConfigController = upgradesConfigController;
         }
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -58,11 +61,16 @@ namespace Kits.Authoring
 
                 for (int i = 0; i < data.DefaultKits.Length; i++)
                 {
+                    var kitIndex = _upgradesConfigController.GetUpgradesData.GetKitIndex(data.DefaultKits[i]);
+                    
+                    if(kitIndex == -1)
+                        continue;
+                    
                     addKitBuffer.Add(new KitAddBuffer()
                     {
                         PlatformID = j,
                         CarID = id,
-                        KitID = data.DefaultKits[i],
+                        KitIndex = kitIndex,
                         KitLevel = 0 //add kit level settings
                     });
                 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Kits.Components;
+using Packages.Common.Storage.Config.Upgrades;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,10 +14,10 @@ public class UpgradesInfoPanelSeparated : UpgradesInfoPanelBase
     [SerializeField] private List<LayoutGroup> _layoutGroups = new List<LayoutGroup>();
     [SerializeField] private List<ContentSizeFitter> _sizeFitters = new List<ContentSizeFitter>();
     
-    public override void UpdateInfo(CurrentCarInfoData carInfo)
+    public override void UpdateInfo(CurrentCarInfoData carInfo, UpgradesConfigData upgradesConfigData)
     {
         _separator.SetActive(false);
-        base.UpdateInfo(carInfo);
+        base.UpdateInfo(carInfo, upgradesConfigData);
     }
 
     public override void Visualise(List<UpgradeInfo> info)

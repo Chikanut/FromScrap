@@ -24,6 +24,8 @@ namespace Packages.Common.Storage.Config.Upgrades
     [Serializable]
     public class KitInfoData
     {
+        public string ID;
+        
         [Header("Info")]
         public string NameLocKey;
         public string DescriptionLocKey;

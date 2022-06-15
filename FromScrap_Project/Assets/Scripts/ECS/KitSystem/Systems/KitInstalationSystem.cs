@@ -73,7 +73,7 @@ namespace Kits.Systems
                             for (int i = 0; i < kpkb[intalationTarget.TargetEntity].Length; i++)
                             {
                                 if (GetComponent<KitIDComponent>(kpkb[intalationTarget.TargetEntity][i].ConnectedKit)
-                                        .ID != kitID.ID) continue;
+                                        .Index != kitID.Index) continue;
                                 
                                 ecb.DestroyEntity(kpkb[intalationTarget.TargetEntity][i].ConnectedKit);
                                 kpkb[intalationTarget.TargetEntity].RemoveAt(i);

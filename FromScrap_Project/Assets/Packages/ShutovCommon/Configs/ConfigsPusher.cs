@@ -1,6 +1,7 @@
 using Packages.Common.Storage.Config;
 using Packages.Common.Storage.Config.Cars;
 using Packages.Common.Storage.Config.EnemySpawner;
+using Packages.Common.Storage.Config.Upgrades;
 using ShootCommon.Signals;
 using Signals;
 using UniRx;
@@ -13,12 +14,14 @@ public class ConfigsPusher : MonoBehaviour
     [SerializeField] private CarsConfigScriptable _carsConfig;
     [SerializeField] private SoundsConfig _soundsConfig;
     [SerializeField] private PlayerProgressionConfigScriptable _playerProgressionConfig;
+    [SerializeField] private UpgradesConfigScriptable _upgradesConfig;
     
     private ISignalService _signalService;
     private IEnemySpawnerConfigController _enemySpawnerConfigController;
     private ICarsConfigController _carsConfigController;
     private ISoundConfigController _soundConfigController;
     private IPlayerProgressionConfigController _playerProgressionConfigController;
+    private IUpgradesConfigController _upgradesConfigController;
 
     private CompositeDisposable _disposeOnExit = new CompositeDisposable();
 
@@ -28,7 +31,8 @@ public class ConfigsPusher : MonoBehaviour
         IEnemySpawnerConfigController enemySpawnerConfigController,
         ICarsConfigController carsConfigController,
         ISoundConfigController soundConfigController,
-        IPlayerProgressionConfigController playerProgressionConfig
+        IPlayerProgressionConfigController playerProgressionConfig,
+        IUpgradesConfigController upgradesConfigController
     )
     {
         _signalService = signalService;
@@ -36,6 +40,7 @@ public class ConfigsPusher : MonoBehaviour
         _carsConfigController = carsConfigController;
         _soundConfigController = soundConfigController;
         _playerProgressionConfigController = playerProgressionConfig;
+        _upgradesConfigController = upgradesConfigController;
 
         signalService.Receive<LoadGameInfoSignal>().Subscribe(ParsConfig).AddTo(_disposeOnExit);
     }
@@ -51,6 +56,7 @@ public class ConfigsPusher : MonoBehaviour
         ParsUpgradesConfig();
         ParseSoundsConfig();
         ParsePlayerProgressionConfig();
+        ParseUpgradesConfig();
 
         _signalService.Publish(new GameInfoUpdatedSignal());
     }
@@ -77,5 +83,11 @@ public class ConfigsPusher : MonoBehaviour
     {
         if(_playerProgressionConfigController == null) return;
         _playerProgressionConfigController.SetInfo(_playerProgressionConfig);
+    }
+
+    private void ParseUpgradesConfig()
+    {
+        if(_upgradesConfigController == null) return;
+        _upgradesConfigController.SetInfo(_upgradesConfig);
     }
 }
