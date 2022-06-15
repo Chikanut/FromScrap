@@ -7,9 +7,8 @@ using StatisticsSystem.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
+using VertexFragment;
 using WeaponsSystem.Base.Components;
-using Random = Unity.Mathematics.Random;
 
 namespace WeaponsSystem.Base.Systems
 {
@@ -161,7 +160,7 @@ namespace WeaponsSystem.Base.Systems
                 var direction = math.mul(quaternion.AxisAngle(muzzleData.ShotsAngleAxis, angle),
                     muzzleData.Direction);
                 var dir = math.normalize(direction.ToWorld(localToWorld) - localToWorld.Position);
-                var forward = AddSprayToDir(dir, muzzleData.ShootSpray, random + j);
+                var forward = MathUtils.AddSprayToDir(dir, muzzleData.ShootSpray, random + j);
 
                 writerProjectileEvent.Write(new SpawnProjectileEvent()
                 {
@@ -172,20 +171,7 @@ namespace WeaponsSystem.Base.Systems
                 });
             }
         }
-
-        private static Vector3 AddSprayToDir(float3 dir, float spray, int r)
-        {
-            var random = Random.CreateFromIndex((uint) r);
-            var randomDir = random.NextFloat3Direction();
-
-            randomDir = new float3(
-                math.clamp(math.sign(randomDir.x) * (math.abs(randomDir.x) - math.abs(dir.x)), -1, 1),
-                math.clamp(math.sign(randomDir.y) * (math.abs(randomDir.y) - math.abs(dir.y)), -1, 1),
-                math.clamp(math.sign(randomDir.z) * (math.abs(randomDir.z) - math.abs(dir.z)), -1, 1));
-
-            return math.normalize(dir + randomDir * (spray / 90));
-        }
-
+        
         private static void MuzzlesAnimation(DynamicBuffer<MuzzlesBuffer> muzzlesBuffer, WeaponData weaponData,
             EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex,
             ComponentDataFromEntity<BlendShapeAnimationComponent> animationComponentFilter)

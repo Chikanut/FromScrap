@@ -37,16 +37,7 @@ namespace UI.Screens.Upgrades
 		{
 			int cardsCount = 3;
 
-			var kitsList = GetAllFreeSuitableKits(false);
-			kitsList.AddRange(GetAllUpgradeSuitableKits());
-
-			if (kitsList.Count < cardsCount)
-			{
-				kitsList.AddRange(GetAllFreeSuitableKits(true));
-			}
-
-			var rng = new System.Random();
-			kitsList = kitsList.OrderBy(a => rng.Next()).ToList();
+			var kitsList = UpgradesSelectClass.GetSuitableKits(cardsCount, _upgradesConfigController, _data);
 
 			cardsCount = Mathf.Clamp(cardsCount, 0, kitsList.Count);
 
@@ -76,7 +67,7 @@ namespace UI.Screens.Upgrades
 			}
 		}
 
-		private void ApplyUpgrade(InstallKitInfo info)
+		private void ApplyUpgrade(UpgradesSelectClass.InstallKitInfo info)
 		{
 			var addKitBuffer = _entityManager.GetBuffer<KitAddBuffer>(_data.carEntity);
 			
@@ -91,7 +82,11 @@ namespace UI.Screens.Upgrades
 			View.HideCards();
 			View.Complete();
 		}
+	}
 
+	//You can use this static class to select some count of kits from config
+	public static class UpgradesSelectClass
+	{
 		public class InstallKitInfo
 		{
 			public int PlatformID;
@@ -100,15 +95,34 @@ namespace UI.Screens.Upgrades
 			public KitInfoData KitInfo;
 		}
 
-		List<InstallKitInfo> GetAllFreeSuitableKits(bool withDefault)
+		public static List<InstallKitInfo> GetSuitableKits(int kitsCount,
+			IUpgradesConfigController upgradesConfigController, CurrentCarInfoData data)
+		{
+			List<InstallKitInfo> kitsList = GetAllFreeSuitableKits(false, upgradesConfigController, data);
+			kitsList.AddRange(GetAllUpgradeSuitableKits(upgradesConfigController, data));
+
+			if (kitsList.Count < kitsCount)
+			{
+				kitsList.AddRange(GetAllFreeSuitableKits(true, upgradesConfigController, data));
+			}
+
+			var rng = new System.Random();
+			kitsList = kitsList.OrderBy(a => rng.Next()).ToList();
+
+			return kitsList;
+		}
+
+		public static List<InstallKitInfo> GetAllFreeSuitableKits(bool withDefault,
+			IUpgradesConfigController upgradesConfigController, CurrentCarInfoData data)
 		{
 			var suitableKits = new List<InstallKitInfo>();
-			
-			foreach (var platform in _data.platformInfos)
+
+			foreach (var platform in data.platformInfos)
 			{
 				if (!platform.isFree) continue;
 
 				var freeConnectors = platform.Connections;
+				
 				if (platform.canOccupy)
 				{
 					for (var i = 0; i < platform.ConnectedKits.Count; i++)
@@ -118,38 +132,43 @@ namespace UI.Screens.Upgrades
 					}
 				}
 
-				if(freeConnectors.Count == 0) continue;
+				if (freeConnectors.Count == 0) continue;
 
-				for (var i = 0; i < _upgradesConfigController.GetUpgradesData.Kits.Count; i++)
+				for (var i = 0; i < upgradesConfigController.GetUpgradesData.Kits.Count; i++)
 				{
-					if(_upgradesConfigController.GetUpgradesData.Kits[i].Data.isDefault && !withDefault) continue;
+					if (upgradesConfigController.GetUpgradesData.Kits[i].Data.isDefault && !withDefault) continue;
 					
-					if (freeConnectors.Contains(_upgradesConfigController.GetUpgradesData.Kits[i].Data.Type) && platform.ConnectedKitsIndexes.All(k => k.Index != i))
+					if(data.platformInfos.Any(p=>p.ConnectedKitsIndexes.Any(k => k.Index == i))) continue;
+
+					if (freeConnectors.Contains(upgradesConfigController.GetUpgradesData.Kits[i].Data.Type) &&
+					    platform.ConnectedKitsIndexes.All(k => k.Index != i))
 					{
 						suitableKits.Add(new InstallKitInfo()
 						{
 							PlatformID = platform.ID,
 							KitIndex = i,
 							Level = 0,
-							KitInfo = _upgradesConfigController.GetUpgradesData.Kits[i].Data
+							KitInfo = upgradesConfigController.GetUpgradesData.Kits[i].Data
 						});
 					}
 				}
-				
+
 			}
 
 			return suitableKits;
 		}
-		
-		List<InstallKitInfo> GetAllUpgradeSuitableKits()
+
+		public static List<InstallKitInfo> GetAllUpgradeSuitableKits(IUpgradesConfigController upgradesConfigController,
+			CurrentCarInfoData data)
 		{
 			var suitableKits = new List<InstallKitInfo>();
-			
-			foreach (var platform in _data.platformInfos)
+
+			foreach (var platform in data.platformInfos)
 			{
 				for (var i = 0; i < platform.ConnectedKits.Count; i++)
 				{
-					var kitInfo = _upgradesConfigController.GetUpgradesData.Kits[platform.ConnectedKitsIndexes[i].Index].Data;
+					var kitInfo = upgradesConfigController.GetUpgradesData.Kits[platform.ConnectedKitsIndexes[i].Index]
+						.Data;
 					if (kitInfo.KitObjects.Count > platform.ConnectedKits[i].KitLevel + 1)
 						suitableKits.Add(new InstallKitInfo()
 						{

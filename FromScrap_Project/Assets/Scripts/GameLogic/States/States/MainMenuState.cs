@@ -45,7 +45,6 @@ namespace GameLogic.States.States
         void OnStartGame()
         {
             ECS_Logic_Extentions.ClearScene(() => { Fire(StateMachineTriggers.LoadGameScene); });
-
         }
 
         protected override void OnExit()

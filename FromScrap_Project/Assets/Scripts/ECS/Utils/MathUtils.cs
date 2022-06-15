@@ -1,5 +1,6 @@
 ﻿using Unity.Mathematics;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace VertexFragment
 {
@@ -18,6 +19,19 @@ namespace VertexFragment
         public static bool FloatEquals(float a, float b, float epsilon = 0.000001f)
         {
             return Mathf.Abs(a - b) <= epsilon;
+        }
+        
+        public static float3 AddSprayToDir(float3 dir, float spray, int r)
+        {
+            var random = Random.CreateFromIndex((uint) r);
+            var randomDir = random.NextFloat3Direction();
+
+            randomDir = new float3(
+                math.clamp(math.sign(randomDir.x) * (math.abs(randomDir.x) - math.abs(dir.x)), -1, 1),
+                math.clamp(math.sign(randomDir.y) * (math.abs(randomDir.y) - math.abs(dir.y)), -1, 1),
+                math.clamp(math.sign(randomDir.z) * (math.abs(randomDir.z) - math.abs(dir.z)), -1, 1));
+
+            return math.normalize(dir + randomDir * (spray / 90));
         }
 
         /// <summary>
