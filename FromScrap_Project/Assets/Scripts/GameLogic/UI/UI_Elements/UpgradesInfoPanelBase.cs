@@ -92,7 +92,7 @@ public class UpgradesInfoPanelBase : MonoBehaviour
         {
             icon.Init(info.KitInfo.Icon);
             icon.SetState(UpgradeIconView.UpgradeIconState.active);
-            icon.ShowUpgrades(info.Level, false);
+            icon.ShowUpgrades(info.Level, info.KitInfo.KitObjects.Count, false);
         }else
         {
             icon.SetState(UpgradeIconView.UpgradeIconState.disabled);

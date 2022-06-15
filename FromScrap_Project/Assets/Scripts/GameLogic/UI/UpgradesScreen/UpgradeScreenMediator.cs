@@ -55,7 +55,8 @@ namespace UI.Screens.Upgrades
 					Descriptions = kitData.KitObjects[kitInfo.Level].Descriptions,
 					Icon = kitData.Icon,
 					Type = kitInfo.Level == 0 ? UpgradeCardType._new : UpgradeCardType._upgrade,
-					UpgradeLevel = kitInfo.Level
+					UpgradeLevel = kitInfo.Level,
+					UpgradeMaxLevel = kitData.KitObjects.Count
 				};
 
 				View.ShowCard(cardInfo,()=>

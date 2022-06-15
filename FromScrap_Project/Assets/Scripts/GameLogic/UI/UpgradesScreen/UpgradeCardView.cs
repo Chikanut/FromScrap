@@ -24,6 +24,7 @@ namespace UI.Screens.Upgrades
         public List<KitComponentData.Description> Descriptions;
         public Sprite Icon;
         public UpgradeCardType Type;
+        public int UpgradeMaxLevel;
         public int UpgradeLevel;
     }
 
@@ -59,7 +60,7 @@ namespace UI.Screens.Upgrades
 
             _icon.Reset();
             _icon.Init(data.Icon, data.NameKey);
-            _icon.ShowUpgrades(data.UpgradeLevel, true);
+            _icon.ShowUpgrades(data.UpgradeLevel,data.UpgradeMaxLevel, true);
 
             var descriptionText ="";
             

@@ -26,7 +26,7 @@ public class UpgradesLevelPanel : MonoBehaviour
         upgradeIcon.Reset();
         
         upgradeIcon.Init(upgrade.Icon, "", onPress);
-        upgradeIcon.ShowUpgrades(currentLevel, true);
+        upgradeIcon.ShowUpgrades(currentLevel,upgrade.UpgradesLevels.Count, true);
         upgradeIcon.EnableButton(true);
 
         if(isMaxed)
@@ -37,8 +37,6 @@ public class UpgradesLevelPanel : MonoBehaviour
                 ? UpgradeIconView.UpgradeIconState.active
                 : UpgradeIconView.UpgradeIconState.disabled);
         }
-
-        upgradeIcon.SetMaxLevel(upgrade.UpgradesLevels.Count + 1);
     }
     
     public void ClearAll()

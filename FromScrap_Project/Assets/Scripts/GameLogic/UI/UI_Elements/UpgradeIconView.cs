@@ -106,10 +106,11 @@ public class UpgradeIconView : MonoBehaviour
         }
     }
 
-    public void ShowUpgrades(int currentLevel, bool showMax)
+    public void ShowUpgrades(int currentLevel, int maxLevel, bool showMax)
     {
         _upgradesHolder.SetActive(true);
         
+        SetMaxLevel(maxLevel);
         _maxLabel.SetActive(currentLevel >= _upgradeLevels.Count-1 && showMax);
 
         for (int i = 0; i <  _upgradeLevels.Count ; i++)
