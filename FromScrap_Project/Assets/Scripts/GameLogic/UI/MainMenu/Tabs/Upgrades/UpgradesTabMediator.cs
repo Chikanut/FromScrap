@@ -30,7 +30,7 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
     
     private void OnTabSelected()
     {
-        Progress.Upgrades.PreviousLevel = Progress.Player.Level;
+        Progress.PlayerUpgrades.PreviousLevel = Progress.Player.Level;
         
         SignalService.Publish(new OnMainMenuChangeViewAction()
         {
@@ -51,14 +51,19 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
             var upgrade =
                 _playerProgressionConfigController.GetPlayerProgressionData.Upgrades.GetUpgradeData(
                     _upgradeCoordinates.x, _upgradeCoordinates.y);
-            var progress = Progress.Upgrades.GetUpgrade(_upgradeCoordinates.x, _upgradeCoordinates.y);
+            var progress = Progress.PlayerUpgrades.GetUpgrade(_upgradeCoordinates.x, _upgradeCoordinates.y);
             if (progress.Level < upgrade.UpgradesLevels.Count)
             {
                 var getPrice = upgrade.UpgradesLevels[progress.Level].Cost;
                 if (Progress.Player.Scrap >= getPrice)
                 {
                     Progress.Player.Scrap -= getPrice;
-                    Progress.Upgrades.SetUpgrade(_upgradeCoordinates.x, _upgradeCoordinates.y, progress.Level + 1);
+
+                    foreach (var item in upgrade.UpgradesLevels[progress.Level].AddItems)
+                        Progress.Backpack.AddItem(item.ItemID, item.ItemsCount);
+
+                    Progress.PlayerUpgrades.SetUpgrade(_upgradeCoordinates.x, _upgradeCoordinates.y, progress.Level + 1);
+           
                     InitView();
                     OnUpgradePressed(_upgradeCoordinates.x, _upgradeCoordinates.y);
                     
@@ -80,7 +85,7 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
         _hasSelectedUpgrade = true;
         
         var upgrade = _playerProgressionConfigController.GetPlayerProgressionData.Upgrades.GetUpgradeData(collectionID, upgradeID);
-        var progress = Progress.Upgrades.GetUpgrade(collectionID, upgradeID);
+        var progress = Progress.PlayerUpgrades.GetUpgrade(collectionID, upgradeID);
 
         if (progress.Level >= upgrade.UpgradesLevels.Count)
         {
@@ -113,10 +118,10 @@ public class UpgradesTabMediator : Mediator<UpgradesTab>
 
     public bool CheckIfNew()
     {
-        if (Progress.Player.Level > Progress.Upgrades.PreviousLevel &&
+        if (Progress.Player.Level > Progress.PlayerUpgrades.PreviousLevel &&
             _playerProgressionConfigController.GetPlayerProgressionData.Upgrades.UpgradesCollections.Any(collection =>
                 collection.Upgrades.Any(upgradeLevel =>
-                    upgradeLevel.MinLevel > Progress.Upgrades.PreviousLevel &&
+                    upgradeLevel.MinLevel > Progress.PlayerUpgrades.PreviousLevel &&
                     upgradeLevel.MinLevel <= Progress.Player.Level)))
         {
             return true;

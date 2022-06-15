@@ -11,6 +11,13 @@ namespace Packages.Common.Storage.Config
         public class UpgradeLevelData
         {
             public GameObject Authoring;
+            [Serializable]
+            public class ItemInfo
+            {
+                public string ItemID;
+                public int ItemsCount;
+            }
+            public List<ItemInfo> AddItems = new List<ItemInfo>();
             public int Cost;
             
             [Serializable]

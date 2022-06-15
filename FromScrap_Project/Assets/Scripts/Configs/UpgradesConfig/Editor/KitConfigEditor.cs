@@ -19,6 +19,12 @@ public class KitConfigEditor : Editor
         _kitsList = new ReorderableList(serializedObject, _data.FindPropertyRelative("KitObjects"), true, true, true, true);
         _kitsList.drawElementCallback = DrawElementCallback;
         _kitsList.elementHeightCallback = ElementHeightCallback;
+        _kitsList.drawHeaderCallback = DrawHeaderCallback;
+    }
+
+    private void DrawHeaderCallback(Rect rect)
+    {
+        EditorGUI.LabelField(rect, "Kit upgrades list");
     }
 
     private float ElementHeightCallback(int index)
@@ -142,6 +148,9 @@ public class KitConfigEditor : Editor
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("Type"));
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("IsStacked"));
         EditorGUILayout.PropertyField(_data.FindPropertyRelative("isDefault"));
+        EditorGUILayout.PropertyField(_data.FindPropertyRelative("Opened"));
+        
+        EditorGUILayout.Separator();
         
         _kitsList.DoLayoutList();
         

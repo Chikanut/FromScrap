@@ -40,9 +40,9 @@ namespace UpgradesSystem.Systems
 
             Entities.ForEach((Entity entity, in ApplyUpgradesComponent applyUpgradesComponent) =>
             {
-                for (int i = 0; i < Progress.Upgrades.Upgrades.Count; i++)
+                for (int i = 0; i < Progress.PlayerUpgrades.Upgrades.Count; i++)
                 {
-                    var upgradeInfo = Progress.Upgrades.Upgrades[i];
+                    var upgradeInfo = Progress.PlayerUpgrades.Upgrades[i];
                     if (upgradeInfo.Level == 0)
                         continue;
 
