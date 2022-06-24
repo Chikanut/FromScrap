@@ -1,3 +1,4 @@
+using GameLogic.GameResourcesLogic;
 using MenuNavigation;
 using Packages.Common.StateMachineGlobal;
 using Packages.Common.Storage;
@@ -16,7 +17,9 @@ namespace Common
             SignalsInstaller.Install(Container);
             
             GlobalStateMachineInstaller.Install(Container);
+            
             StorageInstaller.Install(Container);
+            GameResourcesManagerInstaller.Install(Container);
             
             SoundInstaller.Install(Container);
             MenuNavigationInstaller.Install(Container);

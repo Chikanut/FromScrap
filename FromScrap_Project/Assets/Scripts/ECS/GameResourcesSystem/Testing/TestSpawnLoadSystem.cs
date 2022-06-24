@@ -18,6 +18,7 @@ namespace ECS.LevelSpawnerSystem
 
         protected override void OnUpdate()
         {
+            /*
             var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
             var terrainGeneratorEntity = Entity.Null;
 
@@ -42,6 +43,7 @@ namespace ECS.LevelSpawnerSystem
             }).ScheduleParallel(Dependency);
 
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+            */
         }
     }
 }

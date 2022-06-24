@@ -14,7 +14,7 @@ namespace GameLogic.States.States
         
         protected override void Configure()
         {
-            Permit<InitGameState>(StateMachineTriggers.InitGame);
+            Permit<LoadGameResourcesState>(StateMachineTriggers.LoadGameResources);
         }
         
         protected override void OnEntry(StateMachine<IState, StateMachineTriggers>.Transition transition = null)
@@ -51,7 +51,7 @@ namespace GameLogic.States.States
         
         void OnStartGame()
         {
-            Fire(StateMachineTriggers.InitGame);
+            Fire(StateMachineTriggers.LoadGameResources);
         }
     }
 }
