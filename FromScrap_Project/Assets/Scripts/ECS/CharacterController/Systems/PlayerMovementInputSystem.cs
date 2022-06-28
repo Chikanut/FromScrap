@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -54,7 +55,9 @@ public partial class PlayerMovementInputSystem : SystemBase
         {
             var targetSteer = 0f;
             var targetThrottle = 0f;
-
+            
+           // inputEventPtr.Next().GetFirstButtonPressOrNull().
+            
             switch (inputDevice)
             {
                 case Keyboard keyboard:

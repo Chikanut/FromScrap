@@ -27,7 +27,7 @@ public class EntityPoolManager : MonoBehaviour
 
     public int _entitiesLibraryIndexes;
 
-    private NativeHashMap<FixedString32Bytes, Entity> _entitiesLibrary = new NativeHashMap<FixedString32Bytes, Entity>(0, Allocator.Persistent);
+    private NativeParallelHashMap<FixedString32Bytes, Entity> _entitiesLibrary = new NativeParallelHashMap<FixedString32Bytes, Entity>(0, Allocator.Persistent);
 
     private bool _inited;
     

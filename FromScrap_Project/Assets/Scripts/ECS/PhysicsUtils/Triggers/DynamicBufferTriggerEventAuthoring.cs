@@ -170,7 +170,7 @@ namespace Unity.Physics.Stateful
         }
 
         protected static void AddTriggerEventsToDynamicBuffers(NativeList<StatefulTriggerEvent> triggerEventList,
-            ref BufferFromEntity<StatefulTriggerEvent> bufferFromEntity, NativeHashMap<Entity, byte> entitiesWithTriggerBuffers)
+            ref BufferFromEntity<StatefulTriggerEvent> bufferFromEntity, NativeParallelHashMap<Entity, byte> entitiesWithTriggerBuffers)
         {
             for (int i = 0; i < triggerEventList.Length; i++)
             {
@@ -279,7 +279,7 @@ namespace Unity.Physics.Stateful
 
             // Using HashMap since HashSet doesn't exist
             // Setting value type to byte to minimize memory waste
-            NativeHashMap<Entity, byte> entitiesWithBuffersMap = new NativeHashMap<Entity, byte>(0, Allocator.TempJob);
+            NativeParallelHashMap<Entity, byte> entitiesWithBuffersMap = new NativeParallelHashMap<Entity, byte>(0, Allocator.TempJob);
 
             var collectTriggerBuffersHandle = Entities
                 .WithName("CollectTriggerBufferJob")

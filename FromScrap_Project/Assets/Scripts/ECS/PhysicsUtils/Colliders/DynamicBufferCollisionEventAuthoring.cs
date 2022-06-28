@@ -273,7 +273,7 @@ namespace Unity.Physics.Stateful
         }
 
         protected static void AddCollisionEventsToDynamicBuffers(NativeList<StatefulCollisionEvent> collisionEventList,
-            ref BufferFromEntity<StatefulCollisionEvent> bufferFromEntity, NativeHashMap<Entity, byte> entitiesWithCollisionEventBuffers)
+            ref BufferFromEntity<StatefulCollisionEvent> bufferFromEntity, NativeParallelHashMap<Entity, byte> entitiesWithCollisionEventBuffers)
         {
             for (int i = 0; i < collisionEventList.Length; i++)
             {
@@ -318,7 +318,7 @@ namespace Unity.Physics.Stateful
 
             // Using HashMap since HashSet doesn't exist
             // Setting value type to byte to minimize memory waste
-            NativeHashMap<Entity, byte> entitiesWithBuffersMap = new NativeHashMap<Entity, byte>(0, Allocator.TempJob);
+            NativeParallelHashMap<Entity, byte> entitiesWithBuffersMap = new NativeParallelHashMap<Entity, byte>(0, Allocator.TempJob);
 
             Entities
                 .WithName("CollectCollisionBufferJob")
@@ -363,7 +363,7 @@ namespace Unity.Physics.Stateful
             public ComponentDataFromEntity<CollisionEventBuffer> PhysicsCollisionEventBufferTags;
             
             [ReadOnly] public BufferFromEntity<PhysicsColliderKeyEntityPair> ColliderPairs;
-            [ReadOnly] public NativeHashMap<Entity, byte> EntitiesWithBuffersMap;
+            [ReadOnly] public NativeParallelHashMap<Entity, byte> EntitiesWithBuffersMap;
             [ReadOnly] public PhysicsWorld PhysicsWorld;
 
             public void Execute(CollisionEvent collisionEvent)

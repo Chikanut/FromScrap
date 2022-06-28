@@ -45,7 +45,7 @@ namespace BovineLabs.Event.Systems
             /// <returns> The dependency handle. </returns>
             public JobHandle EnsureHashMapCapacity<TKey, TValue>(
                 JobHandle handle,
-                NativeHashMap<TKey, TValue> hashMap)
+                NativeParallelHashMap<TKey, TValue> hashMap)
                 where TKey : struct, IEquatable<TKey>
                 where TValue : struct
             {
@@ -82,7 +82,7 @@ namespace BovineLabs.Event.Systems
             /// <returns> The dependency handle. </returns>
             public JobHandle EnsureHashMapCapacity<TKey, TValue>(
                 JobHandle handle,
-                NativeMultiHashMap<TKey, TValue> hashMap)
+                NativeParallelMultiHashMap<TKey, TValue> hashMap)
                 where TKey : struct, IEquatable<TKey>
                 where TValue : struct
             {
@@ -190,7 +190,7 @@ namespace BovineLabs.Event.Systems
                 [ReadOnly]
                 public NativeArray<int> Counter;
 
-                public NativeHashMap<TKey, TValue> HashMap;
+                public NativeParallelHashMap<TKey, TValue> HashMap;
 
                 public void Execute()
                 {
@@ -218,7 +218,7 @@ namespace BovineLabs.Event.Systems
                 [ReadOnly]
                 public NativeArray<int> Counter;
 
-                public NativeMultiHashMap<TKey, TValue> HashMap;
+                public NativeParallelMultiHashMap<TKey, TValue> HashMap;
 
                 public void Execute()
                 {
