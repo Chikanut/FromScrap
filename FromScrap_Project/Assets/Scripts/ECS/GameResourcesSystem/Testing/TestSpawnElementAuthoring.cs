@@ -1,3 +1,4 @@
+using ECS.GameResourcesSystem.Components;
 using Unity.Entities;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace ECS.LevelSpawnerSystem
     {
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new TestSpawnElementId() {});
+            dstManager.AddComponentData(entity, new GameResourcesLoadEntityId() {});
         }
     }
 }

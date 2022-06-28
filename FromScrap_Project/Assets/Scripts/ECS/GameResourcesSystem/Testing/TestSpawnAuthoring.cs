@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ECS.GameResourcesSystem.Components;
 using Unity.Entities;
 using Unity.Entities.Hybrid.Internal;
 using UnityEngine;
@@ -21,15 +22,16 @@ namespace ECS.LevelSpawnerSystem
             {
                 return;
             }
-            
+            /*
             var testSpawnEntity = conversionSystem.GetPrimaryEntity(TestSpawnPrefab);
-            dstManager.AddComponentData(entity, new TestSpawnComponent()
+            dstManager.AddComponentData(entity, new GameResourcesSpawnComponent()
             {
                 SpawnEntity = testSpawnEntity,
                 EntityCount = EntityCount,
                 EnableSpawn = false,
                 EnableLoad = false
             });
+            */
         }
 
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

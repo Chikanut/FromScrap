@@ -1,3 +1,5 @@
+using Configs.Gameplay.Controllers;
+using GameLogic.GameResourcesLogic.Controllers;
 using Zenject;
 
 namespace Packages.Common.StateMachineGlobal
@@ -9,6 +11,8 @@ namespace Packages.Common.StateMachineGlobal
             Container.BindInterfacesTo<EnemiesSpawnerSystem>().AsSingle();
             Container.BindInterfacesTo<GameDataController>().AsSingle();
             Container.BindInterfacesTo<GameManagerSystem>().AsSingle();
+            Container.BindInterfacesTo<GameplayLevelsConfigController>().AsSingle();
+            Container.BindInterfacesTo<GameResourcesSpawnerController>().AsSingle();
         }
     }
 }

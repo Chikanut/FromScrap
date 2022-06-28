@@ -1,4 +1,4 @@
-using Configs.GameResourcesManagerConfig.BaseResources;
+using Configs.GameResourcesManagerConfig.Configs;
 using Serializable.ResourcesManager;
 
 namespace Configs.GameResourcesManagerConfig.Controllers

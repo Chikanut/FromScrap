@@ -1,4 +1,6 @@
-using Configs.GameResourcesManagerConfig.BaseResources;
+using Configs.Gameplay.Configs;
+using Configs.Gameplay.Controllers;
+using Configs.GameResourcesManagerConfig.Configs;
 using Configs.GameResourcesManagerConfig.Controllers;
 using Packages.Common.Storage.Config;
 using Packages.Common.Storage.Config.Cars;
@@ -8,6 +10,7 @@ using ShootCommon.Signals;
 using Signals;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 public class ConfigsPusher : MonoBehaviour
@@ -18,6 +21,7 @@ public class ConfigsPusher : MonoBehaviour
     [SerializeField] private PlayerProgressionConfigScriptable _playerProgressionConfig;
     [SerializeField] private UpgradesConfigScriptable _upgradesConfig;
     [SerializeField] private BaseResourcesManagerConfig _baseResourcesManagerConfig;
+    [SerializeField] private GameplayLevelsConfig _gameplayLevelsConfig;
     
     private ISignalService _signalService;
     private IEnemySpawnerConfigController _enemySpawnerConfigController;
@@ -26,6 +30,7 @@ public class ConfigsPusher : MonoBehaviour
     private IPlayerProgressionConfigController _playerProgressionConfigController;
     private IUpgradesConfigController _upgradesConfigController;
     private IGameResourcesManagerConfigController _gameResourcesManagerConfigController;
+    private IGameplayLevelsConfigController _gameplayLevelsConfigController;
 
     private CompositeDisposable _disposeOnExit = new CompositeDisposable();
 
@@ -37,6 +42,7 @@ public class ConfigsPusher : MonoBehaviour
         ISoundConfigController soundConfigController,
         IPlayerProgressionConfigController playerProgressionConfig,
         IUpgradesConfigController upgradesConfigController,
+        IGameplayLevelsConfigController gameplayLevelsConfigController,
         IGameResourcesManagerConfigController gameResourcesManagerConfigController
     )
     {
@@ -46,6 +52,7 @@ public class ConfigsPusher : MonoBehaviour
         _soundConfigController = soundConfigController;
         _playerProgressionConfigController = playerProgressionConfig;
         _upgradesConfigController = upgradesConfigController;
+        _gameplayLevelsConfigController = gameplayLevelsConfigController;
         _gameResourcesManagerConfigController = gameResourcesManagerConfigController;
 
         signalService.Receive<LoadGameInfoSignal>().Subscribe(ParsConfig).AddTo(_disposeOnExit);
@@ -64,6 +71,7 @@ public class ConfigsPusher : MonoBehaviour
         ParsePlayerProgressionConfig();
         ParseUpgradesConfig();
         ParseGameResourcesConfig();
+        ParseGameplayLevelsConfig();
 
         _signalService.Publish(new GameInfoUpdatedSignal());
     }
@@ -107,5 +115,16 @@ public class ConfigsPusher : MonoBehaviour
             return;
         
         _gameResourcesManagerConfigController.SetInfo(_baseResourcesManagerConfig);
+    }
+    
+    private void ParseGameplayLevelsConfig()
+    {
+        if(_gameplayLevelsConfigController == null)
+            return;
+        
+        if(_gameplayLevelsConfig == null)
+            return;
+        
+        _gameplayLevelsConfigController.SetInfo(_gameplayLevelsConfig);
     }
 }

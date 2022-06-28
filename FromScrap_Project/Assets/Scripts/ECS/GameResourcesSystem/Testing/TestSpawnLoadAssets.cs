@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ECS.GameResourcesSystem.Components;
 using ECS.LevelSpawnerSystem;
 using Unity.Entities;
 using UnityEngine;
@@ -30,9 +31,9 @@ public class TestSpawnLoadAssets : MonoBehaviour
           
             Entity entity = entityManager.CreateEntity();
 
-            entityManager.AddComponentData ( entity, new TestSpawnElementId { } );
+            entityManager.AddComponentData ( entity, new GameResourcesLoadEntityId { } );
             
-            entityManager.SetComponentData(entity, new TestSpawnElementId(){TargetEntity = MyEntity});
+            entityManager.SetComponentData(entity, new GameResourcesLoadEntityId(){TargetEntity = MyEntity});
           
         };
     }
