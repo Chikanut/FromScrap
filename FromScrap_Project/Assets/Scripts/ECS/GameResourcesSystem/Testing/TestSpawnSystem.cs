@@ -1,3 +1,4 @@
+using ECS.GameResourcesSystem.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -18,12 +19,13 @@ namespace ECS.LevelSpawnerSystem
 
         protected override void OnUpdate()
         {
+            /*
             var ecbs = _entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
             
             Dependency = Entities.ForEach((
                 Entity entity,
                 int entityInQueryIndex,
-                ref TestSpawnComponent testSpawnComponent,
+                ref GameResourcesSpawnComponent testSpawnComponent,
                 ref TestSpawnLoadComponent testSpawnLoadComponent
             ) =>
             {
@@ -32,18 +34,20 @@ namespace ECS.LevelSpawnerSystem
             }).ScheduleParallel(Dependency);
             
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+            */
         }
         
+        /*
         private static void SpawnTest(
-            ref TestSpawnComponent testSpawnComponent,
+            ref GameResourcesSpawnComponent gameResourcesSpawnComponent,
             ref TestSpawnLoadComponent testSpawnLoadComponent,
             EntityCommandBuffer.ParallelWriter ecbs,
             int entityInQueryIndex
         )
         {
-            testSpawnComponent.EnableSpawn = false;
+            gameResourcesSpawnComponent.EnableSpawn = false;
             
-            for (var i = 0; i < testSpawnComponent.EntityCount; i++)
+            for (var i = 0; i < gameResourcesSpawnComponent.EntityCount; i++)
             {
                 var tileEntity = ecbs.Instantiate(entityInQueryIndex, testSpawnLoadComponent.SpawnEntity);
 
@@ -53,5 +57,6 @@ namespace ECS.LevelSpawnerSystem
                 });
             }
         }
+        */
     }
 }

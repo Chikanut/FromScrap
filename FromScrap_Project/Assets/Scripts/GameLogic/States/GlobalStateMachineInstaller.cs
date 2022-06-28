@@ -15,6 +15,7 @@ namespace Packages.Common.StateMachineGlobal
             Container.BindState<MainMenuState>();
             Container.BindState<LoadGameSceneState>();
             Container.BindState<LoadGameResourcesState>();
+            Container.BindState<SpawnGameResourcesState>();
             Container.BindState<InitGameState>();
             Container.BindState<GameplayState>();
             Container.BindState<PauseGameState>();

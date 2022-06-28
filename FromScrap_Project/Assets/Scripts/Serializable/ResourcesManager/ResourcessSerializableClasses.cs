@@ -30,6 +30,12 @@ namespace Serializable.ResourcesManager
       BigRock,
       SmallRock
    }
+   
+   [Serializable]
+   public enum GameResourcesEntityTypeId
+   {
+      DynamicTerrain
+   }
 
    [Serializable]
    public class GameResourcesManagerConfigData
@@ -37,5 +43,17 @@ namespace Serializable.ResourcesManager
       public AssetReference UIPrefabAsset;
       public AssetReference CoreGameplayAsset;
       public AssetReference LevelAsset;
+   }
+
+   [Serializable]
+   public class GameLevels
+   {
+      public List<CommonGameLevelsComponent> CommonGameLevelsComponents;
+   }
+   
+   [Serializable]
+   public enum CommonGameLevelsComponent
+   {
+      DynamicTerrain
    }
 }

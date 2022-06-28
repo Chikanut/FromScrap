@@ -1,6 +1,7 @@
+using ECS.SignalSystems.Systems;
 using GameLogic.GameResourcesLogic;
+using GameLogic.GameResourcesLogic.Controllers;
 using ShootCommon.GlobalStateMachine;
-using Signals;
 using Stateless;
 using Zenject;
 
@@ -12,7 +13,7 @@ namespace GameLogic.States.States
         
         protected override void Configure()
         {
-            Permit<InitGameState>(StateMachineTriggers.InitGame);
+            Permit<SpawnGameResourcesState>(StateMachineTriggers.SpawnGameResources);
         }
         
         [Inject]
@@ -30,10 +31,12 @@ namespace GameLogic.States.States
 
         private void SubscribeToSignals()
         {
-            SubscribeToSignal<AllResourcesReadySignal>((signal) =>
-            {
-                Fire(StateMachineTriggers.InitGame);
-            });
+            SubscribeToSignal<OnGameResourcesLoadedSignal>(OnGameResourcesLoaded);
+        }
+        
+        void OnGameResourcesLoaded(OnGameResourcesLoadedSignal signal)
+        {
+            Fire(StateMachineTriggers.SpawnGameResources);
         }
     }
 }

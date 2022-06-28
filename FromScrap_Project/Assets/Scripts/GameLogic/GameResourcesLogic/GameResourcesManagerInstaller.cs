@@ -1,4 +1,7 @@
 using Configs.GameResourcesManagerConfig.Controllers;
+using GameLogic.GameResourcesLogic.Controllers;
+using GameLogic.GameResourcesLogic.GameResourcesSceneController;
+using ShootCommon.Views.Mediation;
 using Zenject;
 
 namespace GameLogic.GameResourcesLogic
@@ -9,6 +12,7 @@ namespace GameLogic.GameResourcesLogic
         {
             Container.BindInterfacesTo<GameResourcesManagerConfigController>().AsSingle();
             Container.BindInterfacesTo<GameResourcesLoaderController>().AsSingle();
+            Container.BindViewToMediator<GameResourcesSceneView, GameResourcesSceneMediator>();
         }
     }
 }

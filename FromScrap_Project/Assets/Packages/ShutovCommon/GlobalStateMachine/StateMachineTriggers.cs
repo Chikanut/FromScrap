@@ -12,6 +12,7 @@ namespace ShootCommon.GlobalStateMachine
         //GameStates
         LoadGameScene,
         LoadGameResources,
+        SpawnGameResources,
         InitGame,
         StartGame,
         Game,
