@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -11,16 +10,77 @@ public class JointModuleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float Range;
     public float Speed;
 
+    public Rigidbody Target;
+
+    public bool CreateJoint;
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        var data = new JointModuleInitializeComponent
+        if (CreateJoint)
         {
-            Axis = Axis,
-            Range = Range,
-            Speed = Speed,
-            Target = entity
-        };
-        dstManager.AddComponentData(entity, data);
+            var joint = new PhysicsJoint()
+            {
+                BodyBFromJoint = new BodyFrame(new RigidTransform(Quaternion.Euler(Axis*180), transform.position - Target.position)),
+                BodyAFromJoint = new BodyFrame(new RigidTransform(Quaternion.Euler(Axis*180), float3.zero)),
+                JointType = JointType.Fixed
+            };
+            
+            joint.SetConstraints(new FixedList128Bytes<Constraint>()
+            {
+                new Constraint(){
+                    Min = 0,
+                    Max = 0,
+                    ConstrainedAxes = new bool3(true,true,true),
+                    SpringDamping = 2530.126f,
+                    SpringFrequency = 74341.31f,
+                    Type = ConstraintType.Linear
+                },
+                new Constraint(){
+                    Min = 0,
+                    Max = 0,
+                    ConstrainedAxes = new bool3(true,true,true),
+                    SpringDamping = 2530.126f,
+                    SpringFrequency = 74341.31f,
+                    Type = ConstraintType.Angular
+                }
+            });
+
+            var constrainedBody =
+                new PhysicsConstrainedBodyPair(entity, conversionSystem.GetPrimaryEntity(Target.gameObject), true);
+            
+            var jointEntity = dstManager.CreateEntity();
+            dstManager.SetName(jointEntity, "Test joint");
+
+            dstManager.AddComponentData(jointEntity, joint);
+            dstManager.AddComponentData(jointEntity, constrainedBody);
+            dstManager.AddSharedComponentData(jointEntity, new PhysicsWorldIndex());
+
+            dstManager.AddComponentData(jointEntity, new JointModuleComponent()
+            {
+                Axis = Axis,
+                Range = Range,
+                Speed = Speed,
+                BaseAxis = joint.BodyBFromJoint.Axis
+            });
+        }
+        else
+        {
+            var data = new JointModuleInitializeComponent
+            {
+                Axis = Axis,
+                Range = Range,
+                Speed = Speed,
+                Target = entity
+            };
+            dstManager.AddComponentData(entity, data);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawLine(transform.position, transform.position + Axis);
     }
 }
 
