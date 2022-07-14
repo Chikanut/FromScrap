@@ -45,7 +45,6 @@ namespace GameLogic.GameResourcesLogic.Controllers
             //--> Load core gameplay assets
 
             var coreGameplayAsset = _gameResourcesManagerConfigController.GetGameResourcesData.CoreGameplayAsset;
-            coreGameplayAsset.ReleaseAsset();
             var coreGameplayAssetHandle = coreGameplayAsset.LoadAssetAsync<CoreGameplayAssetsConfig>();
             
             coreGameplayAssetHandle.Completed += coreGameplayAssetOperationHandle =>
@@ -70,8 +69,12 @@ namespace GameLogic.GameResourcesLogic.Controllers
                                 TargetEntity = dynamicTerrainEntity,
                                 TypeId = GameResourcesEntityTypeId.DynamicTerrain
                             });
+                            
+                            dynamicTerrainAsset.ReleaseAsset();
                         }
                     };
+                    
+                    coreGameplayAsset.ReleaseAsset();
                 }
             };
         }

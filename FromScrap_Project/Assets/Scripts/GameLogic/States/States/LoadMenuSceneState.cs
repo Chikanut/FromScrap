@@ -48,6 +48,7 @@ namespace GameLogic.States.States
         
         void OnStartGame()
         {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             Fire(StateMachineTriggers.MainMenu);
         }
     }

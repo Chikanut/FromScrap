@@ -3,6 +3,7 @@ using MenuNavigation;
 using ShootCommon.GlobalStateMachine;
 using Stateless;
 using UI.Screens.Loading;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
 
@@ -44,13 +45,12 @@ namespace GameLogic.States.States
         private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
             if (arg0.name == GameScene)
-            {
                 OnStartGame();
-            }
         }
         
         void OnStartGame()
         {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             Fire(StateMachineTriggers.LoadGameResources);
         }
     }

@@ -6,6 +6,5 @@ namespace ECS.GameResourcesSystem.Components
     {
         public Entity DynamicTerrainEntity;
         public bool IsLoaded;
-        public bool IsSpawned;
     }
 }

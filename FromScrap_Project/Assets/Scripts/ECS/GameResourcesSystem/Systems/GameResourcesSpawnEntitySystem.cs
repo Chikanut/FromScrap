@@ -34,7 +34,7 @@ namespace ECS.GameResourcesSystem.Systems
                 spawnerEntity = entity;
                 spawnEntityTypeId = entityTypeId.TypeId;
             }).Run();
-            
+           
             Dependency = Entities.ForEach((
                 Entity entity,
                 int entityInQueryIndex,
@@ -44,15 +44,11 @@ namespace ECS.GameResourcesSystem.Systems
                 if(!spawnComponent.IsLoaded)
                     return;
                 
-                if(spawnComponent.IsSpawned)
-                    return;
-                
                 if(spawnerEntity == Entity.Null)
                     return;
 
                 if (spawnEntityTypeId == GameResourcesEntityTypeId.DynamicTerrain)
                 {
-                    spawnComponent.IsSpawned = true;
                     ecbs.Instantiate(entityInQueryIndex, spawnComponent.DynamicTerrainEntity);
                     ecbs.DestroyEntity(entityInQueryIndex, spawnerEntity);
                     spawnResourcesCompleteEventWriter.Write(new OnGameResourcesSpawnedSignal());
